@@ -1,0 +1,50 @@
+.bloque-mis-partidos-lista {
+    background: #0d1012;
+}
+
+.lista-mis-partidos {
+    gap: 16px;
+}
+
+.acciones-partido-lista {
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.acciones-partido-lista button {
+    margin-top: 0;
+}
+
+.estado-vacio-mis-partidos {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    padding: 34px 24px;
+}
+
+.estado-vacio-mis-partidos button {
+    min-height: 42px;
+    border: 0;
+    border-radius: 8px;
+    padding: 0 18px;
+    background: var(--drafty-neon);
+    color: #050607;
+    font-weight: 1000;
+    cursor: pointer;
+    box-shadow: var(--drafty-glow);
+}
+
+.estado-vacio-mis-partidos button:hover {
+    filter: brightness(1.08);
+}
+
+@media (max-width: 900px) {
+    .acciones-partido-lista {
+        width: 100%;
+        justify-content: center;
+    }
+}

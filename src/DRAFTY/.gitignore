@@ -22,3 +22,13 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+frontend/node_modules/
+frontend/dist/
+.chrome-debug/
+drafty.sql
+src/DRAFTY/.env
+src/DRAFTY/storage/logs/
+src/DRAFTY/bootstrap/cache/*.php
+src/DRAFTY/vendor/
+src/vendor/
+storage/logs/

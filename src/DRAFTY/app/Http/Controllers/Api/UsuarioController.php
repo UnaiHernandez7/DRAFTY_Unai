@@ -1,0 +1,261 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Amistad;
+use App\Models\Estadistica;
+use App\Models\RegistroPendiente;
+use App\Models\Usuario;
+use App\Models\VotoMvp;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
+
+class UsuarioController extends Controller
+{
+    public function index()
+    {
+        return response()->json(Usuario::all());
+    }
+
+    public function buscar(Request $request)
+    {
+        $datos = $request->validate([
+            'query' => 'required|string|min:1|max:60'
+        ]);
+
+        $usuarioId = $request->user()->id_usuario;
+        $query = trim($datos['query']);
+        $columnaEmisor = Schema::hasColumn('amistades', 'id_usuario_emisor') ? 'id_usuario_emisor' : 'id_usuario';
+        $columnaReceptor = Schema::hasColumn('amistades', 'id_usuario_receptor') ? 'id_usuario_receptor' : 'id_amigo';
+
+        $usuariosBloqueados = Amistad::whereIn('estado', ['pendiente', 'aceptada', 'aceptado'])
+            ->where(function ($consulta) use ($usuarioId, $columnaEmisor, $columnaReceptor) {
+                $consulta->where($columnaEmisor, $usuarioId)
+                    ->orWhere($columnaReceptor, $usuarioId);
+            })
+            ->get()
+            ->map(function ($amistad) use ($usuarioId, $columnaEmisor, $columnaReceptor) {
+                return (int) $amistad->{$columnaEmisor} === (int) $usuarioId
+                    ? $amistad->{$columnaReceptor}
+                    : $amistad->{$columnaEmisor};
+            })
+            ->values();
+
+        $usuarios = Usuario::query()
+            ->select('id_usuario', 'nombre_usuario', 'nombre', 'apellido', 'foto_perfil', 'ciudad')
+            ->where('id_usuario', '!=', $usuarioId)
+            ->whereNotIn('id_usuario', $usuariosBloqueados)
+            ->where(function ($consulta) use ($query) {
+                $consulta->where('nombre_usuario', 'like', "%{$query}%")
+                    ->orWhere('nombre', 'like', "%{$query}%");
+            })
+            ->orderBy('nombre_usuario')
+            ->limit(8)
+            ->get();
+
+        return response()->json($usuarios);
+    }
+
+    public function comprobarNombreUsuario(Request $request)
+    {
+        $datos = $request->validate([
+            'nombre_usuario' => 'required|string|max:60'
+        ]);
+
+        $nombreUsuario = trim($datos['nombre_usuario']);
+        $usuario = $request->user();
+        $enUso = Usuario::where('nombre_usuario', $nombreUsuario)
+            ->when($usuario, fn ($query) => $query->where('id_usuario', '!=', $usuario->id_usuario))
+            ->exists();
+        $pendiente = RegistroPendiente::where('nombre_usuario', $nombreUsuario)
+            ->where('codigo_expira_en', '>', now())
+            ->exists();
+        $noDisponible = $enUso || $pendiente;
+
+        return response()->json([
+            'disponible' => !$noDisponible,
+            'mensaje' => $noDisponible
+                ? 'Ese nombre de usuario ya est? en uso.'
+                : 'Nombre de usuario disponible.'
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $datos = $request->validate([
+            'nombre_usuario' => 'required|string|max:60|unique:usuarios,nombre_usuario',
+            'nombre' => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
+            'email' => 'required|email|max:150|unique:usuarios,email',
+            'contrasena' => 'required|string|min:6',
+            'ciudad' => 'nullable|string|max:100',
+            'posiciones_favoritas' => 'nullable|string|max:255',
+            'rol' => 'required|in:usuario,admin'
+        ], [
+            'nombre_usuario.unique' => 'Ese nombre de usuario ya est? en uso.',
+            'email.unique' => 'Ese email ya est? en uso.'
+        ]);
+
+        $datos['contrasena'] = Hash::make($datos['contrasena']);
+        $datos['fecha_registro'] = now()->toDateString();
+
+        $usuario = Usuario::create($datos);
+
+        return response()->json($usuario, 201);
+    }
+
+    public function show($id)
+    {
+        $usuario = Usuario::with(['competitivo', 'estadisticas'])->findOrFail($id);
+        $estadisticas = $usuario->estadisticas ?: new Estadistica([
+            'id_usuario' => $usuario->id_usuario,
+            'partidos_jugados' => 0,
+            'partidos_ganados' => 0,
+            'partidos_perdidos' => 0,
+            'goles' => 0,
+            'asistencias' => 0,
+            'porterias_cero' => 0,
+            'tarjetas_amarillas' => 0,
+            'tarjetas_rojas' => 0
+        ]);
+
+        $estadisticas->mvps = $this->contarMvpsUsuario($usuario->id_usuario);
+        $usuario->setRelation('estadisticas', $estadisticas);
+
+        return response()->json($usuario);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $usuario = Usuario::findOrFail($id);
+        $datos = $request->validate([
+            'nombre_usuario' => [
+                'required',
+                'string',
+                'max:60',
+                Rule::unique('usuarios', 'nombre_usuario')->ignore($usuario->id_usuario, 'id_usuario')
+            ],
+            'nombre' => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
+            'email' => [
+                'required',
+                'email',
+                'max:150',
+                Rule::unique('usuarios', 'email')->ignore($usuario->id_usuario, 'id_usuario')
+            ],
+            'contrasena' => 'nullable|string|min:6',
+            'ciudad' => 'nullable|string|max:100',
+            'posiciones_favoritas' => 'nullable|string|max:255',
+            'rol' => 'required|in:usuario,admin'
+        ], [
+            'nombre_usuario.unique' => 'Ese nombre de usuario ya est? en uso.',
+            'email.unique' => 'Ese email ya est? en uso.'
+        ]);
+
+        if (!empty($datos['contrasena'])) {
+            $datos['contrasena'] = Hash::make($datos['contrasena']);
+        } else {
+            unset($datos['contrasena']);
+        }
+
+        $usuario->update($datos);
+
+        return response()->json($usuario);
+    }
+
+    public function actualizarPerfil(Request $request)
+    {
+        $usuario = $request->user();
+
+        $datos = $request->validate([
+            'nombre_usuario' => [
+                'required',
+                'string',
+                'max:60',
+                Rule::unique('usuarios', 'nombre_usuario')->ignore($usuario->id_usuario, 'id_usuario')
+            ],
+            'nombre' => 'required|string|max:100',
+            'apellido' => 'required|string|max:100',
+            'ciudad' => 'nullable|string|max:100',
+            'posiciones_favoritas' => 'nullable|string|max:255'
+        ], [
+            'nombre_usuario.unique' => 'Ese nombre de usuario ya est? en uso.'
+        ]);
+
+        $usuario->update($datos);
+
+        return response()->json($usuario);
+    }
+
+    public function amigos(Request $request)
+    {
+        $amigos = $request->user()
+            ->belongsToMany(Usuario::class, 'amistades', 'id_usuario', 'id_amigo')
+            ->get();
+
+        return response()->json($amigos);
+    }
+
+    public function agregarAmigo(Request $request)
+    {
+        $request->validate([
+            'nombre_usuario' => 'required|string'
+        ]);
+
+        $usuario = $request->user();
+        $amigo = Usuario::where('nombre_usuario', $request->nombre_usuario)->first();
+
+        if (!$amigo || $amigo->id_usuario === $usuario->id_usuario) {
+            return response()->json(['mensaje' => 'Usuario no válido'], 422);
+        }
+
+        $usuario->belongsToMany(Usuario::class, 'amistades', 'id_usuario', 'id_amigo')
+            ->syncWithoutDetaching([
+                $amigo->id_usuario => [
+                    'estado' => 'aceptado',
+                    'fecha_creacion' => now()
+                ]
+            ]);
+
+        return response()->json(['mensaje' => 'Amigo agregado correctamente']);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        if ((int) $request->user()->id_usuario === (int) $id) {
+            return response()->json(['mensaje' => 'No puedes eliminar tu propio usuario administrador'], 422);
+        }
+
+        Usuario::findOrFail($id)->delete();
+        return response()->json(['mensaje' => 'Usuario eliminado']);
+    }
+
+    private function contarMvpsUsuario(int $idUsuario): int
+    {
+        $votosPorPartido = VotoMvp::query()
+            ->join('partidos', 'partidos.id_partido', '=', 'votos_mvp.id_partido')
+            ->whereNotNull('partidos.fecha')
+            ->whereNotNull('partidos.hora')
+            ->where(function ($query) {
+                $query->whereRaw("LOWER(TRIM(COALESCE(partidos.estado, ''))) != ?", ['cancelado'])
+                    ->orWhereNull('partidos.estado');
+            })
+            ->whereRaw('DATE_ADD(TIMESTAMP(partidos.fecha, partidos.hora), INTERVAL 24 HOUR) < ?', [now()])
+            ->selectRaw('votos_mvp.id_partido, votos_mvp.id_usuario_votado, SUM(votos_mvp.peso_voto) as puntos')
+            ->groupBy('votos_mvp.id_partido', 'votos_mvp.id_usuario_votado')
+            ->get()
+            ->groupBy('id_partido');
+
+        return $votosPorPartido->filter(function ($rankingPartido) use ($idUsuario) {
+            $maxPuntos = $rankingPartido->max('puntos');
+
+            return $rankingPartido->contains(function ($fila) use ($idUsuario, $maxPuntos) {
+                return (int) $fila->id_usuario_votado === (int) $idUsuario
+                    && (int) $fila->puntos === (int) $maxPuntos;
+            });
+        })->count();
+    }
+}

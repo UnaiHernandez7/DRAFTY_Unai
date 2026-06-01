@@ -1,0 +1,27 @@
+.auth-page-registro {
+  grid-template-columns: minmax(0, 0.9fr) minmax(520px, 680px);
+}
+
+.auth-card-registro {
+  max-width: 680px;
+}
+
+.auth-form-registro {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-form-registro .auth-field-full,
+.auth-form-registro .auth-error,
+.auth-form-registro button {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 860px) {
+  .auth-page-registro {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-form-registro {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,450 @@
+.estado-competitivo-card,
+.tabla-rangos-card,
+.rankings-competitivos-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-top: 24px;
+    padding: 24px;
+    border: 1px solid rgba(190, 255, 72, 0.18);
+    border-radius: 8px;
+    background: #0d1416;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.26);
+}
+
+.bloques-rankings-competitivos {
+    display: grid;
+    gap: 24px;
+}
+
+.bloques-rankings-competitivos h3 {
+    margin: 0 0 12px;
+    color: #ffffff;
+}
+
+.grid-rankings-competitivos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.ranking-competitivo-card {
+    display: grid;
+    overflow: hidden;
+    align-content: start;
+    gap: 10px;
+    min-height: 250px;
+    padding: 16px;
+    border: 1px solid rgba(190, 255, 72, 0.14);
+    border-radius: 8px;
+    background: #101719;
+}
+
+.ranking-competitivo-card h4 {
+    margin: 0;
+    color: #beff48;
+}
+
+.fila-ranking-competitivo {
+    display: grid;
+    overflow: hidden;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background: #0d1416;
+}
+
+.fila-ranking-propia {
+    margin-top: 6px;
+    border: 1px solid rgba(190, 255, 72, 0.34);
+    background: rgba(190, 255, 72, 0.08);
+}
+
+.fila-ranking-competitivo > span {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: rgba(190, 255, 72, 0.14);
+    color: #beff48;
+    font-weight: 900;
+}
+
+.fila-ranking-competitivo strong {
+    display: block;
+    color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fila-ranking-competitivo small {
+    color: #9aa5a1;
+}
+
+.fila-ranking-competitivo em {
+    color: #dfe8e4;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.estado-competitivo-card {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+    gap: 22px;
+    align-items: stretch;
+}
+
+.estado-competitivo-principal {
+    display: grid;
+    overflow: hidden;
+    align-content: center;
+    gap: 10px;
+    padding: 22px;
+    border: 1px solid rgba(190, 255, 72, 0.2);
+    border-radius: 8px;
+    background: #151c1e;
+}
+
+.estado-competitivo-principal h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+}
+
+.estado-competitivo-principal p {
+    margin: 0;
+    color: #cbd5d1;
+}
+
+.estado-activo,
+.estado-inactivo {
+    width: fit-content;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.estado-activo {
+    background: rgba(190, 255, 72, 0.16);
+    color: #beff48;
+}
+
+.estado-inactivo {
+    background: rgba(255, 105, 105, 0.14);
+    color: #ffd9d9;
+}
+
+.estado-competitivo-metricas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.estado-competitivo-metricas div {
+    display: grid;
+    overflow: hidden;
+    gap: 6px;
+    min-height: 78px;
+    padding: 14px;
+    border-radius: 8px;
+    background: #101719;
+}
+
+.estado-competitivo-metricas span {
+    color: #9aa5a1;
+    font-size: 0.78rem;
+}
+
+.estado-competitivo-metricas strong {
+    color: #ffffff;
+    font-size: 1.15rem;
+}
+
+.cabecera-tabla-rangos {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.cabecera-tabla-rangos h2 {
+    margin: 0;
+    color: #ffffff;
+}
+
+.cabecera-tabla-rangos p {
+    margin: 5px 0 0;
+    color: #9aa5a1;
+}
+
+.tabla-rangos-competitivos {
+    display: grid;
+    gap: 10px;
+}
+
+.fila-rango {
+    display: grid;
+    overflow: hidden;
+    grid-template-columns: minmax(160px, 1.2fr) minmax(120px, 0.8fr) minmax(150px, 0.9fr) minmax(190px, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    background: #101719;
+    color: #dfe8e4;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.fila-rango:hover {
+    transform: translateY(-1px);
+    border-color: rgba(190, 255, 72, 0.24);
+    background: #121b1d;
+}
+
+.fila-rango-cabecera {
+    background: rgba(190, 255, 72, 0.1);
+    color: #beff48;
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.fila-rango-actual {
+    border-color: rgba(190, 255, 72, 0.8);
+    background: #172016;
+    box-shadow: 0 0 8px rgba(198, 255, 0, 0.25);
+}
+
+.fila-rango-proximo {
+    border-color: rgba(190, 255, 72, 0.34);
+    background: rgba(190, 255, 72, 0.07);
+}
+
+.rango-nombre {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.rango-nombre strong {
+    color: #ffffff;
+}
+
+.marcador-rango {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: rgba(190, 255, 72, 0.14);
+    color: #beff48;
+    font-weight: 900;
+}
+
+.estado-rango {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.estado-rango small {
+    color: #cbd5d1;
+}
+
+.etiqueta-rango {
+    width: fit-content;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #dfe8e4;
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+.etiqueta-rango-actual,
+.etiqueta-rango-proximo {
+    background: rgba(190, 255, 72, 0.16);
+    color: #beff48;
+}
+
+.etiqueta-rango-superado {
+    background: rgba(21, 245, 186, 0.12);
+    color: #8ef8d8;
+}
+
+.etiqueta-rango-bloqueado {
+    color: #9aa5a1;
+}
+
+@media (max-width: 860px) {
+    .estado-competitivo-card {
+        grid-template-columns: 1fr;
+    }
+
+    .estado-competitivo-metricas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-rankings-competitivos {
+        grid-template-columns: 1fr;
+    }
+
+    .fila-rango,
+    .fila-rango-cabecera {
+        grid-template-columns: 1fr;
+    }
+
+    .fila-rango-cabecera {
+        display: none;
+    }
+
+    .fila-rango > span,
+    .fila-rango .estado-rango {
+        display: grid;
+        grid-template-columns: 130px minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+    }
+
+    .fila-rango > span::before,
+    .fila-rango .estado-rango::before {
+        content: attr(data-label);
+        color: #9aa5a1;
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .rango-nombre {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 560px) {
+    .estado-competitivo-card,
+    .tabla-rangos-card {
+        padding: 18px;
+    }
+
+    .estado-competitivo-metricas {
+        grid-template-columns: 1fr;
+    }
+
+    .fila-rango > span,
+    .fila-rango .estado-rango {
+        grid-template-columns: 1fr;
+    }
+}
+
+.estado-competitivo-card,
+.tabla-rangos-card,
+.rankings-competitivos-card {
+    background: #0d1416;
+}
+
+.ranking-competitivo-card,
+.fila-rango {
+    background: #101719;
+}
+
+.buscador-competitivo {
+    display: grid;
+    gap: 16px;
+}
+
+.filtro-competitivo-card {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid rgba(190, 255, 72, 0.16);
+    border-radius: 8px;
+    background: #101719;
+}
+
+.filtro-competitivo-card > span {
+    color: #beff48;
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.filtro-competitivo-card input {
+    width: min(260px, 100%);
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    background: #0d1416;
+    color: #ffffff;
+    padding: 11px 12px;
+}
+
+.hora-competitiva-selector {
+    display: grid;
+    gap: 7px;
+    color: #dfe8e4;
+    font-weight: 800;
+}
+
+.hora-competitiva-selector small {
+    color: #9aa5a1;
+    font-weight: 600;
+}
+
+.pills-competitivo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pills-competitivo button,
+.boton-ver-sala-competitivo,
+.boton-cola-rapida {
+    border: 1px solid rgba(190, 255, 72, 0.24);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #dfe8e4;
+    padding: 9px 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.pills-competitivo button.activo {
+    background: #beff48;
+    color: #101214;
+}
+
+.pills-competitivo.radio button {
+    padding-inline: 14px;
+}
+
+.acciones-busqueda-competitiva {
+    margin-top: 4px;
+}
+
+.acciones-busqueda-competitiva .boton-cola-rapida,
+.boton-ver-sala-competitivo {
+    background: rgba(255, 255, 255, 0.06);
+    color: #beff48;
+}
+
+.resultados-competitivo {
+    display: grid;
+    gap: 14px;
+    margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+    .pills-competitivo button,
+    .acciones-busqueda-competitiva button {
+        flex: 1 1 auto;
+    }
+}

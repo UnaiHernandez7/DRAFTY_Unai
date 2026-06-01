@@ -1,0 +1,17 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use App\Models\Usuario;
+use App\Models\Campo;
+use App\Models\Equipo;
+use App\Models\Partido;
+
+class PartidoSeeder extends Seeder
+{
+    public function run(): void
+    {
+        Partido::factory()->count(10)->create();
+    }
+}

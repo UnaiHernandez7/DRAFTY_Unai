@@ -1,0 +1,282 @@
+.cabecera {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    min-height: 76px;
+    padding: 14px clamp(16px, 3vw, 42px);
+    color: white;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 28px;
+    box-sizing: border-box;
+    background: #050607;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    color: #d0ff00;
+    font-size: 30px;
+    font-weight: 1000;
+    text-decoration: none;
+    letter-spacing: 0;
+    text-shadow: 0 0 20px rgba(208, 255, 0, 0.25);
+}
+
+.nav {
+    display: flex;
+    gap: clamp(10px, 1.5vw, 18px);
+    flex-wrap: wrap;
+    justify-content: center;
+    justify-self: stretch;
+    width: 100%;
+}
+
+.nav a,
+.nav button,
+.link-perfil {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 9px 12px;
+    text-decoration: none;
+    font-weight: 800;
+    transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.nav a,
+.nav button {
+    color: #dfe5da;
+}
+
+.nav button {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+}
+
+.nav-link-notificacion {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.badge-amigos {
+    display: inline-grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #d0ff00;
+    color: #050607;
+    font-size: 11px;
+    font-weight: 1000;
+    line-height: 1;
+    box-shadow: 0 0 8px rgba(198, 255, 0, 0.25);
+}
+
+.nav a:hover,
+.nav button:hover,
+.link-perfil:hover {
+    background-color: rgba(208, 255, 0, 0.12);
+    color: #d0ff00;
+    transform: translateY(-1px);
+}
+
+.menu-movil-toggle,
+.nav .nav-logout-movil {
+    display: none;
+}
+
+.link-perfil {
+    color: #d0ff00;
+    border: 1px solid rgba(208, 255, 0, 0.25);
+}
+
+.login-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    justify-self: end;
+}
+
+.btn-login,
+.login-area button {
+    background-color: #d0ff00;
+    color: #050607;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-weight: 1000;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 0 8px rgba(198, 255, 0, 0.25);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.login-area .boton-logout {
+    background: rgba(80, 8, 8, 0.92);
+    color: #ffb3b3;
+    border: 1px solid rgba(255, 77, 77, 0.62);
+    box-shadow: 0 0 8px rgba(255, 77, 77, 0.18);
+}
+
+.btn-login:hover,
+.login-area button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 8px rgba(198, 255, 0, 0.25);
+}
+
+@media (max-width: 900px) {
+    .cabecera {
+        grid-template-columns: auto 44px minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+        padding: 12px 14px;
+    }
+
+    .logo {
+        justify-self: start;
+    }
+
+    .menu-movil-toggle {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        justify-self: center;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(208, 255, 0, 0.28);
+        border-radius: 8px;
+        background:
+            linear-gradient(135deg, rgba(208, 255, 0, 0.12), rgba(21, 245, 186, 0.06)),
+            #0d1112;
+        cursor: pointer;
+        box-shadow: 0 0 8px rgba(198, 255, 0, 0.12);
+    }
+
+    .menu-movil-toggle span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        border-radius: 999px;
+        background: #d0ff00;
+        transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    .menu-movil-toggle.abierto span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    .menu-movil-toggle.abierto span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .menu-movil-toggle.abierto span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+
+    .nav {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        right: auto;
+        display: none;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: min(380px, calc(100vw - 28px));
+        padding: 14px;
+        border: 1px solid rgba(208, 255, 0, 0.22);
+        border-radius: 8px;
+        background:
+            linear-gradient(135deg, rgba(208, 255, 0, 0.08), rgba(21, 245, 186, 0.04)),
+            #090d0e;
+        box-shadow: 0 22px 44px rgba(0, 0, 0, 0.42);
+    }
+
+    .nav.nav-abierta {
+        display: grid;
+        animation: menuMovilEntrada 180ms ease-out both;
+    }
+
+    .nav a,
+    .nav button {
+        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        text-align: center;
+    }
+
+    .nav .nav-logout-movil {
+        display: inline-flex;
+        justify-content: center;
+        color: #ffb3b3 !important;
+        border-color: rgba(255, 77, 77, 0.28) !important;
+        background: rgba(80, 8, 8, 0.46) !important;
+    }
+
+    .login-area {
+        grid-column: 3;
+        min-width: 0;
+        justify-self: end;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+    }
+
+    .link-perfil {
+        max-width: min(32vw, 150px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .boton-logout {
+        display: none;
+    }
+}
+
+@media (max-width: 520px) {
+    .cabecera {
+        padding: 14px 12px;
+    }
+
+    .logo {
+        font-size: 25px;
+    }
+
+    .login-area {
+        width: auto;
+    }
+
+    .nav a,
+    .nav button,
+    .btn-login,
+    .login-area button,
+    .link-perfil {
+        font-size: 14px;
+    }
+}
+
+@keyframes menuMovilEntrada {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}

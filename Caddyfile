@@ -1,5 +1,5 @@
 :80 {
-root * /var/www/html
+root * /var/www/html/DRAFTY/public
 php_fastcgi php:9000
 file_server
 }

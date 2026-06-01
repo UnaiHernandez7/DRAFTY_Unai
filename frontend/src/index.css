@@ -1,0 +1,76 @@
+:root {
+  --text: #dfe5da;
+  --text-h: #f7faf2;
+  --bg: #050607;
+  --border: rgba(255, 255, 255, 0.1);
+  --sans: Inter, ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --heading: Inter, ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 17px/145% var(--sans);
+  letter-spacing: 0;
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(208, 255, 0, 0.09), transparent 28%),
+    #050607;
+}
+
+#root {
+  width: min(100%, 1440px);
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  border-inline: 1px solid var(--border);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading);
+  font-weight: 900;
+  color: var(--text-h);
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0;
+}
+
+code {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+::selection {
+  background: rgba(208, 255, 0, 0.32);
+  color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    font-size: 16px;
+  }
+}
