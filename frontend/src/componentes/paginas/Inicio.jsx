@@ -3,6 +3,7 @@ import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import { useNavigate } from "react-router-dom";
 import PartidoLista from "./PartidoLista.jsx";
+import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Inicio.css";
 
 const obtenerCapacidad = (partidoOTipo = "") => {
@@ -259,7 +260,9 @@ const Inicio = () => {
             <section className="portada inicio-hero">
                 <div className="inicio-hero-contenido">
                     <span className="inicio-hero-kicker">Futbol organizado</span>
-                    <h1>DRAFTY</h1>
+                    <div className="inicio-hero-logo" aria-label="DRAFTY">
+                        <img src={logotipoDrafty} alt="DRAFTY" />
+                    </div>
                     <p className="inicio-hero-subtitulo">
                         La forma más fácil de encontrar, organizar y competir en partidos de fútbol.
                     </p>
@@ -293,7 +296,7 @@ const Inicio = () => {
             {error && <p className="mensaje mensaje-error">{error}</p>}
             {filtros.proximidad === "cerca" && estadoUbicacion !== "activa" && (
                 <p className="mensaje mensaje-error">
-                    Para buscar cerca de ti con precision tienes que permitir la ubicación del navegador.
+                    Para buscar cerca de ti con precisión tienes que permitir la ubicación del navegador.
                 </p>
             )}
             {cargando && <p className="estado">Cargando partidos...</p>}
@@ -304,7 +307,7 @@ const Inicio = () => {
                     <label>
                         Proximidad
                         <select value={filtros.proximidad} onChange={(e) => setFiltros({ ...filtros, proximidad: e.target.value })}>
-                            <option value="cerca">Cerca de mi</option>
+                            <option value="cerca">Cerca de mí</option>
                             <option value="desde-ciudad">Desde mi ciudad</option>
                             <option value="todos">Todos</option>
                         </select>
@@ -340,7 +343,7 @@ const Inicio = () => {
                         </select>
                     </label>
                     <label>
-                        Posicion buscada
+                        Posición buscada
                         <select value={filtros.posicion} onChange={(e) => setFiltros({ ...filtros, posicion: e.target.value })}>
                             <option value="">Todas</option>
                             <option value="Portero">Portero</option>
@@ -350,13 +353,18 @@ const Inicio = () => {
                             <option value="Suplente">Suplente</option>
                         </select>
                     </label>
-                    <label>
-                        Código privado
-                        <input value={filtros.codigo} onChange={(e) => setFiltros({ ...filtros, codigo: e.target.value })} placeholder="ABC123" />
+                    <label className="campo-codigo-privado">
+                        <span>Código privado</span>
+                        <div className="codigo-privado-control">
+                            <input
+                                value={filtros.codigo}
+                                onChange={(e) => setFiltros({ ...filtros, codigo: e.target.value })}
+                                placeholder="ABC123"
+                                aria-label="Código privado"
+                            />
+                            <button type="submit">Entrar con código</button>
+                        </div>
                     </label>
-                    <div className="acciones-admin">
-                        <button type="submit">Entrar con codigo</button>
-                    </div>
                 </form>
             </section>
 

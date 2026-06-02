@@ -58,29 +58,19 @@ class ResultadoPartidoController extends Controller
 
         $golesLocal = $partido->goles()->where('equipo_sala', 'Equipo A')->count();
         $golesVisitante = $partido->goles()->where('equipo_sala', 'Equipo B')->count();
-        $tipoRegistro = $this->esCompetitivo($partido) ? 'arbitro' : 'capitan';
-
         $resultado = ResultadoPartido::updateOrCreate(
             ['id_partido' => $partido->id_partido],
             [
                 'goles_local' => $golesLocal,
                 'goles_visitante' => $golesVisitante,
                 'registrado_por' => $request->user()->id_usuario,
-                'tipo_registro' => $tipoRegistro,
+                'tipo_registro' => 'capitan',
                 'confirmado_local' => false,
                 'confirmado_visitante' => false,
-                'estado_resultado' => $this->esCompetitivo($partido) ? 'confirmado' : 'pendiente',
+                'estado_resultado' => 'pendiente',
                 'fecha_limite_resultado' => $this->fechaLimiteResultado($partido),
             ]
         );
-
-        if ($this->esCompetitivo($partido)) {
-            $resultado->confirmado_local = true;
-            $resultado->confirmado_visitante = true;
-            $resultado->estado_resultado = 'cerrado';
-            $resultado->save();
-            $this->cerrarResultado($partido, $resultado);
-        }
 
         $partido->goles_equipo_a = $golesLocal;
         $partido->goles_equipo_b = $golesVisitante;
@@ -200,7 +190,7 @@ class ResultadoPartidoController extends Controller
 
     private function ventanaResultadoAbierta(Partido $partido): bool
     {
-        if (!$partido->fecha || !$partido->hora) {
+        if (!$partido->fecha || !$partido->hora || $partido->estado === 'cancelado') {
             return false;
         }
 
@@ -212,10 +202,6 @@ class ResultadoPartidoController extends Controller
 
     private function puedeRegistrarResultado(Request $request, Partido $partido): bool
     {
-        if ($this->esCompetitivo($partido)) {
-            return $partido->id_arbitro && (int) $partido->id_arbitro === (int) $request->user()->id_usuario;
-        }
-
         $participante = $this->participante($partido, $request->user()->id_usuario);
 
         return $participante && (bool) $participante->pivot->es_capitan;

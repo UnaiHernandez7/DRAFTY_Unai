@@ -111,10 +111,17 @@
     text-transform: uppercase;
 }
 
-.inicio-hero.portada h1 {
-    font-size: clamp(3rem, 8vw, 6.4rem);
-    line-height: 0.88;
-    text-shadow: 0 0 24px rgba(190, 255, 72, 0.18);
+.inicio-hero-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.inicio-hero-logo img {
+    display: block;
+    width: clamp(210px, 34vw, 430px);
+    height: auto;
+    filter: drop-shadow(0 0 24px rgba(190, 255, 72, 0.2));
 }
 
 .inicio-hero-subtitulo {
@@ -720,6 +727,7 @@
 .ubicacion-sala,
 .panel-admin,
 .panel-posicion,
+.panel-invitaciones-posicion,
 .chat-partido,
 .equipo-alineacion {
     position: relative;
@@ -742,6 +750,7 @@
 .panel-admin::before,
 .info-partido-sala::before,
 .ubicacion-sala::before,
+.panel-invitaciones-posicion::before,
 .equipo-alineacion::before {
     content: "";
     position: absolute;
@@ -880,12 +889,130 @@ button:hover:not(:disabled),
     box-shadow: none;
 }
 
+.acciones-admin button.boton-secundario {
+    background: rgba(255, 255, 255, 0.06);
+    color: #dfe5da;
+    border: 1px solid rgba(190, 255, 72, 0.24);
+    box-shadow: none;
+}
+
+.acciones-admin button.boton-secundario:hover:not(:disabled) {
+    color: #beff48;
+    background: rgba(190, 255, 72, 0.11);
+    box-shadow: 0 0 8px rgba(190, 255, 72, 0.12);
+}
+
 .acciones-admin button.boton-peligro,
 .cabecera-sala button,
 .goleador-item button {
     background-color: var(--drafty-danger);
     color: white;
     box-shadow: 0 0 8px rgba(255, 77, 77, 0.18);
+}
+
+.panel-invitaciones-posicion {
+    position: relative;
+    display: grid;
+    gap: 18px;
+    margin-bottom: 20px;
+    padding: 24px;
+    border: 1px solid var(--drafty-line);
+    border-radius: 8px;
+    background: #0f1214;
+    box-shadow: none;
+}
+
+.titulo-invitaciones-posicion {
+    color: var(--drafty-neon) !important;
+}
+
+.selector-invitacion-posicion {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.selector-invitacion-posicion label {
+    color: #dce3d8;
+    font-weight: 800;
+}
+
+.selector-invitacion-posicion select {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 7px;
+    padding: 12px 13px;
+    border: 1px solid var(--drafty-line);
+    border-radius: 8px;
+    background: rgba(7, 9, 10, 0.92);
+    color: var(--drafty-text);
+    outline: none;
+}
+
+.selector-invitacion-posicion select:focus {
+    border-color: var(--drafty-neon);
+    box-shadow: 0 0 0 3px rgba(208, 255, 0, 0.1);
+}
+
+.selector-invitacion-posicion button,
+.candidato-posicion-card button {
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 18px;
+    background: var(--drafty-neon);
+    color: #050607;
+    font-weight: 1000;
+    cursor: pointer;
+    box-shadow: var(--drafty-glow);
+}
+
+.selector-invitacion-posicion button:disabled,
+.candidato-posicion-card button:disabled {
+    background: #4b4f4e;
+    color: #c8ccc6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.lista-candidatos-posicion {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 12px;
+}
+
+.candidato-posicion-card {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--drafty-line);
+    border-radius: 8px;
+    background: #121719;
+}
+
+.datos-candidato-posicion {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+
+.datos-candidato-posicion strong {
+    color: #ffffff;
+}
+
+.datos-candidato-posicion span,
+.datos-candidato-posicion small {
+    color: var(--drafty-muted);
+}
+
+.datos-candidato-posicion strong,
+.datos-candidato-posicion span,
+.datos-candidato-posicion small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .admin-tabs {
@@ -1067,6 +1194,10 @@ button:hover:not(:disabled),
     grid-template-columns: 1fr;
 }
 
+.formulario-contrasena {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .formulario-crear-partido label:first-child,
 .formulario-crear-partido .acciones-admin {
     grid-column: auto;
@@ -1107,6 +1238,43 @@ button:hover:not(:disabled),
 .buscador-amigos-moderno input:focus {
     border-color: var(--drafty-neon);
     box-shadow: 0 0 0 3px rgba(208, 255, 0, 0.1);
+}
+
+.campo-codigo-privado {
+    grid-column: auto;
+}
+
+.campo-codigo-privado span {
+    display: block;
+}
+
+.codigo-privado-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 7px;
+}
+
+.codigo-privado-control input {
+    margin-top: 0;
+    text-transform: uppercase;
+}
+
+.codigo-privado-control button {
+    min-width: 158px;
+    border: 0;
+    border-radius: 8px;
+    padding: 0 18px;
+    background: var(--drafty-neon);
+    color: #050607;
+    font-weight: 1000;
+    cursor: pointer;
+    box-shadow: var(--drafty-glow);
+}
+
+.codigo-privado-control button:hover {
+    transform: translateY(-2px);
 }
 
 .equipos-page {
@@ -1702,6 +1870,14 @@ button:hover:not(:disabled),
     resize: vertical;
 }
 
+.bloque-contrasena-titulo {
+    margin-bottom: 18px;
+}
+
+.mensaje-perfil-contrasena {
+    margin-bottom: 18px;
+}
+
 .formulario-resultado textarea {
     grid-column: 1 / -1;
     min-height: 90px;
@@ -2222,6 +2398,13 @@ button:hover:not(:disabled),
     pointer-events: none;
 }
 
+.aviso-alineacion-bloqueada {
+    margin: 10px 0 0;
+    color: #cbd5d1;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
 .alineaciones {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2480,6 +2663,7 @@ button:hover:not(:disabled),
     .info-partido-sala,
     .panel-admin,
     .panel-posicion,
+    .panel-invitaciones-posicion,
     .chat-partido,
     .equipo-alineacion {
         padding: 18px;
@@ -2507,6 +2691,8 @@ button:hover:not(:disabled),
     .fila-simple,
     .tarjeta-amigo,
     .goleador-item,
+    .selector-invitacion-posicion,
+    .candidato-posicion-card,
     .sugerencia-amigo {
         grid-template-columns: 1fr;
     }
@@ -2533,8 +2719,19 @@ button:hover:not(:disabled),
         grid-template-columns: 1fr;
     }
 
+    .codigo-privado-control {
+        grid-template-columns: 1fr;
+    }
+
+    .codigo-privado-control button {
+        min-height: 46px;
+        width: 100%;
+    }
+
     .formulario-chat button,
     .acciones-admin button,
+    .selector-invitacion-posicion button,
+    .candidato-posicion-card button,
     .tarjeta-partido button,
     .fila-simple button,
     .partido-lista-info-der button,
@@ -2562,6 +2759,7 @@ button:hover:not(:disabled),
 .info-partido-sala,
 .panel-admin,
 .panel-posicion,
+.panel-invitaciones-posicion,
 .chat-partido,
 .equipo-alineacion,
 .panel-equipos,
@@ -2577,6 +2775,7 @@ button:hover:not(:disabled),
 .info-partido-sala,
 .panel-admin,
 .panel-posicion,
+.panel-invitaciones-posicion,
 .chat-partido,
 .equipo-alineacion,
 .equipos-hero,

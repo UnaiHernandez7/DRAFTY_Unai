@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import SelectorMapa from "./SelectorMapa.jsx";
 import "./Inicio.css";
 import "./CrearPartido.css";
@@ -17,7 +18,7 @@ const tiposPartido = {
         etiqueta: "Fútbol 7v7",
         jugadores: 16,
         plazas: 20,
-        descripcion: "Formato equilibrado para pachangas competitivas."
+        descripcion: "Formato equilibrado para partidos competitivos."
     },
     "11v11": {
         etiqueta: "Fútbol 11v11",
@@ -250,10 +251,10 @@ const CrearPartido = () => {
 
     return (
         <main className="inicio crear-partido-page">
-            <section className="portada">
-                <h1>Crear partido</h1>
-                <p>Elige formato, marca el punto exacto en el mapa y DRAFTY calcula las plazas automáticamente.</p>
-            </section>
+            <EncabezadoSeccion
+                titulo="Crear partido"
+                descripcion="Organiza una sala, define el formato y marca la ubicación exacta del partido."
+            />
 
             {mensaje && <p className="mensaje mensaje-error">{mensaje}</p>}
             {exito && <p className="mensaje">{exito}</p>}
@@ -271,7 +272,7 @@ const CrearPartido = () => {
                     <div className="crear-partido-grid">
                         <label className="campo-doble">
                             Título del partido
-                            <input className={errores.titulo ? "campo-error" : ""} value={formulario.titulo} onChange={(e) => cambiarCampo("titulo", e.target.value)} placeholder="Pachanga del sábado" />
+                            <input className={errores.titulo ? "campo-error" : ""} value={formulario.titulo} onChange={(e) => cambiarCampo("titulo", e.target.value)} placeholder="Partido del sábado" />
                         </label>
 
                         <label>
@@ -346,7 +347,7 @@ const CrearPartido = () => {
                         <span>03</span>
                         <div>
                             <h2>Ubicación en mapa</h2>
-                            <p>Clica directamente sobre el punto donde se jugará la pachanga.</p>
+                            <p>Clica directamente sobre el punto donde se jugará el partido.</p>
                         </div>
                     </div>
 

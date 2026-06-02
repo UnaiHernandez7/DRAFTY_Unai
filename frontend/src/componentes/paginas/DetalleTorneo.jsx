@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import BracketTorneo from "./BracketTorneo.jsx";
 import MapaTorneo from "./MapaTorneo.jsx";
 import RankingTorneo from "./RankingTorneo.jsx";
@@ -124,18 +125,19 @@ const DetalleTorneo = () => {
 
     return (
         <main className="inicio torneos-page">
-            <section className="torneos-hero detalle">
-                <button type="button" className="torneo-back" onClick={() => navigate("/torneos")}>Volver</button>
-                <div>
-                    <span className="torneos-eyebrow">{torneo.tipo_futbol} · {torneo.tipo_torneo}</span>
-                    <h1>{torneo.nombre_torneo}</h1>
-                    <p>{torneo.descripcion || "Competicion DRAFTY sin descripcion."}</p>
-                </div>
-                <div className="torneo-hero-stats">
-                    <strong>{torneo.equipos_count ?? torneo.equipos?.length ?? 0}/{torneo.max_equipos}</strong>
-                    <span>{estadoTexto[estado] || estado}</span>
-                </div>
-            </section>
+            <EncabezadoSeccion
+                titulo={torneo.nombre_torneo}
+                descripcion={torneo.descripcion || "Competición DRAFTY sin descripción."}
+                accion={(
+                    <>
+                        <button type="button" onClick={() => navigate("/torneos")}>Volver</button>
+                        <span className="torneo-hero-stats">
+                            <strong>{torneo.equipos_count ?? torneo.equipos?.length ?? 0}/{torneo.max_equipos}</strong>
+                            <span>{estadoTexto[estado] || estado}</span>
+                        </span>
+                    </>
+                )}
+            />
 
             {mensaje && <p className={`mensaje ${tipoMensaje === "exito" ? "mensaje-exito" : "mensaje-error"}`}>{mensaje}</p>}
 

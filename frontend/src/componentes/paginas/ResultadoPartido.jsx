@@ -20,16 +20,14 @@ const formatearFecha = (valor) => {
     });
 };
 
-const ResultadoPartido = ({ partido, participantes, miJugador, usuario, onCambio }) => {
+const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
     const [nuevoGol, setNuevoGol] = useState({ id_usuario: "", minuto: "" });
     const [mensaje, setMensaje] = useState("");
     const [guardando, setGuardando] = useState(false);
     const goles = partido?.goles || [];
     const resultado = partido?.resultado;
-    const esCompetitivo = Boolean(partido?.es_competitivo) || partido?.nivel === "Competitivo";
     const soyCapitan = Boolean(miJugador?.pivot?.es_capitan);
-    const soyArbitro = Number(partido?.id_arbitro) === Number(usuario?.id_usuario);
-    const puedeGestionar = partido?.estado !== "cancelado" && (esCompetitivo ? soyArbitro : soyCapitan);
+    const puedeGestionar = partido?.estado !== "cancelado" && soyCapitan;
     const puedeUsarVentana = Boolean(partido?.ventana_resultado_abierta);
 
     const marcador = useMemo(() => ({
@@ -194,7 +192,7 @@ const ResultadoPartido = ({ partido, participantes, miJugador, usuario, onCambio
                         <button type="button" onClick={registrarResultado} disabled={guardando}>
                             Registrar resultado
                         </button>
-                        {!esCompetitivo && resultado && (
+                        {resultado && (
                             <button type="button" onClick={confirmarResultado} disabled={guardando}>
                                 Confirmar resultado
                             </button>
@@ -205,9 +203,7 @@ const ResultadoPartido = ({ partido, participantes, miJugador, usuario, onCambio
 
             {!puedeGestionar && partido.estado !== "cancelado" && (
                 <p className="post-ayuda">
-                    {esCompetitivo
-                        ? "Solo el arbitro puede registrar el resultado competitivo."
-                        : "Solo los capitanes pueden gestionar el resultado casual."}
+                    Solo los capitanes pueden gestionar el resultado.
                 </p>
             )}
         </article>

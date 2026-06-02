@@ -72,12 +72,6 @@ class GolPartidoController extends Controller
 
     private function puedeGestionarGoles(Request $request, Partido $partido): bool
     {
-        $esCompetitivo = (bool) $partido->es_competitivo || $partido->nivel === 'Competitivo';
-
-        if ($esCompetitivo) {
-            return $partido->id_arbitro && (int) $partido->id_arbitro === (int) $request->user()->id_usuario;
-        }
-
         return $partido->usuarios()
             ->where('usuarios.id_usuario', $request->user()->id_usuario)
             ->wherePivot('estado_participacion', 'confirmado')

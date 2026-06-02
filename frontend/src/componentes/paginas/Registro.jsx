@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Login.css";
 import "./Registro.css";
 
@@ -141,7 +142,7 @@ const Registro = () => {
     return (
         <main className="auth-page auth-page-registro">
             <section className="auth-brand">
-                <span className="auth-kicker">DRAFTY</span>
+                <img className="auth-logo" src={logotipoDrafty} alt="DRAFTY" />
                 <h1>Tu fútbol empieza aquí.</h1>
                 <p>Crea tu perfil, guarda tu ciudad y encuentra salas, equipos y retos competitivos cerca de ti.</p>
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Cabecera.css";
 
 const Cabecera = () => {
@@ -62,9 +63,18 @@ const Cabecera = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuth, location.pathname]);
 
+    const irAlInicio = () => {
+        setMenuAbierto(false);
+        window.setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }, 0);
+    };
+
     return (
         <header className="cabecera">
-            <Link to="/" className="logo">DRAFTY</Link>
+            <Link to="/" className="logo" aria-label="DRAFTY" onClick={irAlInicio}>
+                <img src={logotipoDrafty} alt="DRAFTY" />
+            </Link>
 
             {isAuth && (
                 <button
@@ -72,7 +82,7 @@ const Cabecera = () => {
                     className={menuAbierto ? "menu-movil-toggle abierto" : "menu-movil-toggle"}
                     onClick={() => setMenuAbierto((abierto) => !abierto)}
                     aria-expanded={menuAbierto}
-                    aria-label="Abrir menu de navegacion"
+                    aria-label="Abrir menú de navegación"
                 >
                     <span></span>
                     <span></span>

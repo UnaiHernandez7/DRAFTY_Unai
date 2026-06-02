@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import ChatEquipo from "./ChatEquipo.jsx";
 import "./Inicio.css";
 
@@ -134,11 +135,11 @@ const DetalleEquipo = () => {
     if (!isAuth) {
         return (
             <main className="inicio equipos-page">
-                <section className="equipos-hero">
-                    <h1>Equipo</h1>
-                    <p>Inicia sesión para ver los detalles del equipo.</p>
-                    <button type="button" onClick={() => navigate("/login")}>Iniciar sesión</button>
-                </section>
+                <EncabezadoSeccion
+                    titulo="Equipo"
+                    descripcion="Inicia sesión para ver los detalles del equipo."
+                    accion={<button type="button" onClick={() => navigate("/login")}>Iniciar sesión</button>}
+                />
             </main>
         );
     }
@@ -158,27 +159,25 @@ const DetalleEquipo = () => {
 
     return (
         <main className="inicio equipos-page">
-            <div className="barra-volver-equipo">
-                <Link to="/equipos" className="volver-equipos">Volver</Link>
+            <EncabezadoSeccion
+                titulo={equipo.nombre_equipo}
+                descripcion={equipo.descripcion || "Sin descripción"}
+                accion={(
+                    <>
+                        <Link to="/equipos">Volver</Link>
+                        <button type="button" className="boton-abandonar-equipo" onClick={abandonarEquipo}>
+                            Abandonar equipo
+                        </button>
+                    </>
+                )}
+            />
+
+            <div className="resumen-detalle-equipo">
+                <div><span>Jugadores</span><strong>{equipo.jugadores_count ?? jugadores.length}</strong></div>
+                <div><span>Tu rol</span><strong>{formatearRol(miRol)}</strong></div>
+                <div><span>Acceso</span><strong>{equipo.privacidad === "privado" ? "Privado" : "Público"}</strong></div>
+                <div><span>Creado</span><strong>{equipo.fecha_creacion || "Sin fecha"}</strong></div>
             </div>
-            <section className="detalle-equipo-hero">
-                <div>
-                    <span className="eyebrow-equipo">Equipo DRAFTY</span>
-                    <h1>{equipo.nombre_equipo}</h1>
-                    <p>{equipo.descripcion || "Sin descripción"}</p>
-                </div>
-                <div className="lateral-detalle-equipo">
-                    <div className="resumen-detalle-equipo">
-                        <div><span>Jugadores</span><strong>{equipo.jugadores_count ?? jugadores.length}</strong></div>
-                        <div><span>Tu rol</span><strong>{formatearRol(miRol)}</strong></div>
-                        <div><span>Acceso</span><strong>{equipo.privacidad === "privado" ? "Privado" : "Público"}</strong></div>
-                        <div><span>Creado</span><strong>{equipo.fecha_creacion || "Sin fecha"}</strong></div>
-                    </div>
-                    <button type="button" className="boton-abandonar-equipo" onClick={abandonarEquipo}>
-                        Abandonar equipo
-                    </button>
-                </div>
-            </section>
 
             {mensaje && <p className="mensaje">{mensaje}</p>}
 

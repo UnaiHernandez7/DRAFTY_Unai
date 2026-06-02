@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import HistorialPartidos from "./HistorialPartidos.jsx";
 import PartidoLista from "./PartidoLista.jsx";
 import "./Inicio.css";
@@ -43,10 +44,10 @@ const MisPartidos = () => {
 
     return (
         <main className="inicio mis-partidos-page">
-            <section className="portada">
-                <h1>Mis partidos</h1>
-                <p>Partidos activos, próximos o todavía dentro de las 24 horas posteriores.</p>
-            </section>
+            <EncabezadoSeccion
+                titulo="Mis partidos"
+                descripcion="Consulta y gestiona todos los partidos en los que participas."
+            />
 
             {mensaje && <p className="mensaje mensaje-error">{mensaje}</p>}
             {cargando && <p className="estado">Cargando tus partidos...</p>}

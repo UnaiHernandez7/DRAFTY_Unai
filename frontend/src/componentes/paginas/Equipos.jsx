@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
 const formatearRol = (rol) => {
@@ -59,28 +60,27 @@ const Equipos = () => {
     if (!isAuth) {
         return (
             <main className="inicio equipos-page">
-                <section className="equipos-hero">
-                    <h1>Mis equipos</h1>
-                    <p>Inicia sesión para crear equipos, unirte a grupos y competir con tu gente.</p>
-                    <button type="button" onClick={() => navigate("/login")}>Iniciar sesión</button>
-                </section>
+                <EncabezadoSeccion
+                    titulo="Equipos"
+                    descripcion="Inicia sesión para crear equipos, unirte a grupos y competir con tu gente."
+                    accion={<button type="button" onClick={() => navigate("/login")}>Iniciar sesión</button>}
+                />
             </main>
         );
     }
 
     return (
         <main className="inicio equipos-page">
-            <section className="equipos-hero">
-                <div>
-                    <span className="eyebrow-equipo">DRAFTY Teams</span>
-                    <h1>Mis equipos</h1>
-                    <p>Crea, ficha jugadores, revisa partidos y habla con tu equipo desde un solo sitio.</p>
-                </div>
-                <div className="acciones-equipos-hero">
-                    <Link to="/equipos/crear">Crear equipo</Link>
-                    <Link to="/equipos/unirse" className="boton-secundario-equipo">Unirse a equipo</Link>
-                </div>
-            </section>
+            <EncabezadoSeccion
+                titulo="Equipos"
+                descripcion="Administra tus equipos y visualiza la información de cada uno."
+                accion={(
+                    <>
+                        <Link to="/equipos/crear">Crear equipo</Link>
+                        <Link to="/equipos/unirse">Unirse a equipo</Link>
+                    </>
+                )}
+            />
 
             {mensaje && <p className="mensaje mensaje-error">{mensaje}</p>}
 

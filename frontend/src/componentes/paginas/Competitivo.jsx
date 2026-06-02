@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import PartidoLista from "./PartidoLista.jsx";
 import "./Inicio.css";
 import "./Competitivo.css";
@@ -265,10 +266,10 @@ const Competitivo = () => {
 
     return (
         <main className="inicio">
-            <section className="portada">
-                <h1>Modo competitivo</h1>
-                <p>Busca una partida y entra automáticamente en una sala equilibrada.</p>
-            </section>
+            <EncabezadoSeccion
+                titulo="Competitivo"
+                descripcion="Busca partidas equilibradas, mejora tu rango y compite en rankings."
+            />
 
             {mensaje && <p className={`mensaje ${tipoMensaje === "exito" ? "mensaje-exito" : "mensaje-error"}`}>{mensaje}</p>}
 

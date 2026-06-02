@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
 class PartidoController extends Controller
 {
     private array $posiciones = ['POR', 'LI', 'DFC', 'LD', 'MC', 'MCD', 'MCO', 'EI', 'DC', 'ED', 'ALA', 'PIV', 'SUP'];
-    private array $formaciones = ['4-3-3', '4-3-1-2', '3-3-1', '2-3-2', '1-2-1', '2-1-1'];
+    private array $formaciones = ['4-3-3', '4-3-1-2', '4-4-2', '3-5-2', '4-2-3-1', '3-3-1', '2-3-2', '3-2-2', '2-4-1', '2-1-3-1', '1-2-1', '2-1-1', '2-2', '1-1-2'];
     private array $equiposSala = ['Equipo A', 'Equipo B'];
 
     public function index()
@@ -385,6 +385,116 @@ class PartidoController extends Controller
         ], 201);
     }
 
+    public function candidatosPorPosicion(Request $request, $id)
+    {
+        $datos = $request->validate([
+            'posicion' => 'required|string|in:Portero,Defensa,Mediocentro,Delantero'
+        ]);
+
+        $partido = Partido::findOrFail($id);
+
+        if ($this->esPartidoCompetitivo($partido)) {
+            return response()->json([
+                'mensaje' => 'Las invitaciones por posición no están disponibles en competitivo'
+            ], 403);
+        }
+
+        if (!$this->usuarioPuedeInvitarASala($request, $partido)) {
+            return response()->json([
+                'mensaje' => 'Tienes que estar en la sala para invitar jugadores'
+            ], 403);
+        }
+
+        $idsOcupados = $partido->usuarios()
+            ->pluck('usuarios.id_usuario')
+            ->map(fn ($idUsuario) => (int) $idUsuario)
+            ->push((int) $request->user()->id_usuario)
+            ->values();
+        $posicion = $datos['posicion'];
+        $ciudadUsuario = $request->user()->ciudad;
+
+        $usuarios = Usuario::query()
+            ->select('id_usuario', 'nombre_usuario', 'nombre', 'apellido', 'foto_perfil', 'ciudad', 'posiciones_favoritas')
+            ->whereNotIn('id_usuario', $idsOcupados)
+            ->whereNotNull('posiciones_favoritas')
+            ->where('posiciones_favoritas', 'like', "%{$posicion}%")
+            ->when($ciudadUsuario, function ($query) use ($ciudadUsuario) {
+                $query->orderByRaw('LOWER(COALESCE(ciudad, "")) = LOWER(?) DESC', [$ciudadUsuario]);
+            })
+            ->orderBy('nombre_usuario')
+            ->limit(12)
+            ->get();
+
+        return response()->json($usuarios);
+    }
+
+    public function invitarPorPosicion(Request $request, $id, $idUsuario)
+    {
+        $datos = $request->validate([
+            'posicion' => 'required|string|in:Portero,Defensa,Mediocentro,Delantero'
+        ]);
+
+        $partido = Partido::findOrFail($id);
+        $usuario = $request->user();
+        $invitado = Usuario::findOrFail($idUsuario);
+
+        if ($this->esPartidoCompetitivo($partido)) {
+            return response()->json([
+                'mensaje' => 'Las invitaciones por posición no están disponibles en competitivo'
+            ], 403);
+        }
+
+        if (!$this->usuarioPuedeInvitarASala($request, $partido)) {
+            return response()->json([
+                'mensaje' => 'Tienes que estar en la sala para invitar jugadores'
+            ], 403);
+        }
+
+        if ((int) $usuario->id_usuario === (int) $invitado->id_usuario) {
+            return response()->json([
+                'mensaje' => 'No puedes invitarte a ti mismo'
+            ], 422);
+        }
+
+        if (!$this->usuarioTienePosicionFavorita($invitado, $datos['posicion'])) {
+            return response()->json([
+                'mensaje' => 'Este jugador no tiene esa posición como favorita'
+            ], 422);
+        }
+
+        if ($partido->estado === 'cancelado') {
+            return response()->json([
+                'mensaje' => 'No puedes invitar a una sala cancelada'
+            ], 400);
+        }
+
+        $jugadorYaEsta = $partido->usuarios()
+            ->where('usuarios.id_usuario', $invitado->id_usuario)
+            ->first();
+
+        if ($jugadorYaEsta) {
+            return response()->json([
+                'mensaje' => $jugadorYaEsta->pivot->estado_participacion === 'pendiente'
+                    ? 'Este jugador ya tiene una invitación pendiente para esta sala'
+                    : 'Este jugador ya está en esta sala',
+                'id_partido' => $partido->id_partido
+            ]);
+        }
+
+        if ($partido->usuarios()->wherePivot('estado_participacion', 'confirmado')->count() >= $this->capacidadTotal($partido)) {
+            return response()->json([
+                'mensaje' => 'La sala ya está completa'
+            ], 400);
+        }
+
+        $this->invitarUsuarioAlPartido($partido, $invitado);
+
+        return response()->json([
+            'mensaje' => 'Invitación enviada correctamente',
+            'id_partido' => $partido->id_partido
+        ], 201);
+    }
+
     public function invitaciones(Request $request)
     {
         return response()->json(
@@ -696,6 +806,13 @@ class PartidoController extends Controller
         }
 
         $partido = Partido::findOrFail($id);
+
+        if ($this->partidoHaEmpezado($partido)) {
+            return response()->json([
+                'mensaje' => 'El partido ya ha empezado y no se puede cambiar la alineacion'
+            ], 422);
+        }
+
         $usuario = $request->user();
 
         $participante = $partido->usuarios()
@@ -804,6 +921,12 @@ class PartidoController extends Controller
         }
 
         $partido = Partido::findOrFail($id);
+
+        if ($this->partidoHaEmpezado($partido)) {
+            return response()->json([
+                'mensaje' => 'El partido ya ha empezado y no se puede cambiar la alineacion'
+            ], 422);
+        }
 
         if (!in_array($request->formacion, $this->formacionesPorTipo($partido))) {
             return response()->json([
@@ -1428,14 +1551,23 @@ class PartidoController extends Controller
         $tipo = strtolower($partido->tipo_futbol ?? '');
 
         if (str_contains($tipo, '5v5') || str_contains($tipo, '5') || str_contains($tipo, 'sala')) {
-            return ['1-2-1', '2-1-1'];
+            return ['1-2-1', '2-1-1', '2-2', '1-1-2'];
         }
 
         if (str_contains($tipo, '7')) {
-            return ['3-3-1', '2-3-2'];
+            return ['3-3-1', '2-3-2', '3-2-2', '2-4-1', '2-1-3-1'];
         }
 
-        return ['4-3-3', '4-3-1-2'];
+        return ['4-3-3', '4-3-1-2', '4-4-2', '3-5-2', '4-2-3-1'];
+    }
+
+    private function partidoHaEmpezado(Partido $partido): bool
+    {
+        if (!$partido->fecha || !$partido->hora) {
+            return false;
+        }
+
+        return now()->gte(Carbon::parse($partido->fecha . ' ' . $partido->hora));
     }
 
     private function pasarCapitan(Partido $partido, string $equipo): void
@@ -1525,10 +1657,18 @@ class PartidoController extends Controller
         return match ($formacion) {
             '4-3-3' => ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MC', 'MCD', 'MC', 'EI', 'DC', 'ED'],
             '4-3-1-2' => ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MC', 'MCD', 'MC', 'MCO', 'DC', 'DC'],
+            '4-4-2' => ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MC', 'MCD', 'MC', 'MC', 'DC', 'DC'],
+            '3-5-2' => ['POR', 'DFC', 'DFC', 'DFC', 'MC', 'MCD', 'MC', 'MCO', 'MC', 'DC', 'DC'],
+            '4-2-3-1' => ['POR', 'LI', 'DFC', 'DFC', 'LD', 'MCD', 'MCD', 'EI', 'MCO', 'ED', 'DC'],
             '3-3-1' => ['POR', 'DFC', 'DFC', 'DFC', 'MC', 'MC', 'MC', 'DC'],
             '2-3-2' => ['POR', 'DFC', 'DFC', 'MC', 'MC', 'MC', 'DC', 'DC'],
+            '3-2-2' => ['POR', 'DFC', 'DFC', 'DFC', 'MC', 'MC', 'DC', 'DC'],
+            '2-4-1' => ['POR', 'DFC', 'DFC', 'MC', 'MCD', 'MC', 'MC', 'DC'],
+            '2-1-3-1' => ['POR', 'DFC', 'DFC', 'MCD', 'MC', 'MCO', 'MC', 'DC'],
             '1-2-1' => ['POR', 'DFC', 'ALA', 'ALA', 'PIV'],
             '2-1-1' => ['POR', 'DFC', 'DFC', 'ALA', 'PIV'],
+            '2-2' => ['POR', 'DFC', 'DFC', 'ALA', 'PIV'],
+            '1-1-2' => ['POR', 'DFC', 'ALA', 'PIV', 'PIV'],
             default => ['POR', 'DFC', 'MC', 'DC'],
         };
     }
@@ -1536,6 +1676,33 @@ class PartidoController extends Controller
     private function esAdmin(Request $request): bool
     {
         return $request->user()?->rol === 'admin';
+    }
+
+    private function esPartidoCompetitivo(Partido $partido): bool
+    {
+        return (bool) $partido->es_competitivo || strtolower(trim($partido->nivel ?? '')) === 'competitivo';
+    }
+
+    private function usuarioPuedeInvitarASala(Request $request, Partido $partido): bool
+    {
+        if ($this->esAdmin($request)) {
+            return true;
+        }
+
+        return $partido->usuarios()
+            ->where('usuarios.id_usuario', $request->user()->id_usuario)
+            ->wherePivot('estado_participacion', 'confirmado')
+            ->exists();
+    }
+
+    private function usuarioTienePosicionFavorita(Usuario $usuario, string $posicion): bool
+    {
+        $favoritas = collect(explode(',', $usuario->posiciones_favoritas ?? ''))
+            ->map(fn ($item) => Str::of($item)->ascii()->lower()->trim()->toString())
+            ->filter()
+            ->values();
+
+        return $favoritas->contains(Str::of($posicion)->ascii()->lower()->trim()->toString());
     }
 
     private function sonAmigos(int $usuarioId, int $amigoId): bool
@@ -1566,13 +1733,9 @@ class PartidoController extends Controller
             return false;
         }
 
-        if ((bool) $partido->es_competitivo || $partido->nivel === 'Competitivo') {
-            return $partido->id_arbitro
-                && (int) $partido->id_arbitro === (int) $request->user()->id_usuario;
-        }
-
         return $partido->usuarios()
             ->where('usuarios.id_usuario', $request->user()->id_usuario)
+            ->wherePivot('estado_participacion', 'confirmado')
             ->wherePivot('es_capitan', true)
             ->exists();
     }

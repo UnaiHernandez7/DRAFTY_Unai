@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import MapaSalaPartido from "./MapaSalaPartido.jsx";
 import ResultadoPartido from "./ResultadoPartido.jsx";
 import VotacionMVP from "./VotacionMVP.jsx";
@@ -36,6 +37,45 @@ const formacionesPorTipo = {
         { posicion: "MCO", x: 50, y: 39 },
         { posicion: "DC", x: 38, y: 20 },
         { posicion: "DC", x: 62, y: 20 }
+        ],
+        "4-4-2": [
+        { posicion: "POR", x: 50, y: 90 },
+        { posicion: "LI", x: 18, y: 72 },
+        { posicion: "DFC", x: 39, y: 76 },
+        { posicion: "DFC", x: 61, y: 76 },
+        { posicion: "LD", x: 82, y: 72 },
+        { posicion: "MC", x: 18, y: 50 },
+        { posicion: "MCD", x: 39, y: 55 },
+        { posicion: "MC", x: 61, y: 55 },
+        { posicion: "MC", x: 82, y: 50 },
+        { posicion: "DC", x: 38, y: 20 },
+        { posicion: "DC", x: 62, y: 20 }
+        ],
+        "3-5-2": [
+        { posicion: "POR", x: 50, y: 90 },
+        { posicion: "DFC", x: 28, y: 74 },
+        { posicion: "DFC", x: 50, y: 78 },
+        { posicion: "DFC", x: 72, y: 74 },
+        { posicion: "MC", x: 15, y: 48 },
+        { posicion: "MCD", x: 35, y: 55 },
+        { posicion: "MC", x: 50, y: 48 },
+        { posicion: "MCO", x: 65, y: 55 },
+        { posicion: "MC", x: 85, y: 48 },
+        { posicion: "DC", x: 38, y: 20 },
+        { posicion: "DC", x: 62, y: 20 }
+        ],
+        "4-2-3-1": [
+        { posicion: "POR", x: 50, y: 90 },
+        { posicion: "LI", x: 18, y: 72 },
+        { posicion: "DFC", x: 39, y: 76 },
+        { posicion: "DFC", x: 61, y: 76 },
+        { posicion: "LD", x: 82, y: 72 },
+        { posicion: "MCD", x: 38, y: 57 },
+        { posicion: "MCD", x: 62, y: 57 },
+        { posicion: "EI", x: 24, y: 35 },
+        { posicion: "MCO", x: 50, y: 38 },
+        { posicion: "ED", x: 76, y: 35 },
+        { posicion: "DC", x: 50, y: 18 }
         ]
     },
     futbol7: {
@@ -58,6 +98,36 @@ const formacionesPorTipo = {
             { posicion: "MC", x: 75, y: 48 },
             { posicion: "DC", x: 38, y: 22 },
             { posicion: "DC", x: 62, y: 22 }
+        ],
+        "3-2-2": [
+            { posicion: "POR", x: 50, y: 88 },
+            { posicion: "DFC", x: 28, y: 68 },
+            { posicion: "DFC", x: 50, y: 72 },
+            { posicion: "DFC", x: 72, y: 68 },
+            { posicion: "MC", x: 38, y: 48 },
+            { posicion: "MC", x: 62, y: 48 },
+            { posicion: "DC", x: 38, y: 22 },
+            { posicion: "DC", x: 62, y: 22 }
+        ],
+        "2-4-1": [
+            { posicion: "POR", x: 50, y: 88 },
+            { posicion: "DFC", x: 35, y: 68 },
+            { posicion: "DFC", x: 65, y: 68 },
+            { posicion: "MC", x: 18, y: 48 },
+            { posicion: "MCD", x: 40, y: 52 },
+            { posicion: "MC", x: 60, y: 52 },
+            { posicion: "MC", x: 82, y: 48 },
+            { posicion: "DC", x: 50, y: 22 }
+        ],
+        "2-1-3-1": [
+            { posicion: "POR", x: 50, y: 88 },
+            { posicion: "DFC", x: 35, y: 70 },
+            { posicion: "DFC", x: 65, y: 70 },
+            { posicion: "MCD", x: 50, y: 56 },
+            { posicion: "MC", x: 25, y: 42 },
+            { posicion: "MCO", x: 50, y: 40 },
+            { posicion: "MC", x: 75, y: 42 },
+            { posicion: "DC", x: 50, y: 20 }
         ]
     },
     sala: {
@@ -74,6 +144,20 @@ const formacionesPorTipo = {
             { posicion: "DFC", x: 65, y: 62 },
             { posicion: "ALA", x: 50, y: 43 },
             { posicion: "PIV", x: 50, y: 22 }
+        ],
+        "2-2": [
+            { posicion: "POR", x: 50, y: 88 },
+            { posicion: "DFC", x: 35, y: 62 },
+            { posicion: "DFC", x: 65, y: 62 },
+            { posicion: "ALA", x: 35, y: 28 },
+            { posicion: "PIV", x: 65, y: 28 }
+        ],
+        "1-1-2": [
+            { posicion: "POR", x: 50, y: 88 },
+            { posicion: "DFC", x: 50, y: 66 },
+            { posicion: "ALA", x: 50, y: 46 },
+            { posicion: "PIV", x: 35, y: 22 },
+            { posicion: "PIV", x: 65, y: 22 }
         ]
     }
 };
@@ -117,6 +201,17 @@ const obtenerFormacionesSeguras = (tipoFutbol) => (
     formacionesPorTipo[obtenerTipoFormacion(tipoFutbol)] || formacionesPorTipo.futbol11
 );
 
+const partidoHaEmpezado = (partido) => {
+    if (!partido?.fecha || !partido?.hora) {
+        return false;
+    }
+
+    return new Date(`${partido.fecha}T${partido.hora}`) <= new Date();
+};
+
+const esCompetitivo = (partido) => Boolean(partido?.es_competitivo) || partido?.nivel === "Competitivo";
+const posicionesInvitacion = ["Portero", "Defensa", "Mediocentro", "Delantero"];
+
 const SalaPartido = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -135,6 +230,10 @@ const SalaPartido = () => {
     const [nuevoMensaje, setNuevoMensaje] = useState("");
     const [mensaje, setMensaje] = useState("");
     const [cargando, setCargando] = useState(true);
+    const [posicionInvitacion, setPosicionInvitacion] = useState("Portero");
+    const [candidatosInvitacion, setCandidatosInvitacion] = useState([]);
+    const [cargandoCandidatos, setCargandoCandidatos] = useState(false);
+    const [invitandoId, setInvitandoId] = useState(null);
 
     const cargarSala = async () => {
         if (!id || id === "undefined" || Number.isNaN(Number(id))) {
@@ -187,6 +286,16 @@ const SalaPartido = () => {
         cargarSala();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, token]);
+
+    useEffect(() => {
+        if (!partido || esCompetitivo(partido)) {
+            setCandidatosInvitacion([]);
+            return;
+        }
+
+        cargarCandidatosPorPosicion(posicionInvitacion);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [partido?.id_partido, posicionInvitacion]);
 
     const cambiarPosicion = async (nuevoEquipo, nuevaPosicion) => {
         try {
@@ -256,6 +365,40 @@ const SalaPartido = () => {
         }
     };
 
+    const cargarCandidatosPorPosicion = async (posicion = posicionInvitacion) => {
+        if (!id || !partido || esCompetitivo(partido)) {
+            return;
+        }
+
+        try {
+            setCargandoCandidatos(true);
+            const respuesta = await api.get(`/partidos/${id}/candidatos-posicion`, {
+                params: { posicion }
+            });
+            setCandidatosInvitacion(Array.isArray(respuesta.data) ? respuesta.data : []);
+        } catch (error) {
+            setCandidatosInvitacion([]);
+            setMensaje(error.response?.data?.mensaje || "No se han podido cargar jugadores para invitar.");
+        } finally {
+            setCargandoCandidatos(false);
+        }
+    };
+
+    const invitarPorPosicion = async (jugador) => {
+        try {
+            setInvitandoId(jugador.id_usuario);
+            const respuesta = await api.post(`/partidos/${id}/invitar-posicion/${jugador.id_usuario}`, {
+                posicion: posicionInvitacion
+            });
+            setMensaje(respuesta.data?.mensaje || "Invitación enviada correctamente.");
+            await cargarCandidatosPorPosicion(posicionInvitacion);
+        } catch (error) {
+            setMensaje(error.response?.data?.mensaje || "No se ha podido enviar la invitación.");
+        } finally {
+            setInvitandoId(null);
+        }
+    };
+
     const participantes = partido?.usuarios || [];
     const miJugador = participantes.find((jugador) => jugador.id_usuario === usuario?.id_usuario);
     const miEquipo = miJugador?.pivot?.equipo_asignado;
@@ -269,13 +412,12 @@ const SalaPartido = () => {
     const capitanVisitante = participantes.find((jugador) => (
         jugador.pivot?.equipo_asignado === "Equipo B" && jugador.pivot?.es_capitan
     ));
-    const esPartidoCompetitivo = partido?.nivel === "Competitivo";
+    const esPartidoCompetitivo = esCompetitivo(partido);
     const ventanaPostPartidoActiva = Boolean(partido?.ventana_resultado_abierta) && partido?.estado !== "cancelado";
-    const puedoGestionarResultado = ventanaPostPartidoActiva && partido?.resultado?.estado_resultado !== "cerrado" && (
-        esPartidoCompetitivo
-            ? Number(partido?.id_arbitro) === Number(usuario?.id_usuario)
-            : Boolean(miJugador?.pivot?.es_capitan)
-    );
+    const alineacionBloqueada = partidoHaEmpezado(partido);
+    const puedoGestionarResultado = ventanaPostPartidoActiva
+        && partido?.resultado?.estado_resultado !== "cerrado"
+        && Boolean(miJugador?.pivot?.es_capitan);
     const puedoVotarMvp = ventanaPostPartidoActiva && Boolean(miJugador);
     const puedoValorarJugadores = ventanaPostPartidoActiva && Boolean(miJugador?.pivot?.es_capitan);
     const mostrarPostPartido = puedoGestionarResultado || puedoVotarMvp || puedoValorarJugadores;
@@ -309,6 +451,7 @@ const SalaPartido = () => {
             : Object.keys(formaciones)[0];
         const posicionesFormacion = formaciones[formacionEquipo] || Object.values(formaciones)[0] || [];
         const soyCapitanDeEsteEquipo = miEquipo === equipo && miJugador?.pivot?.es_capitan;
+        const puedeCambiarFormacion = soyCapitanDeEsteEquipo && !alineacionBloqueada;
         const suplentes = jugadores.filter((jugador) => jugador.pivot?.posicion_asignada === "SUP");
 
         return (
@@ -325,12 +468,16 @@ const SalaPartido = () => {
                             key={`${equipo}-${nombreFormacion}`}
                             className={formacionEquipo === nombreFormacion ? "formacion-activa" : ""}
                             onClick={() => cambiarFormacion(equipo, nombreFormacion)}
-                            disabled={!soyCapitanDeEsteEquipo}
+                            disabled={!puedeCambiarFormacion}
+                            title={alineacionBloqueada ? "El partido ya ha empezado" : ""}
                         >
                             {nombreFormacion}
                         </button>
                     ))}
                 </div>
+                {soyCapitanDeEsteEquipo && alineacionBloqueada && (
+                    <p className="aviso-alineacion-bloqueada">El partido ya ha empezado. La alineación está bloqueada.</p>
+                )}
 
                 <div className="campo-alineacion">
                     {posicionesFormacion.map((zona, index) => {
@@ -344,7 +491,8 @@ const SalaPartido = () => {
                                 className={`zona-campo ${estoyAqui ? "mi-zona" : ""}`}
                                 style={{ left: `${zona.x}%`, top: `${zona.y}%` }}
                                 onClick={() => cambiarPosicion(equipo, zona.posicion)}
-                                disabled={Boolean(jugador)}
+                                disabled={Boolean(jugador) || alineacionBloqueada}
+                                title={alineacionBloqueada ? "El partido ya ha empezado" : ""}
                             >
                                 <span>{zona.posicion}</span>
                                 <strong>{jugador?.nombre_usuario || "Libre"}</strong>
@@ -370,6 +518,8 @@ const SalaPartido = () => {
                                 key={`${equipo}-suplente-${indice}`}
                                 className={`suplente ${jugador?.id_usuario === usuario?.id_usuario ? "mi-zona" : ""}`}
                                 onClick={() => cambiarPosicion(equipo, "SUP")}
+                                disabled={alineacionBloqueada}
+                                title={alineacionBloqueada ? "El partido ya ha empezado" : ""}
                             >
                                 <span>SUP</span>
                                 <strong>{jugador?.nombre_usuario || "Libre"}</strong>
@@ -389,10 +539,10 @@ const SalaPartido = () => {
 
     return (
         <main className="inicio">
-            <section className="portada">
-                <h1>{partido?.titulo || "Sala del partido"}</h1>
-                <p>Alineaciones y posiciones del partido.</p>
-            </section>
+            <EncabezadoSeccion
+                titulo={partido?.titulo || "Sala del partido"}
+                descripcion="Alineaciones, posiciones, ubicación y chat del partido."
+            />
 
             {mensaje && <p className="mensaje">{mensaje}</p>}
             {cargando && <p className="estado">Cargando sala...</p>}
@@ -567,7 +717,6 @@ const SalaPartido = () => {
                                     partido={partido}
                                     participantes={participantes}
                                     miJugador={miJugador}
-                                    usuario={usuario}
                                     onCambio={cargarSala}
                                 />
                             )}
@@ -666,6 +815,68 @@ const SalaPartido = () => {
                                 : " Puedes cambiarte de puesto o de equipo pulsando en el campo."}
                         </p>
                     </section>
+
+                    {!esPartidoCompetitivo && miJugador && (
+                        <section className="panel-invitaciones-posicion">
+                            <div className="cabecera-bloque-partidos">
+                                <div>
+                                    <h2 className="titulo-invitaciones-posicion">Invitar por posición</h2>
+                                    <p>Encuentra jugadores según su posición favorita y envíales una invitación a esta sala.</p>
+                                </div>
+                            </div>
+
+                            <div className="selector-invitacion-posicion">
+                                <label>
+                                    Posición que necesitas
+                                    <select
+                                        value={posicionInvitacion}
+                                        onChange={(e) => setPosicionInvitacion(e.target.value)}
+                                    >
+                                        {posicionesInvitacion.map((posicion) => (
+                                            <option key={posicion} value={posicion}>{posicion}</option>
+                                        ))}
+                                    </select>
+                                </label>
+                                <button type="button" onClick={() => cargarCandidatosPorPosicion(posicionInvitacion)} disabled={cargandoCandidatos}>
+                                    {cargandoCandidatos ? "Buscando..." : "Buscar jugadores"}
+                                </button>
+                            </div>
+
+                            {cargandoCandidatos && <p className="estado">Buscando jugadores...</p>}
+
+                            {!cargandoCandidatos && candidatosInvitacion.length === 0 && (
+                                <p className="estado">No hay jugadores disponibles con esa posición favorita.</p>
+                            )}
+
+                            {!cargandoCandidatos && candidatosInvitacion.length > 0 && (
+                                <div className="lista-candidatos-posicion">
+                                    {candidatosInvitacion.map((jugador) => (
+                                        <article className="candidato-posicion-card" key={jugador.id_usuario}>
+                                            <div className="avatar-amigo avatar-amigo-lista">
+                                                {jugador.foto_perfil ? (
+                                                    <img src={jugador.foto_perfil} alt={jugador.nombre_usuario || jugador.nombre} />
+                                                ) : (
+                                                    <span>{(jugador.nombre_usuario || jugador.nombre || "D").slice(0, 1).toUpperCase()}</span>
+                                                )}
+                                            </div>
+                                            <div className="datos-candidato-posicion">
+                                                <strong>{jugador.nombre_usuario || jugador.nombre}</strong>
+                                                <span>{jugador.ciudad || "Sin ciudad"}</span>
+                                                <small>{jugador.posiciones_favoritas || "Sin posición favorita"}</small>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => invitarPorPosicion(jugador)}
+                                                disabled={invitandoId === jugador.id_usuario}
+                                            >
+                                                {invitandoId === jugador.id_usuario ? "Enviando..." : "Invitar"}
+                                            </button>
+                                        </article>
+                                    ))}
+                                </div>
+                            )}
+                        </section>
+                    )}
 
                     <section className="chat-partido">
                         <h2>Chat del partido</h2>

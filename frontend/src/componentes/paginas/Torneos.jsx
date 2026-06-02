@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Torneos.css";
 
 const filtros = [
@@ -107,14 +108,11 @@ const Torneos = () => {
 
     return (
         <main className="inicio torneos-page">
-            <section className="torneos-hero">
-                <div>
-                    <span className="torneos-eyebrow">DRAFTY Cups</span>
-                    <h1>Torneos</h1>
-                    <p>Crea competiciones, inscribe equipos y sigue brackets con rankings propios.</p>
-                </div>
-                <Link className="torneo-primary-link" to="/torneos/crear">Crear torneo</Link>
-            </section>
+            <EncabezadoSeccion
+                titulo="Torneos"
+                descripcion="Explora, crea y participa en torneos organizados por la comunidad."
+                accion={<Link to="/torneos/crear">Crear torneo</Link>}
+            />
 
             {mensaje && <p className={`mensaje ${tipoMensaje === "exito" ? "mensaje-exito" : "mensaje-error"}`}>{mensaje}</p>}
 

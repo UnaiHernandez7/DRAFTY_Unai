@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../../api/api.js";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
 const nombreJugador = (jugador) => jugador?.nombre_usuario || jugador?.nombre || "Jugador";
@@ -46,10 +47,10 @@ const PerfilUsuario = () => {
 
     return (
         <main className="inicio">
-            <section className="portada">
-                <h1>{perfil.nombre_usuario}</h1>
-                <p>Perfil de jugador.</p>
-            </section>
+            <EncabezadoSeccion
+                titulo={perfil.nombre_usuario}
+                descripcion="Perfil público del jugador."
+            />
 
             <section className="panel-admin">
                 <h2>Datos del perfil</h2>

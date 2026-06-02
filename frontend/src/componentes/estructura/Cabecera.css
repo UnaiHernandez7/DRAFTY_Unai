@@ -15,12 +15,16 @@
 }
 
 .logo {
-    color: #d0ff00;
-    font-size: 30px;
-    font-weight: 1000;
+    display: inline-flex;
+    align-items: center;
     text-decoration: none;
-    letter-spacing: 0;
-    text-shadow: 0 0 20px rgba(208, 255, 0, 0.25);
+}
+
+.logo img {
+    display: block;
+    width: clamp(122px, 11vw, 164px);
+    height: auto;
+    filter: drop-shadow(0 0 18px rgba(190, 255, 72, 0.24));
 }
 
 .nav {
@@ -71,7 +75,7 @@
     height: 18px;
     padding: 0 5px;
     border-radius: 999px;
-    background: #d0ff00;
+    background: #beff48;
     color: #050607;
     font-size: 11px;
     font-weight: 1000;
@@ -82,8 +86,8 @@
 .nav a:hover,
 .nav button:hover,
 .link-perfil:hover {
-    background-color: rgba(208, 255, 0, 0.12);
-    color: #d0ff00;
+    background-color: rgba(190, 255, 72, 0.12);
+    color: #beff48;
     transform: translateY(-1px);
 }
 
@@ -93,8 +97,8 @@
 }
 
 .link-perfil {
-    color: #d0ff00;
-    border: 1px solid rgba(208, 255, 0, 0.25);
+    color: #beff48;
+    border: 1px solid rgba(190, 255, 72, 0.25);
 }
 
 .login-area {
@@ -108,7 +112,7 @@
 
 .btn-login,
 .login-area button {
-    background-color: #d0ff00;
+    background-color: #beff48;
     color: #050607;
     border: none;
     border-radius: 999px;
@@ -154,10 +158,10 @@
         justify-self: center;
         width: 42px;
         height: 42px;
-        border: 1px solid rgba(208, 255, 0, 0.28);
+        border: 1px solid rgba(190, 255, 72, 0.28);
         border-radius: 8px;
         background:
-            linear-gradient(135deg, rgba(208, 255, 0, 0.12), rgba(21, 245, 186, 0.06)),
+            linear-gradient(135deg, rgba(190, 255, 72, 0.12), rgba(21, 245, 186, 0.06)),
             #0d1112;
         cursor: pointer;
         box-shadow: 0 0 8px rgba(198, 255, 0, 0.12);
@@ -168,7 +172,7 @@
         width: 18px;
         height: 2px;
         border-radius: 999px;
-        background: #d0ff00;
+        background: #beff48;
         transition: transform 160ms ease, opacity 160ms ease;
     }
 
@@ -194,10 +198,10 @@
         gap: 8px;
         width: min(380px, calc(100vw - 28px));
         padding: 14px;
-        border: 1px solid rgba(208, 255, 0, 0.22);
+        border: 1px solid rgba(190, 255, 72, 0.22);
         border-radius: 8px;
         background:
-            linear-gradient(135deg, rgba(208, 255, 0, 0.08), rgba(21, 245, 186, 0.04)),
+            linear-gradient(135deg, rgba(190, 255, 72, 0.08), rgba(21, 245, 186, 0.04)),
             #090d0e;
         box-shadow: 0 22px 44px rgba(0, 0, 0, 0.42);
     }
@@ -252,8 +256,8 @@
         padding: 14px 12px;
     }
 
-    .logo {
-        font-size: 25px;
+    .logo img {
+        width: 116px;
     }
 
     .login-area {

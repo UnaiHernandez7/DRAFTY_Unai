@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
 const UnirseEquipo = () => {
@@ -65,17 +66,15 @@ const UnirseEquipo = () => {
 
     return (
         <main className="inicio equipos-page">
-            <section className="equipos-hero equipos-hero-compacto">
-                <div>
-                    <span className="eyebrow-equipo">Mercado de equipos</span>
-                    <h1>Unirse a equipo</h1>
-                    <p>Encuentra un grupo y entra si todavía no perteneces a él.</p>
-                    {(usuarioActivo?.nombre_usuario || usuario?.nombre_usuario) && (
-                        <span className="usuario-activo-equipo">Cuenta activa: @{usuarioActivo?.nombre_usuario || usuario?.nombre_usuario}</span>
-                    )}
-                </div>
-                <Link to="/equipos" className="volver-equipos">Volver</Link>
-            </section>
+            <EncabezadoSeccion
+                titulo="Unirse a equipo"
+                descripcion="Encuentra un grupo y solicita entrar si todavía no perteneces a él."
+                accion={<Link to="/equipos">Volver</Link>}
+            />
+
+            {(usuarioActivo?.nombre_usuario || usuario?.nombre_usuario) && (
+                <p className="mensaje">Cuenta activa: @{usuarioActivo?.nombre_usuario || usuario?.nombre_usuario}</p>
+            )}
 
             {mensaje && <p className="mensaje">{mensaje}</p>}
 

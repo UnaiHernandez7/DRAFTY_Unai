@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
 const usuarioVacio = {
@@ -163,10 +164,10 @@ const Admin = () => {
 
     return (
         <main className="inicio admin-page">
-            <section className="portada">
-                <h1>Administracion</h1>
-                <p>Gestiona partidos, usuarios y pagos de DRAFTY.</p>
-            </section>
+            <EncabezadoSeccion
+                titulo="Administración"
+                descripcion="Gestiona partidos, usuarios y pagos de DRAFTY."
+            />
 
             <section className="panel-admin admin-tabs">
                 <button type="button" className={vista === "partidos" ? "formacion-activa" : ""} onClick={() => setVista("partidos")}>

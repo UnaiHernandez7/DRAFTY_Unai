@@ -23,6 +23,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verificar-codigo', [AuthController::class, 'verificarCodigo']);
 Route::post('/reenviar-codigo', [AuthController::class, 'reenviarCodigo']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/recuperar-contrasena/codigo', [AuthController::class, 'solicitarCodigoRecuperacion']);
+Route::patch('/recuperar-contrasena', [AuthController::class, 'recuperarContrasena']);
 Route::get('/usuarios/nombre-disponible', [UsuarioController::class, 'comprobarNombreUsuario']);
 
 Route::get('/partidos/cercanos', [PartidoController::class, 'cercanos']);
@@ -48,6 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/usuarios/{id}/valoraciones', [ValoracionJugadorController::class, 'usuario']);
     Route::apiResource('usuarios', UsuarioController::class);
     Route::patch('/perfil', [UsuarioController::class, 'actualizarPerfil']);
+    Route::patch('/perfil/contrasena', [UsuarioController::class, 'actualizarContrasena']);
+    Route::post('/perfil/contrasena/codigo', [UsuarioController::class, 'solicitarCodigoCambioContrasena']);
+    Route::patch('/perfil/contrasena/codigo', [UsuarioController::class, 'actualizarContrasenaConCodigo']);
     Route::get('/amigos', [AmistadController::class, 'amigos']);
     Route::get('/amistades/recibidas', [AmistadController::class, 'recibidas']);
     Route::get('/amistades/enviadas', [AmistadController::class, 'enviadas']);
@@ -69,6 +74,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Unirse a partido
     Route::post('/partidos/{id}/unirse', [PartidoController::class, 'unirse']);
     Route::post('/partidos/{id}/invitar-amigo/{id_usuario}', [PartidoController::class, 'invitarAmigo']);
+    Route::get('/partidos/{id}/candidatos-posicion', [PartidoController::class, 'candidatosPorPosicion']);
+    Route::post('/partidos/{id}/invitar-posicion/{id_usuario}', [PartidoController::class, 'invitarPorPosicion']);
     Route::put('/partidos/{id}/invitacion/aceptar', [PartidoController::class, 'aceptarInvitacion']);
     Route::delete('/partidos/{id}/invitacion', [PartidoController::class, 'rechazarInvitacion']);
     Route::post('/partidos/codigo/{codigo}/unirse', [PartidoController::class, 'unirsePorCodigo']);

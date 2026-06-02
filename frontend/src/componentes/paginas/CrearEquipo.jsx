@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
 const CrearEquipo = () => {
@@ -42,14 +43,11 @@ const CrearEquipo = () => {
 
     return (
         <main className="inicio equipos-page">
-            <section className="equipos-hero equipos-hero-compacto">
-                <div>
-                    <span className="eyebrow-equipo">Nuevo equipo</span>
-                    <h1>Crear equipo</h1>
-                    <p>El creador se añade automáticamente como capitán principal.</p>
-                </div>
-                <Link to="/equipos" className="volver-equipos">Volver</Link>
-            </section>
+            <EncabezadoSeccion
+                titulo="Crear equipo"
+                descripcion="Define un equipo nuevo y empieza a invitar jugadores."
+                accion={<Link to="/equipos">Volver</Link>}
+            />
 
             {mensaje && <p className="mensaje mensaje-error">{mensaje}</p>}
 

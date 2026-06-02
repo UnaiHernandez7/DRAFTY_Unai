@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
 const posiciones = ["Portero", "Defensa", "Mediocentro", "Delantero"];
@@ -15,6 +16,17 @@ const Perfil = () => {
     const [valoraciones, setValoraciones] = useState(null);
     const [mensaje, setMensaje] = useState("");
     const [tipoMensaje, setTipoMensaje] = useState("info");
+    const [formularioContrasena, setFormularioContrasena] = useState({
+        contrasena_actual: "",
+        codigo: "",
+        contrasena: "",
+        contrasena_confirmation: ""
+    });
+    const [mensajeContrasena, setMensajeContrasena] = useState("");
+    const [tipoMensajeContrasena, setTipoMensajeContrasena] = useState("info");
+    const [guardandoContrasena, setGuardandoContrasena] = useState(false);
+    const [usandoCodigoContrasena, setUsandoCodigoContrasena] = useState(false);
+    const [enviandoCodigoContrasena, setEnviandoCodigoContrasena] = useState(false);
     const [estadoNombreUsuario, setEstadoNombreUsuario] = useState({
         estado: "idle",
         mensaje: ""
@@ -109,6 +121,22 @@ const Perfil = () => {
         }
     };
 
+    const cambiarCampoContrasena = (campo, valor) => {
+        setFormularioContrasena({ ...formularioContrasena, [campo]: valor });
+        setMensajeContrasena("");
+    };
+
+    const alternarModoCodigoContrasena = () => {
+        setUsandoCodigoContrasena((modoActual) => !modoActual);
+        setMensajeContrasena("");
+        setFormularioContrasena({
+            contrasena_actual: "",
+            codigo: "",
+            contrasena: "",
+            contrasena_confirmation: ""
+        });
+    };
+
     const cambiarPosicion = (posicion) => {
         const actuales = formulario.posiciones_favoritas
             ? formulario.posiciones_favoritas.split(", ").filter(Boolean)
@@ -148,6 +176,58 @@ const Perfil = () => {
         }
     };
 
+    const guardarContrasena = async (e) => {
+        e.preventDefault();
+        setMensajeContrasena("");
+        setTipoMensajeContrasena("info");
+
+        if (formularioContrasena.contrasena !== formularioContrasena.contrasena_confirmation) {
+            setTipoMensajeContrasena("error");
+            setMensajeContrasena("La confirmación no coincide con la nueva contraseña.");
+            return;
+        }
+
+        setGuardandoContrasena(true);
+
+        try {
+            const endpoint = usandoCodigoContrasena ? "/perfil/contrasena/codigo" : "/perfil/contrasena";
+            const respuesta = await api.patch(endpoint, formularioContrasena);
+            setFormularioContrasena({
+                contrasena_actual: "",
+                codigo: "",
+                contrasena: "",
+                contrasena_confirmation: ""
+            });
+            setTipoMensajeContrasena("info");
+            setMensajeContrasena(respuesta.data?.mensaje || "Contraseña actualizada correctamente.");
+        } catch (error) {
+            const errores = error.response?.data?.errors;
+            const primerError = errores ? Object.values(errores).flat()[0] : null;
+            setTipoMensajeContrasena("error");
+            setMensajeContrasena(primerError || error.response?.data?.mensaje || "No se ha podido cambiar la contraseña.");
+        } finally {
+            setGuardandoContrasena(false);
+        }
+    };
+
+    const solicitarCodigoContrasena = async () => {
+        setMensajeContrasena("");
+        setTipoMensajeContrasena("info");
+        setEnviandoCodigoContrasena(true);
+
+        try {
+            const respuesta = await api.post("/perfil/contrasena/codigo");
+            setUsandoCodigoContrasena(true);
+            setTipoMensajeContrasena("info");
+            setMensajeContrasena(respuesta.data?.mensaje || "Te hemos enviado un código a tu correo.");
+        } catch (error) {
+            setTipoMensajeContrasena("error");
+            setMensajeContrasena(error.response?.data?.mensaje || "No se ha podido enviar el código.");
+        } finally {
+            setEnviandoCodigoContrasena(false);
+        }
+    };
+
     const claseNombreUsuario = estadoNombreUsuario.estado === "ocupado"
         ? "campo-error"
         : estadoNombreUsuario.estado === "disponible"
@@ -160,10 +240,10 @@ const Perfil = () => {
 
     return (
         <main className="inicio">
-            <section className="portada">
-                <h1>Mi perfil</h1>
-                <p>Edita tus datos y posiciones favoritas.</p>
-            </section>
+            <EncabezadoSeccion
+                titulo="Perfil"
+                descripcion="Edita tus datos, posiciones favoritas y revisa tus estadísticas."
+            />
 
             {mensaje && <p className={`mensaje ${tipoMensaje === "error" ? "mensaje-error" : ""}`}>{mensaje}</p>}
 
@@ -205,6 +285,83 @@ const Perfil = () => {
 
                     <div className="acciones-admin">
                         <button type="submit" disabled={estadoNombreUsuario.estado === "ocupado" || estadoNombreUsuario.estado === "comprobando"}>Guardar perfil</button>
+                    </div>
+                </form>
+            </section>
+
+            <section className="panel-admin">
+                <div className="info-principal bloque-contrasena-titulo">
+                    <h2>Cambiar contraseña</h2>
+                    <p>{usandoCodigoContrasena ? "Usa el código enviado a tu correo para crear una nueva contraseña." : "Actualiza tu acceso manteniendo tu sesión actual activa."}</p>
+                </div>
+
+                {mensajeContrasena && (
+                    <p className={`mensaje mensaje-perfil-contrasena ${tipoMensajeContrasena === "error" ? "mensaje-error" : "mensaje-exito"}`}>
+                        {mensajeContrasena}
+                    </p>
+                )}
+
+                <form className="formulario-admin formulario-contrasena" onSubmit={guardarContrasena}>
+                    {usandoCodigoContrasena ? (
+                        <label>
+                            Código del correo
+                            <input
+                                value={formularioContrasena.codigo}
+                                onChange={(e) => cambiarCampoContrasena("codigo", e.target.value)}
+                                inputMode="numeric"
+                                maxLength={6}
+                                autoComplete="one-time-code"
+                                required
+                            />
+                        </label>
+                    ) : (
+                        <label>
+                            Contraseña actual
+                            <input
+                                type="password"
+                                value={formularioContrasena.contrasena_actual}
+                                onChange={(e) => cambiarCampoContrasena("contrasena_actual", e.target.value)}
+                                autoComplete="current-password"
+                                required
+                            />
+                        </label>
+                    )}
+                    <label>
+                        Nueva contraseña
+                        <input
+                            type="password"
+                            value={formularioContrasena.contrasena}
+                            onChange={(e) => cambiarCampoContrasena("contrasena", e.target.value)}
+                            autoComplete="new-password"
+                            minLength={6}
+                            required
+                        />
+                    </label>
+                    <label>
+                        Confirmar nueva contraseña
+                        <input
+                            type="password"
+                            value={formularioContrasena.contrasena_confirmation}
+                            onChange={(e) => cambiarCampoContrasena("contrasena_confirmation", e.target.value)}
+                            autoComplete="new-password"
+                            minLength={6}
+                            required
+                        />
+                    </label>
+
+                    <div className="acciones-admin">
+                        <button type="submit" disabled={guardandoContrasena}>
+                            {guardandoContrasena ? "Guardando..." : "Cambiar contraseña"}
+                        </button>
+                        {usandoCodigoContrasena ? (
+                            <button type="button" className="boton-secundario" onClick={alternarModoCodigoContrasena}>
+                                Usar contraseña actual
+                            </button>
+                        ) : (
+                            <button type="button" className="boton-secundario" onClick={solicitarCodigoContrasena} disabled={enviandoCodigoContrasena}>
+                                {enviandoCodigoContrasena ? "Enviando código..." : "No recuerdo mi contraseña"}
+                            </button>
+                        )}
                     </div>
                 </form>
             </section>

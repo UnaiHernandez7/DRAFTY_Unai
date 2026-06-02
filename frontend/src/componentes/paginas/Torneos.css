@@ -1,4 +1,4 @@
-.torneos-page {
+﻿.torneos-page {
     color: #f7f7f7;
 }
 
@@ -9,12 +9,12 @@
     gap: 24px;
     padding: 32px;
     margin-bottom: 24px;
-    border: 1px solid rgba(198, 255, 0, 0.22);
+    border: 1px solid rgba(190, 255, 72, 0.22);
     border-radius: 18px;
     background:
-        linear-gradient(135deg, rgba(198, 255, 0, 0.12), rgba(18, 20, 24, 0.96) 42%),
-        radial-gradient(circle at top right, rgba(198, 255, 0, 0.16), transparent 32%);
-    box-shadow: 0 0 8px rgba(198, 255, 0, 0.18);
+        linear-gradient(135deg, rgba(190, 255, 72, 0.12), rgba(18, 20, 24, 0.96) 42%),
+        radial-gradient(circle at top right, rgba(190, 255, 72, 0.16), transparent 32%);
+    box-shadow: 0 0 8px rgba(190, 255, 72, 0.18);
     overflow: hidden;
 }
 
@@ -25,7 +25,7 @@
 .torneos-eyebrow {
     display: inline-block;
     margin-bottom: 8px;
-    color: #c6ff00;
+    color: #beff48;
     font-size: 0.78rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -47,9 +47,9 @@
 .torneo-primary-link,
 .torneo-back,
 .torneos-page button {
-    border: 1px solid rgba(198, 255, 0, 0.34);
+    border: 1px solid rgba(190, 255, 72, 0.34);
     border-radius: 12px;
-    background: #c6ff00;
+    background: #beff48;
     color: #101214;
     font-weight: 800;
     cursor: pointer;
@@ -70,7 +70,7 @@
 .torneo-back:hover,
 .torneos-page button:hover {
     transform: translateY(-1px);
-    box-shadow: 0 0 8px rgba(198, 255, 0, 0.25);
+    box-shadow: 0 0 8px rgba(190, 255, 72, 0.25);
 }
 
 .torneo-back,
@@ -101,7 +101,7 @@
 }
 
 .torneos-filtros button.activo {
-    background: #c6ff00;
+    background: #beff48;
     color: #101214;
 }
 
@@ -124,7 +124,7 @@
 }
 
 .torneo-card:hover {
-    border-color: rgba(198, 255, 0, 0.3);
+    border-color: rgba(190, 255, 72, 0.3);
 }
 
 .torneo-card-title {
@@ -148,8 +148,8 @@
 .torneo-pill {
     padding: 6px 10px;
     border-radius: 999px;
-    background: rgba(198, 255, 0, 0.14);
-    color: #c6ff00;
+    background: rgba(190, 255, 72, 0.14);
+    color: #beff48;
     font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -191,7 +191,7 @@
 }
 
 .torneo-cupo strong {
-    color: #c6ff00;
+    color: #beff48;
     font-size: 2rem;
 }
 
@@ -210,9 +210,9 @@
     display: grid;
     gap: 6px;
     padding: 12px 13px;
-    border: 1px solid rgba(198, 255, 0, 0.18);
+    border: 1px solid rgba(190, 255, 72, 0.18);
     border-radius: 12px;
-    background: rgba(198, 255, 0, 0.07);
+    background: rgba(190, 255, 72, 0.07);
 }
 
 .torneo-form-info span {
@@ -221,7 +221,7 @@
 }
 
 .torneo-form-info strong {
-    color: #c6ff00;
+    color: #beff48;
 }
 
 .torneo-form-info small {
@@ -235,7 +235,7 @@
 
 .selector-mapa {
     min-height: 320px;
-    border: 1px solid rgba(198, 255, 0, 0.18);
+    border: 1px solid rgba(190, 255, 72, 0.18);
     border-radius: 16px;
     overflow: hidden;
     background: rgba(0, 0, 0, 0.25);
@@ -271,8 +271,8 @@
 .torneos-page input:focus,
 .torneos-page select:focus,
 .torneos-page textarea:focus {
-    border-color: rgba(198, 255, 0, 0.52);
-    box-shadow: 0 0 8px rgba(198, 255, 0, 0.18);
+    border-color: rgba(190, 255, 72, 0.52);
+    box-shadow: 0 0 8px rgba(190, 255, 72, 0.18);
 }
 
 .torneo-acciones,
@@ -331,15 +331,15 @@
 .torneo-hero-stats {
     min-width: 160px;
     padding: 16px;
-    border: 1px solid rgba(198, 255, 0, 0.22);
+    border: 1px solid rgba(190, 255, 72, 0.22);
     border-radius: 14px;
-    background: rgba(198, 255, 0, 0.08);
+    background: rgba(190, 255, 72, 0.08);
     text-align: right;
 }
 
 .torneo-hero-stats strong {
     display: block;
-    color: #c6ff00;
+    color: #beff48;
     font-size: 2rem;
 }
 
@@ -390,7 +390,7 @@
 }
 
 .torneo-panel-head span {
-    color: #c6ff00;
+    color: #beff48;
     font-weight: 800;
 }
 
@@ -404,6 +404,7 @@
 .bracket-torneo.visual {
     align-items: stretch;
     gap: 28px;
+    padding-top: 14px;
 }
 
 .bracket-ronda.visual {
@@ -413,9 +414,9 @@
 
 .bracket-ronda.visual h3 {
     padding: 10px 12px;
-    border: 1px solid rgba(198, 255, 0, 0.2);
+    border: 1px solid rgba(190, 255, 72, 0.2);
     border-radius: 12px;
-    background: rgba(198, 255, 0, 0.07);
+    background: rgba(190, 255, 72, 0.07);
 }
 
 .bracket-partidos.visual {
@@ -428,12 +429,12 @@
     border-color: rgba(255, 255, 255, 0.1);
     background:
         linear-gradient(145deg, rgba(28, 32, 36, 0.98), rgba(8, 10, 12, 0.96)),
-        radial-gradient(circle at top, rgba(198, 255, 0, 0.1), transparent 36%);
+        radial-gradient(circle at top, rgba(190, 255, 72, 0.1), transparent 36%);
     overflow: hidden;
 }
 
 .bracket-match.visual.finalizado {
-    border-color: rgba(198, 255, 0, 0.24);
+    border-color: rgba(190, 255, 72, 0.24);
 }
 
 .bracket-match-top {
@@ -464,22 +465,22 @@
 }
 
 .bracket-final-center {
-    transform: translateY(-10px);
+    padding-top: 10px;
 }
 
 .bracket-final-center .bracket-match.visual {
-    border-color: rgba(198, 255, 0, 0.34);
-    box-shadow: 0 0 8px rgba(198, 255, 0, 0.2);
+    border-color: rgba(190, 255, 72, 0.34);
+    box-shadow: 0 0 8px rgba(190, 255, 72, 0.2);
 }
 
 .bracket-final-side h3,
 .bracket-final-center h3 {
     margin: 0;
     padding: 10px 12px;
-    border: 1px solid rgba(198, 255, 0, 0.2);
+    border: 1px solid rgba(190, 255, 72, 0.2);
     border-radius: 12px;
-    background: rgba(198, 255, 0, 0.07);
-    color: #c6ff00;
+    background: rgba(190, 255, 72, 0.07);
+    color: #beff48;
 }
 
 .bracket-estado {
@@ -493,8 +494,8 @@
 }
 
 .bracket-estado.finalizado {
-    background: rgba(198, 255, 0, 0.14);
-    color: #c6ff00;
+    background: rgba(190, 255, 72, 0.14);
+    color: #beff48;
 }
 
 .bracket-versus {
@@ -514,9 +515,9 @@
 }
 
 .bracket-club.ganador {
-    border-color: rgba(198, 255, 0, 0.42);
-    background: rgba(198, 255, 0, 0.1);
-    box-shadow: 0 0 8px rgba(198, 255, 0, 0.18);
+    border-color: rgba(190, 255, 72, 0.42);
+    background: rgba(190, 255, 72, 0.1);
+    box-shadow: 0 0 8px rgba(190, 255, 72, 0.18);
 }
 
 .bracket-club img {
@@ -534,7 +535,7 @@
 }
 
 .bracket-club b {
-    color: #c6ff00;
+    color: #beff48;
     font-size: 1.35rem;
 }
 
@@ -550,7 +551,7 @@
     right: -26px;
     width: 26px;
     height: 2px;
-    background: linear-gradient(90deg, rgba(198, 255, 0, 0.45), transparent);
+    background: linear-gradient(90deg, rgba(190, 255, 72, 0.45), transparent);
 }
 
 .bracket-goles-list {
@@ -566,7 +567,7 @@
     gap: 6px;
     padding: 6px 8px;
     border-radius: 999px;
-    background: rgba(198, 255, 0, 0.1);
+    background: rgba(190, 255, 72, 0.1);
     color: #dfff8a;
     font-size: 0.82rem;
     font-weight: 800;
@@ -616,7 +617,7 @@
 }
 
 .torneo-location-copy strong {
-    color: #c6ff00;
+    color: #beff48;
     font-size: 1.35rem;
 }
 
@@ -629,7 +630,7 @@
 .mapa-torneo-wrapper,
 .mapa-torneo-vacio {
     min-height: 320px;
-    border: 1px solid rgba(198, 255, 0, 0.18);
+    border: 1px solid rgba(190, 255, 72, 0.18);
     border-radius: 16px;
     overflow: hidden;
     background: rgba(0, 0, 0, 0.22);
@@ -650,8 +651,8 @@
     height: 20px;
     border: 4px solid #101214;
     border-radius: 50%;
-    background: #c6ff00;
-    box-shadow: 0 0 8px rgba(198, 255, 0, 0.55);
+    background: #beff48;
+    box-shadow: 0 0 8px rgba(190, 255, 72, 0.55);
 }
 
 .mapa-torneo-vacio {
@@ -665,7 +666,7 @@
     display: block;
     padding: 12px 14px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    color: #c6ff00;
+    color: #beff48;
     font-weight: 900;
     text-decoration: none;
     text-align: center;
@@ -678,7 +679,7 @@
 .bracket-ronda h3,
 .torneo-ranking-card h3 {
     margin: 0 0 12px;
-    color: #c6ff00;
+    color: #beff48;
 }
 
 .bracket-partidos {
@@ -705,13 +706,13 @@
 }
 
 .bracket-team.ganador {
-    background: rgba(198, 255, 0, 0.12);
+    background: rgba(190, 255, 72, 0.12);
     color: #ffffff;
-    outline: 1px solid rgba(198, 255, 0, 0.28);
+    outline: 1px solid rgba(190, 255, 72, 0.28);
 }
 
 .bracket-team strong {
-    color: #c6ff00;
+    color: #beff48;
 }
 
 .bracket-status {
@@ -744,8 +745,8 @@
 }
 
 .torneo-ranking-row.lider {
-    outline: 1px solid rgba(198, 255, 0, 0.28);
-    background: rgba(198, 255, 0, 0.08);
+    outline: 1px solid rgba(190, 255, 72, 0.28);
+    background: rgba(190, 255, 72, 0.08);
 }
 
 .ranking-pos {
@@ -754,8 +755,8 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: rgba(198, 255, 0, 0.14);
-    color: #c6ff00;
+    background: rgba(190, 255, 72, 0.14);
+    color: #beff48;
     font-weight: 900;
 }
 
@@ -765,7 +766,7 @@
 }
 
 .torneo-ranking-row b {
-    color: #c6ff00;
+    color: #beff48;
     font-size: 1.3rem;
 }
 
@@ -823,3 +824,4 @@
         text-align: center;
     }
 }
+

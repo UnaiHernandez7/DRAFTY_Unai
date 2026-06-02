@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Mail\CodigoCambioContrasenaMail;
 use App\Mail\CodigoVerificacionMail;
 use App\Models\Competitivo;
 use App\Models\RegistroPendiente;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -178,6 +181,70 @@ class AuthController extends Controller
         return response()->json([
             'mensaje' => 'Código reenviado al correo',
             'email' => $registro->email
+        ]);
+    }
+
+    public function solicitarCodigoRecuperacion(Request $request)
+    {
+        $datos = $request->validate([
+            'email' => 'required|email',
+        ]);
+        $email = strtolower($datos['email']);
+        $usuario = Usuario::where('email', $email)->first();
+
+        if ($usuario) {
+            $codigo = $this->generarCodigoVerificacion();
+
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $email],
+                [
+                    'token' => Hash::make($codigo),
+                    'created_at' => now(),
+                ]
+            );
+
+            Mail::to($email)->send(new CodigoCambioContrasenaMail($codigo));
+        }
+
+        return response()->json([
+            'mensaje' => 'Si el email pertenece a una cuenta de DRAFTY, recibirás un código para cambiar la contraseña.'
+        ]);
+    }
+
+    public function recuperarContrasena(Request $request)
+    {
+        $datos = $request->validate([
+            'email' => 'required|email',
+            'codigo' => 'required|digits:6',
+            'contrasena' => 'required|string|min:6|confirmed',
+        ], [
+            'codigo.required' => 'Introduce el código enviado a tu correo.',
+            'codigo.digits' => 'El código debe tener 6 dígitos.',
+            'contrasena.required' => 'Introduce la nueva contraseña.',
+            'contrasena.min' => 'La nueva contraseña debe tener al menos 6 caracteres.',
+            'contrasena.confirmed' => 'La confirmación no coincide con la nueva contraseña.',
+        ]);
+        $email = strtolower($datos['email']);
+        $usuario = Usuario::where('email', $email)->first();
+        $registro = DB::table('password_reset_tokens')->where('email', $email)->first();
+
+        if (!$usuario || !$registro || Carbon::parse($registro->created_at)->addMinutes(10)->isPast() || !Hash::check($datos['codigo'], $registro->token)) {
+            return response()->json([
+                'mensaje' => 'El código no es válido o ha caducado.',
+                'errors' => [
+                    'codigo' => ['El código no es válido o ha caducado.']
+                ]
+            ], 422);
+        }
+
+        $usuario->update([
+            'contrasena' => Hash::make($datos['contrasena'])
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        return response()->json([
+            'mensaje' => 'Contraseña actualizada correctamente. Ya puedes iniciar sesión.'
         ]);
     }
 

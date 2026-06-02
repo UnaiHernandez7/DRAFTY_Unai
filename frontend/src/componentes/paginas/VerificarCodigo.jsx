@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
+import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Login.css";
 
 const VerificarCodigo = () => {
@@ -67,7 +68,7 @@ const VerificarCodigo = () => {
     return (
         <main className="auth-page">
             <section className="auth-brand">
-                <span className="auth-kicker">DRAFTY</span>
+                <img className="auth-logo" src={logotipoDrafty} alt="DRAFTY" />
                 <h1>Verifica tu correo.</h1>
                 <p>Te hemos enviado un código de 6 dígitos. Al confirmarlo se creara tu cuenta y entraras automáticamente.</p>
 

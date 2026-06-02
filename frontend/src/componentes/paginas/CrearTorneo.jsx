@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
+import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import SelectorMapa from "./SelectorMapa.jsx";
 import "./Torneos.css";
 
@@ -57,14 +58,11 @@ const CrearTorneo = () => {
 
     return (
         <main className="inicio torneos-page">
-            <section className="torneos-hero">
-                <div>
-                    <span className="torneos-eyebrow">Nuevo torneo</span>
-                    <h1>Crear torneo</h1>
-                    <p>Define formato, plazas, privacidad y premio antes de abrir inscripciones.</p>
-                </div>
-                <button type="button" className="torneo-back" onClick={() => navigate("/torneos")}>Volver</button>
-            </section>
+            <EncabezadoSeccion
+                titulo="Crear torneo"
+                descripcion="Define formato, plazas, privacidad y premio antes de abrir inscripciones."
+                accion={<button type="button" onClick={() => navigate("/torneos")}>Volver</button>}
+            />
 
             {mensaje && <p className="mensaje mensaje-error">{mensaje}</p>}
 

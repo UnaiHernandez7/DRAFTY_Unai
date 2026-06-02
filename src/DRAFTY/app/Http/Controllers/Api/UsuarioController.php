@@ -9,9 +9,13 @@ use App\Models\RegistroPendiente;
 use App\Models\Usuario;
 use App\Models\VotoMvp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
+use App\Mail\CodigoCambioContrasenaMail;
 
 class UsuarioController extends Controller
 {
@@ -188,6 +192,102 @@ class UsuarioController extends Controller
         $usuario->update($datos);
 
         return response()->json($usuario);
+    }
+
+    public function actualizarContrasena(Request $request)
+    {
+        $usuario = $request->user();
+
+        $datos = $request->validate([
+            'contrasena_actual' => 'required|string',
+            'contrasena' => 'required|string|min:6|confirmed',
+        ], [
+            'contrasena_actual.required' => 'Introduce tu contraseña actual.',
+            'contrasena.required' => 'Introduce la nueva contraseña.',
+            'contrasena.min' => 'La nueva contraseña debe tener al menos 6 caracteres.',
+            'contrasena.confirmed' => 'La confirmación no coincide con la nueva contraseña.',
+        ]);
+
+        if (!Hash::check($datos['contrasena_actual'], $usuario->contrasena)) {
+            return response()->json([
+                'mensaje' => 'La contraseña actual no es correcta.',
+                'errors' => [
+                    'contrasena_actual' => ['La contraseña actual no es correcta.']
+                ]
+            ], 422);
+        }
+
+        $usuario->update([
+            'contrasena' => Hash::make($datos['contrasena'])
+        ]);
+
+        return response()->json([
+            'mensaje' => 'Contraseña actualizada correctamente.'
+        ]);
+    }
+
+    public function solicitarCodigoCambioContrasena(Request $request)
+    {
+        $usuario = $request->user();
+        $codigo = $this->generarCodigoContrasena();
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $usuario->email],
+            [
+                'token' => Hash::make($codigo),
+                'created_at' => now(),
+            ]
+        );
+
+        Mail::to($usuario->email)->send(new CodigoCambioContrasenaMail($codigo));
+
+        return response()->json([
+            'mensaje' => 'Te hemos enviado un código a tu correo para cambiar la contraseña.'
+        ]);
+    }
+
+    public function actualizarContrasenaConCodigo(Request $request)
+    {
+        $usuario = $request->user();
+
+        $datos = $request->validate([
+            'codigo' => 'required|digits:6',
+            'contrasena' => 'required|string|min:6|confirmed',
+        ], [
+            'codigo.required' => 'Introduce el código enviado a tu correo.',
+            'codigo.digits' => 'El código debe tener 6 dígitos.',
+            'contrasena.required' => 'Introduce la nueva contraseña.',
+            'contrasena.min' => 'La nueva contraseña debe tener al menos 6 caracteres.',
+            'contrasena.confirmed' => 'La confirmación no coincide con la nueva contraseña.',
+        ]);
+
+        $registro = DB::table('password_reset_tokens')
+            ->where('email', $usuario->email)
+            ->first();
+
+        if (!$registro || Carbon::parse($registro->created_at)->addMinutes(10)->isPast() || !Hash::check($datos['codigo'], $registro->token)) {
+            return response()->json([
+                'mensaje' => 'El código no es válido o ha caducado.',
+                'errors' => [
+                    'codigo' => ['El código no es válido o ha caducado.']
+                ]
+            ], 422);
+        }
+
+        $usuario->update([
+            'contrasena' => Hash::make($datos['contrasena'])
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $usuario->email)->delete();
+
+        return response()->json([
+            'mensaje' => 'Contraseña actualizada correctamente.'
+        ]);
+    }
+
+    private function generarCodigoContrasena(): string
+    {
+        return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 
     public function amigos(Request $request)

@@ -1,7 +1,12 @@
 import Rutas from "./Rutas.jsx";
+import "./Contenido.css";
 
 const Contenido = () => {
-    return <Rutas />;
+    return (
+        <div className="contenido-principal">
+            <Rutas />
+        </div>
+    );
 };
 
 export default Contenido;
