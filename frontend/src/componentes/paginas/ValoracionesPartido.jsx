@@ -28,10 +28,10 @@ const ValoracionesPartido = ({ partido, participantes, miJugador }) => {
         try {
             setGuardando(true);
             await api.post(`/partidos/${partido.id_partido}/valoraciones`, formulario);
-            setMensaje("Valoracion guardada correctamente.");
+            setMensaje("Valoración guardada correctamente.");
             setFormulario({ id_usuario_valorado: "", puntuacion: 5, comentario: "" });
         } catch (error) {
-            setMensaje(error.response?.data?.mensaje || "No se ha podido guardar la valoracion.");
+            setMensaje(error.response?.data?.mensaje || "No se ha podido guardar la valoración.");
         } finally {
             setGuardando(false);
         }
@@ -86,7 +86,7 @@ const ValoracionesPartido = ({ partido, participantes, miJugador }) => {
                             rows="3"
                         />
                     </label>
-                    <button type="submit" disabled={guardando}>Guardar valoracion</button>
+                    <button type="submit" disabled={guardando}>Guardar valoración</button>
                 </form>
             ) : (
                 <p className="post-ayuda">Solo los capitanes pueden valorar durante la ventana de 24 horas.</p>

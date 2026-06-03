@@ -9,7 +9,7 @@ const golesPorEquipo = (goles = [], equipo) => (
 
 const formatearFecha = (valor) => {
     if (!valor) {
-        return "Sin limite";
+        return "Sin límite";
     }
 
     return new Date(valor).toLocaleString("es-ES", {
@@ -29,11 +29,23 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
     const soyCapitan = Boolean(miJugador?.pivot?.es_capitan);
     const puedeGestionar = partido?.estado !== "cancelado" && soyCapitan;
     const puedeUsarVentana = Boolean(partido?.ventana_resultado_abierta);
+    const estadoResultado = resultado?.estado_resultado;
+    const resultadoCerrado = estadoResultado === "cerrado";
+    const resultadoSinResultado = estadoResultado === "sin_resultado";
+    const resultadoEditable = !resultadoCerrado && !resultadoSinResultado;
+    const miEquipo = miJugador?.pivot?.equipo_asignado;
 
     const marcador = useMemo(() => ({
-        local: resultado?.goles_local ?? golesPorEquipo(goles, "Equipo A"),
-        visitante: resultado?.goles_visitante ?? golesPorEquipo(goles, "Equipo B")
-    }), [goles, resultado]);
+        local: resultadoSinResultado ? "-" : (resultadoCerrado ? resultado?.goles_local : golesPorEquipo(goles, "Equipo A")),
+        visitante: resultadoSinResultado ? "-" : (resultadoCerrado ? resultado?.goles_visitante : golesPorEquipo(goles, "Equipo B"))
+    }), [goles, resultado, resultadoCerrado, resultadoSinResultado]);
+
+    const propuestaLocal = resultado?.goles_local_local != null && resultado?.goles_visitante_local != null
+        ? `${resultado.goles_local_local} - ${resultado.goles_visitante_local}`
+        : "Pendiente";
+    const propuestaVisitante = resultado?.goles_local_visitante != null && resultado?.goles_visitante_visitante != null
+        ? `${resultado.goles_local_visitante} - ${resultado.goles_visitante_visitante}`
+        : "Pendiente";
 
     const agregarGol = async (e) => {
         e.preventDefault();
@@ -79,24 +91,11 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
     const registrarResultado = async () => {
         try {
             setGuardando(true);
-            await api.post(`/partidos/${partido.id_partido}/resultado`);
-            setMensaje("Resultado registrado correctamente.");
+            const respuesta = await api.post(`/partidos/${partido.id_partido}/resultado`);
+            setMensaje(respuesta.data?.mensaje || "Resultado enviado correctamente.");
             await onCambio();
         } catch (error) {
             setMensaje(error.response?.data?.mensaje || "No se ha podido registrar el resultado.");
-        } finally {
-            setGuardando(false);
-        }
-    };
-
-    const confirmarResultado = async () => {
-        try {
-            setGuardando(true);
-            await api.put(`/partidos/${partido.id_partido}/resultado/confirmar`);
-            setMensaje("Resultado confirmado.");
-            await onCambio();
-        } catch (error) {
-            setMensaje(error.response?.data?.mensaje || "No se ha podido confirmar el resultado.");
         } finally {
             setGuardando(false);
         }
@@ -121,7 +120,7 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
             </div>
 
             <div className="post-alertas">
-                {partido.estado === "cancelado" && <p className="post-error">El partido esta cancelado.</p>}
+                {partido.estado === "cancelado" && <p className="post-error">El partido está cancelado.</p>}
                 {partido.faltan_jugadores_minimos > 0 && partido.estado !== "cancelado" && (
                     <p>Faltan {partido.faltan_jugadores_minimos} jugadores para completar las alineaciones mínimas.</p>
                 )}
@@ -133,6 +132,21 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
                     Ventana de resultado: <strong>{puedeUsarVentana ? "abierta" : "cerrada"}</strong>
                     {" "}hasta {formatearFecha(partido.fecha_limite_resultado)}
                 </p>
+                {resultado && (
+                    <p>
+                        Equipo A: <strong>{propuestaLocal}</strong>
+                        {" "}· Equipo B: <strong>{propuestaVisitante}</strong>
+                    </p>
+                )}
+                {estadoResultado === "desacuerdo" && (
+                    <p className="post-error">Los resultados no coinciden. Podéis corregir los goles y volver a enviar el marcador antes de que cierre la ventana.</p>
+                )}
+                {resultadoSinResultado && (
+                    <p className="post-error">La ventana terminó sin acuerdo. El partido queda sin resultado.</p>
+                )}
+                {resultadoCerrado && (
+                    <p>Resultado confirmado por los dos equipos.</p>
+                )}
             </div>
 
             {mensaje && <p className="post-mensaje">{mensaje}</p>}
@@ -147,7 +161,7 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
                                 <strong>{nombreJugador(gol.usuario)}</strong>
                                 <span>{gol.equipo_sala || "Sin equipo"}{gol.minuto ? ` · ${gol.minuto}'` : ""}</span>
                             </div>
-                            {puedeGestionar && puedeUsarVentana && resultado?.estado_resultado !== "cerrado" && (
+                            {puedeGestionar && puedeUsarVentana && resultadoEditable && (
                                 <button type="button" onClick={() => quitarGol(gol.id_gol)} disabled={guardando}>
                                     Quitar
                                 </button>
@@ -157,7 +171,7 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
                 )}
             </div>
 
-            {puedeGestionar && puedeUsarVentana && resultado?.estado_resultado !== "cerrado" && (
+            {puedeGestionar && puedeUsarVentana && resultadoEditable && (
                 <>
                     <form className="post-form" onSubmit={agregarGol}>
                         <label>
@@ -190,13 +204,8 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
 
                     <div className="post-acciones">
                         <button type="button" onClick={registrarResultado} disabled={guardando}>
-                            Registrar resultado
+                            Enviar resultado {miEquipo ? `de ${miEquipo}` : ""}
                         </button>
-                        {resultado && (
-                            <button type="button" onClick={confirmarResultado} disabled={guardando}>
-                                Confirmar resultado
-                            </button>
-                        )}
                     </div>
                 </>
             )}
@@ -211,3 +220,4 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
 };
 
 export default ResultadoPartido;
+

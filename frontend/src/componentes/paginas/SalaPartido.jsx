@@ -303,10 +303,10 @@ const SalaPartido = () => {
                 equipo_asignado: nuevoEquipo,
                 posicion_asignada: nuevaPosicion
             });
-            setMensaje(`Alineacion actualizada: ${nuevaPosicion}.`);
+            setMensaje(`Alineación actualizada: ${nuevaPosicion}.`);
             cargarSala();
         } catch (error) {
-            setMensaje(error.response?.data?.mensaje || "No se ha podido cambiar la posicion.");
+            setMensaje(error.response?.data?.mensaje || "No se ha podido cambiar la posición.");
         }
     };
 
@@ -316,10 +316,10 @@ const SalaPartido = () => {
                 equipo_asignado: equipo,
                 formacion: nuevaFormacion
             });
-            setMensaje(`Formacion ${nuevaFormacion} guardada.`);
+            setMensaje(`Formación ${nuevaFormacion} guardada.`);
             cargarSala();
         } catch (error) {
-            setMensaje(error.response?.data?.mensaje || "No se ha podido cambiar la formacion.");
+            setMensaje(error.response?.data?.mensaje || "No se ha podido cambiar la formación.");
         }
     };
 
@@ -583,12 +583,12 @@ const SalaPartido = () => {
 
                         <div className="resumen-equipos">
                             <div>
-                                <span>Capitan Equipo A</span>
-                                <strong>{capitanLocal?.nombre_usuario || "Sin capitan"}</strong>
+                                <span>Capitán Equipo A</span>
+                                <strong>{capitanLocal?.nombre_usuario || "Sin capitán"}</strong>
                             </div>
                             <div>
-                                <span>Capitan Equipo B</span>
-                                <strong>{capitanVisitante?.nombre_usuario || "Sin capitan"}</strong>
+                                <span>Capitán Equipo B</span>
+                                <strong>{capitanVisitante?.nombre_usuario || "Sin capitán"}</strong>
                             </div>
                             <div>
                                 <span>Tu equipo</span>
@@ -596,7 +596,7 @@ const SalaPartido = () => {
                             </div>
                             <div>
                                 <span>Tu rol</span>
-                                <strong>{miJugador?.pivot?.es_capitan ? "Capitan" : "Jugador"}</strong>
+                                <strong>{miJugador?.pivot?.es_capitan ? "Capitán" : "Jugador"}</strong>
                             </div>
                         </div>
 
@@ -809,9 +809,9 @@ const SalaPartido = () => {
                         </div>
 
                         <p>
-                            Ahora juegas de <strong>{miJugador?.pivot?.posicion_asignada || "sin posicion"}</strong>.
+                            Ahora juegas de <strong>{miJugador?.pivot?.posicion_asignada || "sin posición"}</strong>.
                             {miJugador?.pivot?.es_capitan
-                                ? " Eres capitan: puedes cambiar la formacion de tu equipo y moverte a cualquier puesto."
+                                ? " Eres capitán: puedes cambiar la formación de tu equipo y moverte a cualquier puesto."
                                 : " Puedes cambiarte de puesto o de equipo pulsando en el campo."}
                         </p>
                     </section>

@@ -80,7 +80,7 @@ const Torneos = () => {
     const unirse = async (torneo) => {
         if (!isAuth) {
             setTipoMensaje("error");
-            setMensaje("Debes iniciar sesion para inscribir un equipo.");
+            setMensaje("Debes iniciar sesión para inscribir un equipo.");
             navigate("/login");
             return;
         }
@@ -188,7 +188,7 @@ const Torneos = () => {
                                             <input
                                                 value={codigos[torneo.id_torneo] || ""}
                                                 onChange={(e) => setCodigos({ ...codigos, [torneo.id_torneo]: e.target.value })}
-                                                placeholder="Codigo"
+                                                placeholder="Código"
                                             />
                                         )}
                                     </div>

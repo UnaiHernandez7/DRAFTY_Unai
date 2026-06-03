@@ -732,6 +732,7 @@ class PartidoController extends Controller
             'valoraciones.valorado'
         ])->findOrFail($id);
         $this->cancelarSiAlineacionesIncompletas($partido);
+        $this->cerrarResultadoSinAcuerdoSiExpirado($partido);
         $partido->refresh()->load([
             'campo',
             'usuarios.competitivo',
@@ -1544,6 +1545,48 @@ class PartidoController extends Controller
         $inicio = Carbon::parse($partido->fecha . ' ' . $partido->hora);
 
         return now()->betweenIncluded($inicio, $inicio->copy()->addDay());
+    }
+
+    private function cerrarResultadoSinAcuerdoSiExpirado(Partido $partido): void
+    {
+        if (!$partido->fecha || !$partido->hora) {
+            return;
+        }
+
+        $resultado = $partido->resultado;
+
+        if (!$resultado) {
+            $fin = Carbon::parse($partido->fecha . ' ' . $partido->hora)->addDay();
+
+            if (now()->gt($fin)) {
+                $partido->goles_equipo_a = null;
+                $partido->goles_equipo_b = null;
+                $partido->estado = 'finalizado';
+                $partido->save();
+            }
+
+            return;
+        }
+
+        if (in_array($resultado->estado_resultado, ['cerrado', 'sin_resultado'], true)) {
+            return;
+        }
+
+        $fin = Carbon::parse($partido->fecha . ' ' . $partido->hora)->addDay();
+
+        if (now()->lte($fin)) {
+            return;
+        }
+
+        $resultado->estado_resultado = 'sin_resultado';
+        $resultado->goles_local = 0;
+        $resultado->goles_visitante = 0;
+        $resultado->save();
+
+        $partido->goles_equipo_a = null;
+        $partido->goles_equipo_b = null;
+        $partido->estado = 'finalizado';
+        $partido->save();
     }
 
     private function formacionesPorTipo(object $partido): array

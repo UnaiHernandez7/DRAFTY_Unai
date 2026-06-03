@@ -20,7 +20,7 @@ class GolPartidoController extends Controller
             'minuto.min' => 'El minuto del gol debe ser como minimo 1.'
         ]);
 
-        $partido = Partido::with('usuarios')->findOrFail($id);
+        $partido = Partido::with(['usuarios', 'resultado'])->findOrFail($id);
 
         if (!$this->ventanaResultadoAbierta($partido)) {
             return response()->json(['mensaje' => 'No puedes registrar goles fuera de la ventana de resultado'], 403);
@@ -28,6 +28,10 @@ class GolPartidoController extends Controller
 
         if (!$this->puedeGestionarGoles($request, $partido)) {
             return response()->json(['mensaje' => 'No tienes permiso para registrar goles'], 403);
+        }
+
+        if ($this->resultadoBloqueado($partido)) {
+            return response()->json(['mensaje' => 'No puedes modificar goles cuando el resultado ya está cerrado'], 403);
         }
 
         $goleador = $partido->usuarios()
@@ -55,7 +59,7 @@ class GolPartidoController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        $gol = GolPartido::with('partido.usuarios')->findOrFail($id);
+        $gol = GolPartido::with(['partido.usuarios', 'partido.resultado'])->findOrFail($id);
 
         if (!$this->ventanaResultadoAbierta($gol->partido)) {
             return response()->json(['mensaje' => 'No puedes eliminar goles fuera de la ventana de resultado'], 403);
@@ -63,6 +67,10 @@ class GolPartidoController extends Controller
 
         if (!$this->puedeGestionarGoles($request, $gol->partido)) {
             return response()->json(['mensaje' => 'No tienes permiso para eliminar goles'], 403);
+        }
+
+        if ($this->resultadoBloqueado($gol->partido)) {
+            return response()->json(['mensaje' => 'No puedes modificar goles cuando el resultado ya está cerrado'], 403);
         }
 
         $gol->delete();
@@ -77,6 +85,11 @@ class GolPartidoController extends Controller
             ->wherePivot('estado_participacion', 'confirmado')
             ->wherePivot('es_capitan', true)
             ->exists();
+    }
+
+    private function resultadoBloqueado(Partido $partido): bool
+    {
+        return in_array($partido->resultado?->estado_resultado, ['cerrado', 'sin_resultado'], true);
     }
 
     private function ventanaResultadoAbierta(Partido $partido): bool

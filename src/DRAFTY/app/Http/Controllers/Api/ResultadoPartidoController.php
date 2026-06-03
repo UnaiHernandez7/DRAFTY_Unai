@@ -18,6 +18,7 @@ class ResultadoPartidoController extends Controller
     {
         $partido = Partido::with(['resultado.registrador', 'goles.usuario', 'usuarios'])->findOrFail($id);
         $this->comprobarCancelacionInterna($partido);
+        $this->cerrarSinResultadoSiExpirado($partido);
 
         return response()->json([
             'resultado' => $this->resultadoConGoles($partido),
@@ -43,6 +44,7 @@ class ResultadoPartidoController extends Controller
     {
         $partido = Partido::with(['usuarios', 'goles'])->findOrFail($id);
         $this->comprobarCancelacionInterna($partido);
+        $this->cerrarSinResultadoSiExpirado($partido);
 
         if ($partido->estado === 'cancelado') {
             return response()->json(['mensaje' => 'No se puede registrar resultado de un partido cancelado'], 400);
@@ -52,33 +54,64 @@ class ResultadoPartidoController extends Controller
             return response()->json(['mensaje' => 'La ventana de resultado no esta abierta o ya ha terminado'], 403);
         }
 
-        if (!$this->puedeRegistrarResultado($request, $partido)) {
+        $participante = $this->participante($partido, $request->user()->id_usuario);
+
+        if (!$participante || !$participante->pivot->es_capitan) {
             return response()->json(['mensaje' => 'No tienes permiso para registrar este resultado'], 403);
         }
 
         $golesLocal = $partido->goles()->where('equipo_sala', 'Equipo A')->count();
         $golesVisitante = $partido->goles()->where('equipo_sala', 'Equipo B')->count();
-        $resultado = ResultadoPartido::updateOrCreate(
-            ['id_partido' => $partido->id_partido],
-            [
-                'goles_local' => $golesLocal,
-                'goles_visitante' => $golesVisitante,
-                'registrado_por' => $request->user()->id_usuario,
-                'tipo_registro' => 'capitan',
-                'confirmado_local' => false,
-                'confirmado_visitante' => false,
-                'estado_resultado' => 'pendiente',
-                'fecha_limite_resultado' => $this->fechaLimiteResultado($partido),
-            ]
-        );
+        $resultado = ResultadoPartido::firstOrNew(['id_partido' => $partido->id_partido]);
 
-        $partido->goles_equipo_a = $golesLocal;
-        $partido->goles_equipo_b = $golesVisitante;
+        if ($resultado->estado_resultado === 'cerrado') {
+            return response()->json(['mensaje' => 'Este resultado ya está cerrado'], 422);
+        }
+
+        if ($resultado->estado_resultado === 'sin_resultado') {
+            return response()->json(['mensaje' => 'La ventana terminó sin resultado'], 422);
+        }
+
+        $resultado->registrado_por = $request->user()->id_usuario;
+        $resultado->tipo_registro = 'capitan';
+        $resultado->fecha_limite_resultado = $this->fechaLimiteResultado($partido);
+
+        if ($participante->pivot->equipo_asignado === 'Equipo A') {
+            $resultado->goles_local_local = $golesLocal;
+            $resultado->goles_visitante_local = $golesVisitante;
+            $resultado->confirmado_local = true;
+        } else {
+            $resultado->goles_local_visitante = $golesLocal;
+            $resultado->goles_visitante_visitante = $golesVisitante;
+            $resultado->confirmado_visitante = true;
+        }
+
+        if ($this->propuestasCoinciden($resultado)) {
+            $resultado->goles_local = $resultado->goles_local_local;
+            $resultado->goles_visitante = $resultado->goles_visitante_local;
+            $resultado->estado_resultado = 'cerrado';
+            $resultado->save();
+            $this->cerrarResultado($partido, $resultado);
+        } else {
+            $resultado->goles_local = $golesLocal;
+            $resultado->goles_visitante = $golesVisitante;
+            $resultado->estado_resultado = $resultado->confirmado_local && $resultado->confirmado_visitante
+                ? 'desacuerdo'
+                : 'pendiente';
+            $resultado->save();
+        }
+
         $partido->fecha_limite_resultado = $this->fechaLimiteResultado($partido);
         $partido->save();
 
+        $mensaje = $resultado->estado_resultado === 'cerrado'
+            ? 'Resultado confirmado por ambos equipos'
+            : ($resultado->estado_resultado === 'desacuerdo'
+                ? 'Tu resultado no coincide con el del otro equipo. Podéis corregirlo hasta que termine la ventana.'
+                : 'Resultado enviado. Falta la confirmación del otro equipo.');
+
         return response()->json([
-            'mensaje' => 'Resultado registrado correctamente',
+            'mensaje' => $mensaje,
             'resultado' => $resultado->fresh()
         ], 201);
     }
@@ -86,11 +119,7 @@ class ResultadoPartidoController extends Controller
     public function confirmar(Request $request, $id)
     {
         $partido = Partido::with(['usuarios', 'resultado'])->findOrFail($id);
-        $resultado = $partido->resultado;
-
-        if (!$resultado) {
-            return response()->json(['mensaje' => 'Todavía no hay resultado para confirmar'], 404);
-        }
+        $this->cerrarSinResultadoSiExpirado($partido);
 
         if (!$this->ventanaResultadoAbierta($partido)) {
             return response()->json(['mensaje' => 'La ventana para confirmar el resultado ha terminado'], 403);
@@ -102,27 +131,55 @@ class ResultadoPartidoController extends Controller
             return response()->json(['mensaje' => 'Solo los capitanes pueden confirmar el resultado'], 403);
         }
 
-        if ($participante->pivot->equipo_asignado === 'Equipo A') {
-            $resultado->confirmado_local = true;
+        return response()->json([
+            'mensaje' => 'Envía el marcador desde Registrar resultado. El partido solo se cerrará si ambos equipos envían el mismo resultado.',
+            'resultado' => $partido->resultado
+        ], 422);
+    }
+
+    private function propuestasCoinciden(ResultadoPartido $resultado): bool
+    {
+        return $resultado->confirmado_local &&
+            $resultado->confirmado_visitante &&
+            $resultado->goles_local_local !== null &&
+            $resultado->goles_visitante_local !== null &&
+            $resultado->goles_local_visitante !== null &&
+            $resultado->goles_visitante_visitante !== null &&
+            (int) $resultado->goles_local_local === (int) $resultado->goles_local_visitante &&
+            (int) $resultado->goles_visitante_local === (int) $resultado->goles_visitante_visitante;
+    }
+
+    private function cerrarSinResultadoSiExpirado(Partido $partido): void
+    {
+        $fin = $this->fechaLimiteResultado($partido);
+
+        if (!$fin || now()->lte($fin)) {
+            return;
         }
 
-        if ($participante->pivot->equipo_asignado === 'Equipo B') {
-            $resultado->confirmado_visitante = true;
+        $resultado = $partido->resultado;
+
+        if (!$resultado) {
+            $partido->goles_equipo_a = null;
+            $partido->goles_equipo_b = null;
+            $partido->estado = 'finalizado';
+            $partido->save();
+            return;
         }
 
-        if ($resultado->confirmado_local && $resultado->confirmado_visitante) {
-            $resultado->estado_resultado = 'cerrado';
-            $this->cerrarResultado($partido, $resultado);
-        } else {
-            $resultado->estado_resultado = 'confirmado';
+        if (in_array($resultado->estado_resultado, ['cerrado', 'sin_resultado'], true)) {
+            return;
         }
 
+        $resultado->estado_resultado = 'sin_resultado';
+        $resultado->goles_local = 0;
+        $resultado->goles_visitante = 0;
         $resultado->save();
 
-        return response()->json([
-            'mensaje' => 'Resultado confirmado',
-            'resultado' => $resultado
-        ]);
+        $partido->goles_equipo_a = null;
+        $partido->goles_equipo_b = null;
+        $partido->estado = 'finalizado';
+        $partido->save();
     }
 
     private function resultadoConGoles(Partido $partido): array
@@ -296,3 +353,4 @@ class ResultadoPartidoController extends Controller
         return in_array(strtoupper((string) $posicion), ['POR', 'DFC', 'LI', 'LD'], true);
     }
 }
+

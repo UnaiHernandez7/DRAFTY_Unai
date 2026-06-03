@@ -187,7 +187,7 @@ const Inicio = () => {
 
     const unirseAPartido = async (idPartido) => {
         if (!token) {
-            setMensaje("Debes iniciar sesion para unirte.");
+            setMensaje("Debes iniciar sesión para unirte.");
             return;
         }
 
@@ -259,7 +259,7 @@ const Inicio = () => {
         <main className="inicio">
             <section className="portada inicio-hero">
                 <div className="inicio-hero-contenido">
-                    <span className="inicio-hero-kicker">Futbol organizado</span>
+                    <span className="inicio-hero-kicker">Fútbol organizado</span>
                     <div className="inicio-hero-logo" aria-label="DRAFTY">
                         <img src={logotipoDrafty} alt="DRAFTY" />
                     </div>
@@ -328,9 +328,6 @@ const Inicio = () => {
                             <option>5v5</option>
                             <option>7v7</option>
                             <option>11v11</option>
-                            <option>Fútbol sala</option>
-                            <option>Fútbol 7</option>
-                            <option>Fútbol 11</option>
                         </select>
                     </label>
                     <label>

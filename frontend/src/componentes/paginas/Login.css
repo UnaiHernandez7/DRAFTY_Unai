@@ -107,7 +107,6 @@
     background:
         linear-gradient(135deg, rgba(190, 255, 72, 0.07), rgba(21, 245, 186, 0.03)),
         var(--auth-panel);
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
 }
 
 .auth-card::before {
@@ -144,6 +143,7 @@
 .auth-form label,
 .auth-label {
     display: grid;
+    align-content: start;
     gap: 8px;
     color: #dce3d8;
     font-weight: 900;

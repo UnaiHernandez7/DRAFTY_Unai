@@ -157,7 +157,7 @@ const Perfil = () => {
             await api.patch("/perfil", formulario);
             setTipoMensaje("info");
             setEstadoNombreUsuario({ estado: "idle", mensaje: "" });
-            setMensaje("Perfil actualizado correctamente. Vuelve a iniciar sesion si no ves el cambio en la cabecera.");
+            setMensaje("Perfil actualizado correctamente. Vuelve a iniciar sesión si no ves el cambio en la cabecera.");
         } catch (error) {
             const errores = error.response?.data?.errors;
             const primerError = errores ? Object.values(errores).flat()[0] : null;
@@ -384,7 +384,7 @@ const Perfil = () => {
 
                 {!competitivo?.activo && (
                     <div className="acciones-admin acciones-plan-competitivo">
-                        <Link className="boton-enlace" to="/competitivo">Solicitar activacion</Link>
+                        <Link className="boton-enlace" to="/competitivo">Solicitar activación</Link>
                     </div>
                 )}
             </section>

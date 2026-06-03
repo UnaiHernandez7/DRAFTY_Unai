@@ -143,11 +143,12 @@ const DetalleTorneo = () => {
 
             <section className="torneo-detail-grid">
                 <article className="torneo-panel">
-                    <h2>Informacion general</h2>
+                    <h2>Información general</h2>
                     <div className="torneo-info-list">
                         <span>Organizador <b>{torneo.organizador?.nombre_usuario || torneo.organizador?.nombre || "DRAFTY"}</b></span>
                         <span>Inicio <b>{torneo.fecha_inicio || "Sin fecha"}</b></span>
                         <span>Fin <b>{torneo.fecha_fin || "Sin fecha"}</b></span>
+                        <span>Tipo de fútbol <b>{torneo.tipo_futbol || "Sin definir"}</b></span>
                         <span>Privacidad <b>{torneo.privacidad}</b></span>
                         <span>Premio <b>{torneo.premio || "Sin premio"}</b></span>
                         <span>Cuota <b>{torneo.cuota_inscripcion || 0} EUR</b></span>

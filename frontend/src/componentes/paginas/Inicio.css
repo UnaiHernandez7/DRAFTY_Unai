@@ -90,7 +90,6 @@
         linear-gradient(145deg, rgba(21, 245, 186, 0.12), transparent 46%),
         radial-gradient(circle at 82% 24%, rgba(190, 255, 72, 0.22), transparent 23%),
         #101719;
-    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.34);
     animation: inicioHeroEntrada 520ms ease-out both;
 }
 

@@ -289,7 +289,7 @@ const Competitivo = () => {
 
                     <div className="acciones-admin acciones-plan-competitivo">
                         <button type="button" onClick={activarCompetitivo} disabled={activando}>
-                            {activando ? "Creando pago..." : "Solicitar activacion"}
+                            {activando ? "Creando pago..." : "Solicitar activación"}
                         </button>
                     </div>
                 </section>

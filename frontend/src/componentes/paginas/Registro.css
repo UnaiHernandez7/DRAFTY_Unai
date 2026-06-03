@@ -16,6 +16,10 @@
   grid-column: 1 / -1;
 }
 
+.auth-form-registro > label:first-child {
+  min-height: 98px;
+}
+
 @media (max-width: 860px) {
   .auth-page-registro {
     grid-template-columns: 1fr;

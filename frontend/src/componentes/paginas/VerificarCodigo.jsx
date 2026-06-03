@@ -70,10 +70,10 @@ const VerificarCodigo = () => {
             <section className="auth-brand">
                 <img className="auth-logo" src={logotipoDrafty} alt="DRAFTY" />
                 <h1>Verifica tu correo.</h1>
-                <p>Te hemos enviado un código de 6 dígitos. Al confirmarlo se creara tu cuenta y entraras automáticamente.</p>
+                <p>Te hemos enviado un código de 6 dígitos. Al confirmarlo se creará tu cuenta y entrarás automáticamente.</p>
 
                 <div className="auth-stats">
-                    <div><strong>6</strong><span>digitos</span></div>
+                    <div><strong>6</strong><span>dígitos</span></div>
                     <div><strong>10 min</strong><span>caducidad</span></div>
                     <div><strong>OTP</strong><span>sin enlaces</span></div>
                 </div>
@@ -81,7 +81,7 @@ const VerificarCodigo = () => {
 
             <section className="auth-card">
                 <div className="auth-card-header">
-                    <span>Ultimo paso</span>
+                    <span>Último paso</span>
                     <h2>Código de verificación</h2>
                 </div>
 
@@ -92,7 +92,7 @@ const VerificarCodigo = () => {
                     </label>
 
                     <label>
-                        Codigo
+                        Código
                         <input
                             inputMode="numeric"
                             pattern="[0-9]{6}"

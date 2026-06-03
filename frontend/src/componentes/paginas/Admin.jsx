@@ -240,7 +240,7 @@ const Admin = () => {
                                     value={usuarioForm.contrasena}
                                     onChange={(e) => cambiarUsuarioForm("contrasena", e.target.value)}
                                     required={!usuarioEditando}
-                                    placeholder={usuarioEditando ? "Dejar vacio para no cambiar" : ""}
+                                    placeholder={usuarioEditando ? "Dejar vacío para no cambiar" : ""}
                                 />
                             </label>
                             <label>
@@ -261,7 +261,7 @@ const Admin = () => {
 
                             <div className="acciones-admin">
                                 <button type="submit">{usuarioEditando ? "Guardar usuario" : "Crear usuario"}</button>
-                                {usuarioEditando && <button type="button" onClick={limpiarUsuarioForm}>Cancelar edicion</button>}
+                                {usuarioEditando && <button type="button" onClick={limpiarUsuarioForm}>Cancelar edición</button>}
                             </div>
                         </form>
                     </section>

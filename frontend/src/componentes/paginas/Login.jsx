@@ -198,7 +198,7 @@ const Login = () => {
 
                 {!modoRecuperacion && (
                     <p className="auth-link">
-                        No tienes cuenta? <Link to="/registro">Regístrate</Link>
+                        ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
                     </p>
                 )}
             </section>

@@ -12,7 +12,7 @@ const tiposPartido = {
         etiqueta: "Fútbol 5v5",
         jugadores: 10,
         plazas: 14,
-        descripcion: "Partido rápido, perfecto para pista o campo pequeno."
+        descripcion: "Partido rápido, perfecto para pista o campo pequeño."
     },
     "7v7": {
         etiqueta: "Fútbol 7v7",
@@ -265,7 +265,7 @@ const CrearPartido = () => {
                         <span>01</span>
                         <div>
                             <h2>Datos básicos</h2>
-                            <p>Nombre visible, descripcion y privacidad.</p>
+                            <p>Nombre visible, descripción y privacidad.</p>
                         </div>
                     </div>
 
@@ -279,7 +279,7 @@ const CrearPartido = () => {
                             Privacidad
                             <select value={formulario.es_publico ? "publico" : "privado"} onChange={(e) => cambiarCampo("es_publico", e.target.value === "publico")}>
                                 <option value="publico">Público</option>
-                                <option value="privado">Privado con codigo</option>
+                                <option value="privado">Privado con código</option>
                             </select>
                         </label>
 
@@ -384,7 +384,7 @@ const CrearPartido = () => {
                             <input className={errores.campo_provincia ? "campo-error" : ""} value={formulario.campo_provincia} onChange={(e) => cambiarCampo("campo_provincia", e.target.value)} />
                         </label>
                         <label>
-                            Codigo postal
+                            Código postal
                             <input value={formulario.campo_codigo_postal} onChange={(e) => cambiarCampo("campo_codigo_postal", e.target.value)} />
                         </label>
                     </div>
