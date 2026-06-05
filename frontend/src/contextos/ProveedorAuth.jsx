@@ -34,9 +34,9 @@ export function ProveedorAuth({ children }) {
   }, [token]);
 
   // Login
-  async function login(email, contrasena) {
+  async function login(identificador, contrasena) {
     try {
-      const res = await api.post("/login", { email, contrasena });
+      const res = await api.post("/login", { identificador, contrasena });
 
       setToken(res.data.token);
       localStorage.setItem("token", res.data.token);

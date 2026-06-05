@@ -202,7 +202,7 @@ class EquipoController extends Controller
             return response()->json(['mensaje' => 'No tienes una invitación pendiente para este equipo'], 404);
         }
 
-        $equipo->usuarios()->updateExistingPivot($usuario->id_usuario, $this->datosMiembro('jugador'));
+        $equipo->usuarios()->updateExistingPivot($usuario->id_usuario, $this->datosMiembro('jugador', 'activo', true));
         $this->crearEstadisticaMiembro($equipo->id_equipo, $usuario->id_usuario);
 
         return response()->json(['mensaje' => 'Invitación aceptada']);
@@ -632,12 +632,16 @@ class EquipoController extends Controller
         }
     }
 
-    private function datosMiembro(string $rol, string $estado = 'activo'): array
+    private function datosMiembro(string $rol, string $estado = 'activo', ?bool $vistoPorInvitado = null): array
     {
         $datos = ['rol_en_equipo' => $rol];
 
         if (Schema::hasColumn('equipo_usuarios', 'estado')) {
             $datos['estado'] = $estado;
+        }
+
+        if (Schema::hasColumn('equipo_usuarios', 'visto_por_invitado')) {
+            $datos['visto_por_invitado'] = $vistoPorInvitado ?? $rol !== 'invitado';
         }
 
         return $datos;

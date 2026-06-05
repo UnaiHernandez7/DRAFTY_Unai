@@ -44,10 +44,10 @@ const formacionesPorTipo = {
         { posicion: "DFC", x: 39, y: 76 },
         { posicion: "DFC", x: 61, y: 76 },
         { posicion: "LD", x: 82, y: 72 },
-        { posicion: "MC", x: 18, y: 50 },
-        { posicion: "MCD", x: 39, y: 55 },
+        { posicion: "MI", x: 18, y: 50 },
+        { posicion: "MC", x: 39, y: 55 },
         { posicion: "MC", x: 61, y: 55 },
-        { posicion: "MC", x: 82, y: 50 },
+        { posicion: "MD", x: 82, y: 50 },
         { posicion: "DC", x: 38, y: 20 },
         { posicion: "DC", x: 62, y: 20 }
         ],
@@ -56,11 +56,11 @@ const formacionesPorTipo = {
         { posicion: "DFC", x: 28, y: 74 },
         { posicion: "DFC", x: 50, y: 78 },
         { posicion: "DFC", x: 72, y: 74 },
-        { posicion: "MC", x: 15, y: 48 },
+        { posicion: "CAI", x: 15, y: 48 },
         { posicion: "MCD", x: 35, y: 55 },
         { posicion: "MC", x: 50, y: 48 },
-        { posicion: "MCO", x: 65, y: 55 },
-        { posicion: "MC", x: 85, y: 48 },
+        { posicion: "MCD", x: 65, y: 55 },
+        { posicion: "CAD", x: 85, y: 48 },
         { posicion: "DC", x: 38, y: 20 },
         { posicion: "DC", x: 62, y: 20 }
         ],
@@ -113,10 +113,10 @@ const formacionesPorTipo = {
             { posicion: "POR", x: 50, y: 88 },
             { posicion: "DFC", x: 35, y: 68 },
             { posicion: "DFC", x: 65, y: 68 },
-            { posicion: "MC", x: 18, y: 48 },
+            { posicion: "MI", x: 18, y: 48 },
             { posicion: "MCD", x: 40, y: 52 },
-            { posicion: "MC", x: 60, y: 52 },
-            { posicion: "MC", x: 82, y: 48 },
+            { posicion: "MCD", x: 60, y: 52 },
+            { posicion: "MD", x: 82, y: 48 },
             { posicion: "DC", x: 50, y: 22 }
         ],
         "2-1-3-1": [
@@ -124,9 +124,9 @@ const formacionesPorTipo = {
             { posicion: "DFC", x: 35, y: 70 },
             { posicion: "DFC", x: 65, y: 70 },
             { posicion: "MCD", x: 50, y: 56 },
-            { posicion: "MC", x: 25, y: 42 },
+            { posicion: "EI", x: 25, y: 42 },
             { posicion: "MCO", x: 50, y: 40 },
-            { posicion: "MC", x: 75, y: 42 },
+            { posicion: "ED", x: 75, y: 42 },
             { posicion: "DC", x: 50, y: 20 }
         ]
     },
@@ -149,7 +149,7 @@ const formacionesPorTipo = {
             { posicion: "POR", x: 50, y: 88 },
             { posicion: "DFC", x: 35, y: 62 },
             { posicion: "DFC", x: 65, y: 62 },
-            { posicion: "ALA", x: 35, y: 28 },
+            { posicion: "PIV", x: 35, y: 28 },
             { posicion: "PIV", x: 65, y: 28 }
         ],
         "1-1-2": [

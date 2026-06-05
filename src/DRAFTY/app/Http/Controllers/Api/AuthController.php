@@ -250,12 +250,11 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'contrasena' => 'required'
-        ]);
+        $identificador = trim((string) ($request->input('identificador') ?? $request->input('email')));
 
-        $usuario = Usuario::where('email', $request->email)->first();
+        $usuario = str_contains($identificador, '@')
+            ? Usuario::where('email', strtolower($identificador))->first()
+            : Usuario::where('nombre_usuario', $identificador)->first();
 
         if (!$usuario || !Hash::check($request->contrasena, $usuario->contrasena)) {
             return response()->json([

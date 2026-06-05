@@ -6,7 +6,8 @@ import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Login.css";
 
 const Login = () => {
-    const [email, setEmail] = useState("");
+    const [identificador, setIdentificador] = useState("");
+    const [emailRecuperacion, setEmailRecuperacion] = useState("");
     const [contrasena, setContrasena] = useState("");
     const [codigoRecuperacion, setCodigoRecuperacion] = useState("");
     const [nuevaContrasena, setNuevaContrasena] = useState("");
@@ -24,7 +25,7 @@ const Login = () => {
         setCargando(true);
         setMensaje("");
 
-        const exito = await login(email, contrasena);
+        const exito = await login(identificador, contrasena);
 
         if (exito) {
             navigate("/");
@@ -39,6 +40,7 @@ const Login = () => {
     const activarRecuperacion = () => {
         setModoRecuperacion(true);
         setCodigoEnviado(false);
+        setEmailRecuperacion(identificador.includes("@") ? identificador : "");
         setContrasena("");
         setCodigoRecuperacion("");
         setNuevaContrasena("");
@@ -62,7 +64,7 @@ const Login = () => {
         setTipoMensaje("info");
 
         try {
-            const respuesta = await api.post("/recuperar-contrasena/codigo", { email });
+            const respuesta = await api.post("/recuperar-contrasena/codigo", { email: emailRecuperacion });
             setCodigoEnviado(true);
             setMensaje(respuesta.data?.mensaje || "Te hemos enviado un código para cambiar la contraseña.");
         } catch (error) {
@@ -90,7 +92,7 @@ const Login = () => {
 
         try {
             const respuesta = await api.patch("/recuperar-contrasena", {
-                email,
+                email: emailRecuperacion,
                 codigo: codigoRecuperacion,
                 contrasena: nuevaContrasena,
                 contrasena_confirmation: confirmarContrasena
@@ -136,8 +138,15 @@ const Login = () => {
 
                 <form onSubmit={modoRecuperacion ? (codigoEnviado ? cambiarContrasenaConCodigo : solicitarCodigoRecuperacion) : manejarSubmit} className="auth-form">
                     <label>
-                        Email
-                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={modoRecuperacion && codigoEnviado} required />
+                        {modoRecuperacion ? "Email" : "Usuario o email"}
+                        <input
+                            type={modoRecuperacion ? "email" : "text"}
+                            value={modoRecuperacion ? emailRecuperacion : identificador}
+                            onChange={(e) => modoRecuperacion ? setEmailRecuperacion(e.target.value) : setIdentificador(e.target.value)}
+                            disabled={modoRecuperacion && codigoEnviado}
+                            autoComplete={modoRecuperacion ? "email" : "username"}
+                            required
+                        />
                     </label>
 
                     {!modoRecuperacion && (

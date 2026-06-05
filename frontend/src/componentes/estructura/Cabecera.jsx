@@ -108,7 +108,7 @@ const Cabecera = () => {
                     >
                         Amigos
                         {notificacionesAmigos.hay_nuevas && (
-                            <span className="badge-amigos" aria-label={`${notificacionesAmigos.total} solicitudes nuevas`}>
+                            <span className="badge-amigos" aria-label={`${notificacionesAmigos.total} notificaciones nuevas`}>
                                 {notificacionesAmigos.total > 9 ? "9+" : notificacionesAmigos.total}
                             </span>
                         )}

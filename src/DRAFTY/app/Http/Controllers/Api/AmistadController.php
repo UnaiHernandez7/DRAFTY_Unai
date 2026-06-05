@@ -78,9 +78,10 @@ class AmistadController extends Controller
     public function notificaciones(Request $request)
     {
         [, $columnaReceptor] = $this->columnasUsuarios();
+        $usuarioId = $request->user()->id_usuario;
 
         $consulta = DB::table('amistades')
-            ->where($columnaReceptor, $request->user()->id_usuario)
+            ->where($columnaReceptor, $usuarioId)
             ->where('estado', 'pendiente');
 
         if (Schema::hasColumn('amistades', 'visto_por_receptor')) {
@@ -90,11 +91,17 @@ class AmistadController extends Controller
             });
         }
 
-        $total = $consulta->count();
+        $totalAmistades = $consulta->count();
+        $totalInvitacionesSala = $this->totalInvitacionesSala($usuarioId);
+        $totalInvitacionesEquipo = $this->totalInvitacionesEquipo($usuarioId);
+        $total = $totalAmistades + $totalInvitacionesSala + $totalInvitacionesEquipo;
 
         return response()->json([
             'hay_nuevas' => $total > 0,
-            'total' => $total
+            'total' => $total,
+            'amistades' => $totalAmistades,
+            'salas' => $totalInvitacionesSala,
+            'equipos' => $totalInvitacionesEquipo
         ]);
     }
 
@@ -109,7 +116,23 @@ class AmistadController extends Controller
                 ->update(['visto_por_receptor' => true]);
         }
 
-        return response()->json(['mensaje' => 'Solicitudes vistas']);
+        $usuarioId = $request->user()->id_usuario;
+
+        if (Schema::hasTable('participantes_partido') && Schema::hasColumn('participantes_partido', 'visto_por_invitado')) {
+            DB::table('participantes_partido')
+                ->where('id_usuario', $usuarioId)
+                ->where('estado_participacion', 'pendiente')
+                ->update(['visto_por_invitado' => true]);
+        }
+
+        if (Schema::hasTable('equipo_usuarios') && Schema::hasColumn('equipo_usuarios', 'visto_por_invitado')) {
+            DB::table('equipo_usuarios')
+                ->where('id_usuario', $usuarioId)
+                ->where('rol_en_equipo', 'invitado')
+                ->update(['visto_por_invitado' => true]);
+        }
+
+        return response()->json(['mensaje' => 'Notificaciones vistas']);
     }
 
     public function enviar(Request $request, $idUsuario)
@@ -222,6 +245,46 @@ class AmistadController extends Controller
         return Schema::hasColumn('amistades', 'id_usuario_emisor')
             ? ['id_usuario_emisor', 'id_usuario_receptor']
             : ['id_usuario', 'id_amigo'];
+    }
+
+    private function totalInvitacionesSala(int $usuarioId): int
+    {
+        if (!Schema::hasTable('participantes_partido')) {
+            return 0;
+        }
+
+        $consulta = DB::table('participantes_partido')
+            ->where('id_usuario', $usuarioId)
+            ->where('estado_participacion', 'pendiente');
+
+        if (Schema::hasColumn('participantes_partido', 'visto_por_invitado')) {
+            $consulta->where(function ($query) {
+                $query->where('visto_por_invitado', false)
+                    ->orWhereNull('visto_por_invitado');
+            });
+        }
+
+        return $consulta->count();
+    }
+
+    private function totalInvitacionesEquipo(int $usuarioId): int
+    {
+        if (!Schema::hasTable('equipo_usuarios')) {
+            return 0;
+        }
+
+        $consulta = DB::table('equipo_usuarios')
+            ->where('id_usuario', $usuarioId)
+            ->where('rol_en_equipo', 'invitado');
+
+        if (Schema::hasColumn('equipo_usuarios', 'visto_por_invitado')) {
+            $consulta->where(function ($query) {
+                $query->where('visto_por_invitado', false)
+                    ->orWhereNull('visto_por_invitado');
+            });
+        }
+
+        return $consulta->count();
     }
 
     private function datosSolicitud(int $idEmisor, int $idReceptor, string $estado): array

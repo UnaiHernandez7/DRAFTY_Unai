@@ -526,9 +526,13 @@ class PartidoController extends Controller
             return response()->json(['mensaje' => 'La sala ya est? completa'], 400);
         }
 
-        $partido->usuarios()->updateExistingPivot($usuario->id_usuario, [
-            'estado_participacion' => 'confirmado'
-        ]);
+        $datosInvitacion = ['estado_participacion' => 'confirmado'];
+
+        if (Schema::hasColumn('participantes_partido', 'visto_por_invitado')) {
+            $datosInvitacion['visto_por_invitado'] = true;
+        }
+
+        $partido->usuarios()->updateExistingPivot($usuario->id_usuario, $datosInvitacion);
         $this->sincronizarEstadoPorPlazas($partido);
 
         return response()->json([
@@ -1303,12 +1307,18 @@ class PartidoController extends Controller
     {
         $equipoAsignado = $this->elegirEquipo($partido);
 
-        $partido->usuarios()->attach($usuario->id_usuario, [
+        $datos = [
             'estado_participacion' => 'pendiente',
             'equipo_asignado' => $equipoAsignado,
             'posicion_asignada' => $this->elegirPosicion($usuario->posiciones_favoritas, $partido, $equipoAsignado),
             'es_capitan' => false
-        ]);
+        ];
+
+        if (Schema::hasColumn('participantes_partido', 'visto_por_invitado')) {
+            $datos['visto_por_invitado'] = false;
+        }
+
+        $partido->usuarios()->attach($usuario->id_usuario, $datos);
     }
 
     private function encontrarPartidoCompetitivo(Request $request, string $tipoFutbol, string $fecha, ?int $idEquipo, string $hora, bool $usarProximidad = false, ?float $radio = null): ?Partido

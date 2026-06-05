@@ -65,14 +65,14 @@ class Partido extends Model
     public function usuarios()
     {
         return $this->belongsToMany(Usuario::class, 'participantes_partido', 'id_partido', 'id_usuario')
-            ->withPivot('estado_participacion', 'equipo_asignado', 'posicion_asignada', 'es_capitan');
+            ->withPivot('estado_participacion', 'visto_por_invitado', 'equipo_asignado', 'posicion_asignada', 'es_capitan');
     }
 
     public function usuariosConfirmados()
     {
         return $this->belongsToMany(Usuario::class, 'participantes_partido', 'id_partido', 'id_usuario')
             ->wherePivot('estado_participacion', 'confirmado')
-            ->withPivot('estado_participacion', 'equipo_asignado', 'posicion_asignada', 'es_capitan');
+            ->withPivot('estado_participacion', 'visto_por_invitado', 'equipo_asignado', 'posicion_asignada', 'es_capitan');
     }
 
     public function mensajes()
