@@ -93,8 +93,12 @@ class PartidoController extends Controller
             })
             ->filter(function ($partido) use ($modo, $radio, $ciudad, $tieneCoordenadas) {
                 if (in_array($modo, ['cerca', 'desde-ciudad'], true)) {
-                    if (!$tieneCoordenadas || $partido->distancia_km === null) {
-                        return false;
+                    if (!$tieneCoordenadas) {
+                        return true;
+                    }
+
+                    if ($partido->distancia_km === null) {
+                        return $modo === 'desde-ciudad' && $this->coincideCiudad($partido, $ciudad);
                     }
 
                     return !$radio || (float) $partido->distancia_km <= (float) $radio;
@@ -1229,6 +1233,13 @@ class PartidoController extends Controller
             'santvicentdelraspeig' => ['latitud' => 38.3964, 'longitud' => -0.5255],
             'benidorm' => ['latitud' => 38.5411, 'longitud' => -0.1225],
             'torrevieja' => ['latitud' => 37.9787, 'longitud' => -0.6822],
+            'madrid' => ['latitud' => 40.4168, 'longitud' => -3.7038],
+            'barcelona' => ['latitud' => 41.3874, 'longitud' => 2.1686],
+            'valencia' => ['latitud' => 39.4699, 'longitud' => -0.3763],
+            'sevilla' => ['latitud' => 37.3891, 'longitud' => -5.9845],
+            'malaga' => ['latitud' => 36.7213, 'longitud' => -4.4214],
+            'zaragoza' => ['latitud' => 41.6488, 'longitud' => -0.8891],
+            'murcia' => ['latitud' => 37.9922, 'longitud' => -1.1307],
         ];
 
         return $ciudades[$this->normalizarUbicacion($ciudad)] ?? null;

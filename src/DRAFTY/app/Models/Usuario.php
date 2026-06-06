@@ -35,14 +35,14 @@ class Usuario extends Model
     public function equipos()
     {
         return $this->belongsToMany(Equipo::class, 'equipo_usuarios', 'id_usuario', 'id_equipo')
-            ->withPivot('rol_en_equipo', 'estado', 'visto_por_invitado');
+            ->withPivot('rol_en_equipo', 'estado');
     }
 
     // Usuario participa en muchos partidos
     public function partidos()
     {
         return $this->belongsToMany(Partido::class, 'participantes_partido', 'id_usuario', 'id_partido')
-            ->withPivot('estado_participacion', 'visto_por_invitado', 'equipo_asignado', 'posicion_asignada', 'es_capitan');
+            ->withPivot('estado_participacion', 'equipo_asignado', 'posicion_asignada', 'es_capitan');
     }
 
     // Usuario tiene una estadistica

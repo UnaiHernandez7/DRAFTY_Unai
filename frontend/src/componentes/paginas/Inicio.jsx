@@ -118,7 +118,7 @@ const Inicio = () => {
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState("");
     const [partidosUnidos, setPartidosUnidos] = useState([]);
-    const [filtros, setFiltros] = useState({ tipo: "", nivel: "", posicion: "", codigo: "", proximidad: "cerca", radio: "25" });
+    const [filtros, setFiltros] = useState({ tipo: "", nivel: "", posicion: "", codigo: "", proximidad: "todos", radio: "25" });
     const [ubicacionUsuario, setUbicacionUsuario] = useState(null);
     const [estadoUbicacion, setEstadoUbicacion] = useState("pendiente");
     const { token, usuario } = useAuth();

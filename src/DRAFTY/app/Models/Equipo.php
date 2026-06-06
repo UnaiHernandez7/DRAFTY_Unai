@@ -27,7 +27,7 @@ class Equipo extends Model
     public function usuarios()
     {
         return $this->belongsToMany(Usuario::class, 'equipo_usuarios', 'id_equipo', 'id_usuario')
-            ->withPivot('rol_en_equipo', 'estado', 'visto_por_invitado');
+            ->withPivot('rol_en_equipo', 'estado');
     }
 
     // Equipo participa en torneos

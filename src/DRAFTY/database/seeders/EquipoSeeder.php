@@ -2,28 +2,36 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Equipo;
 use App\Models\Usuario;
+use Illuminate\Database\Seeder;
 
 class EquipoSeeder extends Seeder
 {
     public function run(): void
     {
-        $usuario = Usuario::first();
+        $usuario = Usuario::query()->first();
 
-        Equipo::create([
-            'nombre_equipo' => 'Drafty FC',
-            'descripcion' => 'Equipo principal de la comunidad DRAFTY',
-            'fecha_creacion' => now(),
-            'id_creador' => $usuario->id_usuario
-        ]);
+        if (!$usuario) {
+            return;
+        }
 
-        Equipo::create([
-            'nombre_equipo' => 'Los Galácticos',
-            'descripcion' => 'Equipo amateur competitivo',
-            'fecha_creacion' => now(),
-            'id_creador' => $usuario->id_usuario
-        ]);
+        Equipo::updateOrCreate(
+            ['nombre_equipo' => 'Drafty FC'],
+            [
+                'descripcion' => 'Equipo principal de la comunidad DRAFTY',
+                'fecha_creacion' => now(),
+                'id_creador' => $usuario->id_usuario,
+            ]
+        );
+
+        Equipo::updateOrCreate(
+            ['nombre_equipo' => 'Los Galacticos'],
+            [
+                'descripcion' => 'Equipo amateur competitivo',
+                'fecha_creacion' => now(),
+                'id_creador' => $usuario->id_usuario,
+            ]
+        );
     }
 }
