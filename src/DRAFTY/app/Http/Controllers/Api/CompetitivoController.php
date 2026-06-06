@@ -67,6 +67,7 @@ class CompetitivoController extends Controller
     private function rankingsPorUsuarios(?array $idsUsuarios = null, ?int $usuarioId = null): array
     {
         return [
+            'rango' => $this->rankingPorCampo('puntos_competitivos', $idsUsuarios, $usuarioId),
             'goles' => $this->rankingPorCampo('goles_competitivo', $idsUsuarios, $usuarioId),
             'asistencias' => $this->rankingPorCampo('asistencias_competitivo', $idsUsuarios, $usuarioId),
             'porterias_cero' => $this->rankingPorCampo('porterias_cero_competitivo', $idsUsuarios, $usuarioId),

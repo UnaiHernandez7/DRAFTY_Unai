@@ -66,6 +66,7 @@ const textoPuntos = (rango) => (
 );
 
 const rankingsConfig = [
+    { clave: "rango", titulo: "Rango", unidad: "pts" },
     { clave: "goles", titulo: "Goles", unidad: "goles" },
     { clave: "porterias_cero", titulo: "Porterías a 0", unidad: "porterías" }
 ];
