@@ -11,8 +11,7 @@ const UnirseEquipo = () => {
     const [busqueda, setBusqueda] = useState("");
     const [mensaje, setMensaje] = useState("");
     const [cargando, setCargando] = useState(true);
-    const [usuarioActivo, setUsuarioActivo] = useState(null);
-    const { isAuth, usuario } = useAuth();
+    const { isAuth } = useAuth();
     const navigate = useNavigate();
 
     const cargarDatos = async () => {
@@ -22,13 +21,11 @@ const UnirseEquipo = () => {
         }
 
         try {
-            const [respuestaPerfil, respuestaEquipos, respuestaMisEquipos] = await Promise.all([
-                api.get("/perfil"),
+            const [respuestaEquipos, respuestaMisEquipos] = await Promise.all([
                 api.get("/equipos"),
                 api.get("/mis-equipos")
             ]);
 
-            setUsuarioActivo(respuestaPerfil.data);
             setEquipos(Array.isArray(respuestaEquipos.data) ? respuestaEquipos.data : []);
             setMisEquipos(Array.isArray(respuestaMisEquipos.data) ? respuestaMisEquipos.data : []);
         } catch (error) {
@@ -50,8 +47,7 @@ const UnirseEquipo = () => {
 
         try {
             const respuesta = await api.post(`/equipos/${idEquipo}/unirse`);
-            const usuarioAccion = respuesta.data?.usuario?.nombre_usuario || usuarioActivo?.nombre_usuario || usuario?.nombre_usuario;
-            setMensaje(`${respuesta.data?.mensaje || "Te has unido al equipo correctamente."}${usuarioAccion ? ` (${usuarioAccion})` : ""}`);
+            setMensaje(respuesta.data?.mensaje || "Te has unido al equipo correctamente.");
             cargarDatos();
         } catch (error) {
             setMensaje(error.response?.data?.mensaje || "No se ha podido unir al equipo.");
@@ -71,10 +67,6 @@ const UnirseEquipo = () => {
                 descripcion="Encuentra un grupo y solicita entrar si todavía no perteneces a él."
                 accion={<Link to="/equipos">Volver</Link>}
             />
-
-            {(usuarioActivo?.nombre_usuario || usuario?.nombre_usuario) && (
-                <p className="mensaje">Cuenta activa: @{usuarioActivo?.nombre_usuario || usuario?.nombre_usuario}</p>
-            )}
 
             {mensaje && <p className="mensaje">{mensaje}</p>}
 
