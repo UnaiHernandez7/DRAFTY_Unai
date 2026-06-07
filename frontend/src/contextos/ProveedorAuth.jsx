@@ -95,7 +95,7 @@ export function ProveedorAuth({ children }) {
 
       if (!tokenRespuesta) {
         const campos = Object.keys(datosRespuesta).join(", ") || "sin campos";
-        const mensajeServidor = datosRespuesta.message || datosRespuesta.mensaje;
+        const mensajeServidor = datosRespuesta.mensaje || datosRespuesta.message;
 
         try {
           const perfil = await api.get("/perfil");
@@ -112,8 +112,8 @@ export function ProveedorAuth({ children }) {
 
         return {
           ok: false,
-          mensaje: mensajeServidor
-            ? `${mensajeServidor}. El servidor ha respondido sin token. Campos recibidos: ${campos}.`
+          mensaje: mensajeServidor && mensajeServidor !== "Server Error"
+            ? mensajeServidor
             : `El servidor ha respondido sin token. Campos recibidos: ${campos}.`
         };
       }
@@ -143,7 +143,7 @@ export function ProveedorAuth({ children }) {
 
       return {
         ok: false,
-        mensaje: primerError || error.response?.data?.mensaje || mensajeConexion || "No se ha podido iniciar sesión."
+        mensaje: primerError || error.response?.data?.mensaje || error.response?.data?.message || mensajeConexion || "No se ha podido iniciar sesión."
       };
     }
   }

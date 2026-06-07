@@ -303,7 +303,16 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = $usuario->createToken('auth_token')->plainTextToken;
+        try {
+            $token = $usuario->createToken('auth_token')->plainTextToken;
+        } catch (Throwable $error) {
+            report($error);
+
+            return response()->json([
+                'message' => 'No se ha podido crear el token de sesión.',
+                'mensaje' => 'No se ha podido crear el token de sesión. Ejecuta las migraciones y limpia la caché del backend.'
+            ], 500);
+        }
 
         return response()->json([
             'message' => 'Login correcto',
