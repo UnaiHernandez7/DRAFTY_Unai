@@ -62,8 +62,12 @@ export function ProveedorAuth({ children }) {
 
       const res = await api.post("/login", datosLogin);
       // Acepta varias formas de respuesta por si el backend desplegado cambia el nombre del token.
-      const tokenRespuesta = res.data?.token || res.data?.access_token || res.data?.plainTextToken;
-      const usuarioRespuesta = res.data?.usuario || res.data?.user || null;
+      const datosRespuesta = res.data?.data || res.data || {};
+      const tokenRespuesta = datosRespuesta.token
+        || datosRespuesta.access_token
+        || datosRespuesta.auth_token
+        || datosRespuesta.plainTextToken;
+      const usuarioRespuesta = datosRespuesta.usuario || datosRespuesta.user || null;
 
       if (!tokenRespuesta) {
         return {
