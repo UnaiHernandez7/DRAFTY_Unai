@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
@@ -8,6 +8,7 @@ import MapaTorneo from "./MapaTorneo.jsx";
 import RankingTorneo from "./RankingTorneo.jsx";
 import "./Torneos.css";
 
+// Archivo propio del frontend de Drafty.
 const estadoTexto = {
     inscripcion_abierta: "Inscripción abierta",
     en_curso: "En curso",
@@ -15,19 +16,30 @@ const estadoTexto = {
     cancelado: "Cancelado"
 };
 
+// Funcion auxiliar usada por este componente.
 const DetalleTorneo = () => {
     const { id } = useParams();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
     const { isAuth, usuario, isAdmin } = useAuth();
+    // Estado que guarda informacion de la pantalla.
     const [torneo, setTorneo] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [equipos, setEquipos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [rankingGoles, setRankingGoles] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [idEquipo, setIdEquipo] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [codigo, setCodigo] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [tipoMensaje, setTipoMensaje] = useState("error");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarDetalle = async () => {
         try {
             const [resTorneo, resGoles] = await Promise.all([
@@ -44,10 +56,13 @@ const DetalleTorneo = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarEquipos = async () => {
         if (!isAuth) return;
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get("/mis-equipos");
+            // Dato usado para pintar esta pantalla.
             const lista = Array.isArray(respuesta.data) ? respuesta.data : [];
             setEquipos(lista);
             setIdEquipo(lista[0]?.id_equipo || "");
@@ -56,19 +71,24 @@ const DetalleTorneo = () => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarDetalle();
     }, [id]);
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarEquipos();
     }, [isAuth]);
 
+    // Dato usado para pintar esta pantalla.
     const estado = torneo?.estado_torneo || torneo?.estado || "inscripcion_abierta";
+    // Dato usado para pintar esta pantalla.
     const puedeEditar = useMemo(() => {
         return !!torneo && (isAdmin || Number(torneo.id_organizador) === Number(usuario?.id_usuario));
     }, [torneo, isAdmin, usuario]);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const unirse = async () => {
         if (!isAuth) {
             navigate("/login");
@@ -76,6 +96,7 @@ const DetalleTorneo = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/torneos/${id}/unirse`, {
                 id_equipo: idEquipo,
                 codigo_acceso: codigo
@@ -89,8 +110,10 @@ const DetalleTorneo = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const iniciar = async () => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/torneos/${id}/iniciar`);
             setTipoMensaje("exito");
             setMensaje(respuesta.data?.mensaje || "Torneo iniciado.");
@@ -101,6 +124,7 @@ const DetalleTorneo = () => {
         }
     };
 
+    // Funcion auxiliar usada por este componente.
     const manejarActualizacionBracket = (texto, tipo = "exito") => {
         setTipoMensaje(tipo);
         setMensaje(texto);
@@ -108,6 +132,7 @@ const DetalleTorneo = () => {
     };
 
     if (cargando) {
+        // Vista que se muestra al usuario.
         return (
             <main className="inicio torneos-page">
                 <p className="torneo-empty">Cargando torneo...</p>
@@ -116,6 +141,7 @@ const DetalleTorneo = () => {
     }
 
     if (!torneo) {
+        // Vista que se muestra al usuario.
         return (
             <main className="inicio torneos-page">
                 <p className="mensaje mensaje-error">{mensaje || "No se ha encontrado el torneo."}</p>
@@ -123,6 +149,7 @@ const DetalleTorneo = () => {
         );
     }
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio torneos-page">
             <EncabezadoSeccion

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
@@ -7,8 +7,10 @@ import PartidoLista from "./PartidoLista.jsx";
 import "./Inicio.css";
 import "./Competitivo.css";
 
+// Archivo propio del frontend de Drafty.
 const hoy = new Date().toISOString().slice(0, 10);
 
+// Dato usado para pintar esta pantalla.
 const gruposRangos = [
     { nombre: "Bronce", minimo: 0, maximo: 499, divisiones: 5 },
     { nombre: "Plata", minimo: 500, maximo: 999, divisiones: 5 },
@@ -18,15 +20,19 @@ const gruposRangos = [
     { nombre: "Elite", minimo: 4000, maximo: null, divisiones: 1 }
 ];
 
+// Dato usado para pintar esta pantalla.
 const rangosCompetitivos = gruposRangos.flatMap((grupo) => {
     if (grupo.maximo === null) {
         return [{ nombre: grupo.nombre, minimo: grupo.minimo, maximo: null, grupo: grupo.nombre }];
     }
 
+    // Dato usado para pintar esta pantalla.
     const puntosPorDivision = Math.ceil((grupo.maximo - grupo.minimo + 1) / grupo.divisiones);
 
     return Array.from({ length: grupo.divisiones }, (_, index) => {
+        // Dato usado para pintar esta pantalla.
         const minimo = grupo.minimo + index * puntosPorDivision;
+        // Dato usado para pintar esta pantalla.
         const maximo = Math.min(minimo + puntosPorDivision - 1, grupo.maximo);
 
         return {
@@ -38,12 +44,17 @@ const rangosCompetitivos = gruposRangos.flatMap((grupo) => {
     });
 });
 
+// Funcion auxiliar usada por este componente.
 const obtenerInfoRango = (puntos = 0) => {
+    // Dato usado para pintar esta pantalla.
     const indiceActual = rangosCompetitivos.findIndex((rango) => (
         puntos >= rango.minimo && (rango.maximo === null || puntos <= rango.maximo)
     ));
+    // Dato usado para pintar esta pantalla.
     const indiceSeguro = indiceActual === -1 ? 0 : indiceActual;
+    // Dato usado para pintar esta pantalla.
     const rangoActual = rangosCompetitivos[indiceSeguro];
+    // Dato usado para pintar esta pantalla.
     const proximoRango = rangosCompetitivos[indiceSeguro + 1] || null;
 
     return {
@@ -54,6 +65,7 @@ const obtenerInfoRango = (puntos = 0) => {
     };
 };
 
+// Funcion auxiliar usada por este componente.
 const estadoRango = (indice, infoRango) => {
     if (indice < infoRango.indiceActual) return "Superado";
     if (indice === infoRango.indiceActual) return "Actual";
@@ -61,16 +73,19 @@ const estadoRango = (indice, infoRango) => {
     return "Bloqueado";
 };
 
+// Funcion auxiliar usada por este componente.
 const textoPuntos = (rango) => (
     rango.maximo === null ? `${rango.minimo}+` : `${rango.minimo} - ${rango.maximo}`
 );
 
+// Tarjetas que se pintan en ranking global y ranking de amigos.
 const rankingsConfig = [
     { clave: "rango", titulo: "Rango", unidad: "pts" },
     { clave: "goles", titulo: "Goles", unidad: "goles" },
     { clave: "porterias_cero", titulo: "Porterías a 0", unidad: "porterías" }
 ];
 
+// Dato usado para pintar esta pantalla.
 const modosFecha = [
     { clave: "hoy", texto: "Hoy" },
     { clave: "manana", texto: "Mañana" },
@@ -79,8 +94,10 @@ const modosFecha = [
     { clave: "aleatorio", texto: "Aleatorio" }
 ];
 
+// Dato usado para pintar esta pantalla.
 const radiosBusqueda = [5, 10, 25, 50];
 
+// Dato usado para pintar esta pantalla.
 const tiposBusqueda = [
     { clave: "todos", texto: "Todos" },
     { clave: "5v5", texto: "5vs5" },
@@ -88,13 +105,21 @@ const tiposBusqueda = [
     { clave: "11v11", texto: "11vs11" }
 ];
 
+// Funcion auxiliar usada por este componente.
 const Competitivo = () => {
+    // Estado que guarda informacion de la pantalla.
     const [perfilCompetitivo, setPerfilCompetitivo] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [tipoMensaje, setTipoMensaje] = useState("error");
+    // Estado que guarda informacion de la pantalla.
     const [buscando, setBuscando] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [activando, setActivando] = useState(false);
+    // Guarda rankings generales y solo con amigos.
     const [rankings, setRankings] = useState({ generales: {}, amigos: {} });
+    // Estado que guarda informacion de la pantalla.
     const [filtrosBusqueda, setFiltrosBusqueda] = useState({
         modo_fecha: "aleatorio",
         fecha: hoy,
@@ -102,11 +127,15 @@ const Competitivo = () => {
         radio: "25",
         tipo_futbol: "todos"
     });
+    // Estado que guarda informacion de la pantalla.
     const [resultados, setResultados] = useState([]);
     const { isAuth } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
+        // Funcion que llama al servidor y actualiza la pantalla.
         const cargarDatos = async () => {
             if (!isAuth) {
                 setPerfilCompetitivo(null);
@@ -133,9 +162,12 @@ const Competitivo = () => {
         cargarDatos();
     }, [isAuth]);
 
+    // Dato usado para pintar esta pantalla.
     const puntos = perfilCompetitivo?.puntos_competitivos || 0;
+    // Dato usado para pintar esta pantalla.
     const infoRango = obtenerInfoRango(puntos);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const buscarPartida = async () => {
         if (!isAuth) {
             navigate("/login");
@@ -151,12 +183,14 @@ const Competitivo = () => {
         try {
             setBuscando(true);
             setMensaje("");
+            // Dato usado para pintar esta pantalla.
             const fechaCola = filtrosBusqueda.modo_fecha === "manana"
                 ? new Date(Date.now() + 86400000).toISOString().slice(0, 10)
                 : filtrosBusqueda.modo_fecha === "fecha"
                 ? filtrosBusqueda.fecha
                 : hoy;
 
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post("/competitivo/buscar-partida", {
                 modo: "solo",
                 tipo_futbol: filtrosBusqueda.tipo_futbol === "todos" ? "7v7" : filtrosBusqueda.tipo_futbol,
@@ -182,10 +216,12 @@ const Competitivo = () => {
         }
     };
 
+    // Funcion auxiliar usada por este componente.
     const cambiarFiltro = (campo, valor) => {
         setFiltrosBusqueda((actual) => ({ ...actual, [campo]: valor }));
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const buscarCompetitivo = async () => {
         if (!isAuth) {
             navigate("/login");
@@ -201,6 +237,7 @@ const Competitivo = () => {
         try {
             setBuscando(true);
             setMensaje("");
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get("/competitivo/buscar", {
                 params: {
                     ...filtrosBusqueda,
@@ -208,6 +245,7 @@ const Competitivo = () => {
                     fecha: filtrosBusqueda.modo_fecha === "fecha" ? filtrosBusqueda.fecha : undefined
                 }
             });
+            // Dato usado para pintar esta pantalla.
             const lista = Array.isArray(respuesta.data) ? respuesta.data : [];
             setResultados(lista);
             if (lista.length === 0) {
@@ -223,6 +261,7 @@ const Competitivo = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const unirsePartido = async (idPartido) => {
         if (!isAuth) {
             navigate("/login");
@@ -230,6 +269,7 @@ const Competitivo = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/partidos/${idPartido}/unirse`);
             setTipoMensaje("exito");
             setMensaje(respuesta.data?.mensaje || "Te has unido al partido correctamente.");
@@ -244,6 +284,7 @@ const Competitivo = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const activarCompetitivo = async () => {
         if (!isAuth) {
             navigate("/login");
@@ -253,6 +294,7 @@ const Competitivo = () => {
         try {
             setActivando(true);
             setMensaje("");
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post("/competitivo/activar");
             setPerfilCompetitivo(respuesta.data.competitivo);
             setTipoMensaje("exito");
@@ -265,6 +307,7 @@ const Competitivo = () => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio">
             <EncabezadoSeccion
@@ -473,10 +516,14 @@ const Competitivo = () => {
                     </div>
 
                     {rangosCompetitivos.map((rango, indice) => {
+                        // Dato usado para pintar esta pantalla.
                         const estado = estadoRango(indice, infoRango);
+                        // Dato usado para pintar esta pantalla.
                         const esActual = estado === "Actual";
+                        // Dato usado para pintar esta pantalla.
                         const esProximo = estado === "Próximo";
 
+                        // Vista que se muestra al usuario.
                         return (
                             <div
                                 className={`fila-rango ${esActual ? "fila-rango-actual" : ""} ${esProximo ? "fila-rango-proximo" : ""}`}
@@ -504,6 +551,7 @@ const Competitivo = () => {
     );
 };
 
+// Funcion auxiliar usada por este componente.
 const RankingCompetitivo = ({ titulo, unidad, datos }) => (
     <article className="ranking-competitivo-card">
         <h4>{titulo}</h4>

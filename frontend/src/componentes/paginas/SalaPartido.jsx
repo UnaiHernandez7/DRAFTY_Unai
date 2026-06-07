@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
@@ -10,6 +10,7 @@ import ValoracionesPartido from "./ValoracionesPartido.jsx";
 import "./Inicio.css";
 import "./PostPartido.css";
 
+// Archivo propio del frontend de Drafty.
 const formacionesPorTipo = {
     futbol11: {
         "4-3-3": [
@@ -39,6 +40,7 @@ const formacionesPorTipo = {
         { posicion: "DC", x: 62, y: 20 }
         ],
         "4-4-2": [
+        // Bandas separadas de los mediocentros.
         { posicion: "POR", x: 50, y: 90 },
         { posicion: "LI", x: 18, y: 72 },
         { posicion: "DFC", x: 39, y: 76 },
@@ -52,6 +54,7 @@ const formacionesPorTipo = {
         { posicion: "DC", x: 62, y: 20 }
         ],
         "3-5-2": [
+        // Carrileros y mediocentros defensivos bien etiquetados.
         { posicion: "POR", x: 50, y: 90 },
         { posicion: "DFC", x: 28, y: 74 },
         { posicion: "DFC", x: 50, y: 78 },
@@ -110,6 +113,7 @@ const formacionesPorTipo = {
             { posicion: "DC", x: 62, y: 22 }
         ],
         "2-4-1": [
+            // Bandas y doble pivote para futbol 7.
             { posicion: "POR", x: 50, y: 88 },
             { posicion: "DFC", x: 35, y: 68 },
             { posicion: "DFC", x: 65, y: 68 },
@@ -120,6 +124,7 @@ const formacionesPorTipo = {
             { posicion: "DC", x: 50, y: 22 }
         ],
         "2-1-3-1": [
+            // Linea de tres ofensiva con extremos y mediapunta.
             { posicion: "POR", x: 50, y: 88 },
             { posicion: "DFC", x: 35, y: 70 },
             { posicion: "DFC", x: 65, y: 70 },
@@ -146,6 +151,7 @@ const formacionesPorTipo = {
             { posicion: "PIV", x: 50, y: 22 }
         ],
         "2-2": [
+            // En sala, los dos jugadores adelantados son pivots.
             { posicion: "POR", x: 50, y: 88 },
             { posicion: "DFC", x: 35, y: 62 },
             { posicion: "DFC", x: 65, y: 62 },
@@ -162,7 +168,9 @@ const formacionesPorTipo = {
     }
 };
 
+// Funcion auxiliar usada por este componente.
 const obtenerTipoFormacion = (tipoFutbol = "") => {
+    // Dato usado para pintar esta pantalla.
     const tipo = String(tipoFutbol || "").toLowerCase();
 
     if (tipo.includes("5v5") || tipo.includes("sala")) {
@@ -176,14 +184,18 @@ const obtenerTipoFormacion = (tipoFutbol = "") => {
     return "futbol11";
 };
 
+// Funcion auxiliar usada por este componente.
 const obtenerCapacidad = (partidoOTipo = "") => {
     if (typeof partidoOTipo === "object" && partidoOTipo !== null) {
+        // Dato usado para pintar esta pantalla.
         const capacidadPorTipo = obtenerCapacidad(partidoOTipo.tipo_futbol);
+        // Dato usado para pintar esta pantalla.
         const capacidadGuardada = partidoOTipo.plazas_totales_calculadas ?? partidoOTipo.plazas_totales ?? 0;
 
         return Math.max(capacidadGuardada, capacidadPorTipo);
     }
 
+    // Dato usado para pintar esta pantalla.
     const tipo = String(partidoOTipo || "").toLowerCase();
 
     if (tipo.includes("5v5") || tipo.includes("sala")) {
@@ -197,10 +209,12 @@ const obtenerCapacidad = (partidoOTipo = "") => {
     return 26;
 };
 
+// Funcion auxiliar usada por este componente.
 const obtenerFormacionesSeguras = (tipoFutbol) => (
     formacionesPorTipo[obtenerTipoFormacion(tipoFutbol)] || formacionesPorTipo.futbol11
 );
 
+// Funcion auxiliar usada por este componente.
 const partidoHaEmpezado = (partido) => {
     if (!partido?.fecha || !partido?.hora) {
         return false;
@@ -209,14 +223,20 @@ const partidoHaEmpezado = (partido) => {
     return new Date(`${partido.fecha}T${partido.hora}`) <= new Date();
 };
 
+// Funcion auxiliar usada por este componente.
 const esCompetitivo = (partido) => Boolean(partido?.es_competitivo) || partido?.nivel === "Competitivo";
+// Dato usado para pintar esta pantalla.
 const posicionesInvitacion = ["Portero", "Defensa", "Mediocentro", "Delantero"];
 
+// Funcion auxiliar usada por este componente.
 const SalaPartido = () => {
     const { id } = useParams();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
     const { usuario, token, isAdmin } = useAuth();
+    // Estado que guarda informacion de la pantalla.
     const [partido, setPartido] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [datosAdmin, setDatosAdmin] = useState({
         titulo: "",
         fecha: "",
@@ -226,15 +246,24 @@ const SalaPartido = () => {
         estado: "",
         plazas_totales: ""
     });
+    // Estado que guarda informacion de la pantalla.
     const [mensajes, setMensajes] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [nuevoMensaje, setNuevoMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
+    // Estado que guarda informacion de la pantalla.
     const [posicionInvitacion, setPosicionInvitacion] = useState("Portero");
+    // Estado que guarda informacion de la pantalla.
     const [candidatosInvitacion, setCandidatosInvitacion] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [cargandoCandidatos, setCargandoCandidatos] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [invitandoId, setInvitandoId] = useState(null);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarSala = async () => {
         if (!id || id === "undefined" || Number.isNaN(Number(id))) {
             setCargando(false);
@@ -246,6 +275,7 @@ const SalaPartido = () => {
         try {
             setCargando(true);
             setMensaje("");
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get(`/partidos/${id}/sala`);
             setPartido(respuesta.data);
             setDatosAdmin({
@@ -259,7 +289,9 @@ const SalaPartido = () => {
             });
 
             try {
+                // Dato usado para pintar esta pantalla.
                 const respuestaMensajes = await api.get(`/partidos/${id}/mensajes`);
+                // Dato usado para pintar esta pantalla.
                 const datosMensajes = Array.isArray(respuestaMensajes.data)
                     ? respuestaMensajes.data
                     : respuestaMensajes.data?.value;
@@ -276,6 +308,7 @@ const SalaPartido = () => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         if (!token) {
             setCargando(false);
@@ -287,6 +320,7 @@ const SalaPartido = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, token]);
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         if (!partido || esCompetitivo(partido)) {
             setCandidatosInvitacion([]);
@@ -297,6 +331,7 @@ const SalaPartido = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [partido?.id_partido, posicionInvitacion]);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cambiarPosicion = async (nuevoEquipo, nuevaPosicion) => {
         try {
             await api.patch(`/partidos/${id}/posicion`, {
@@ -310,6 +345,7 @@ const SalaPartido = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cambiarFormacion = async (equipo, nuevaFormacion) => {
         try {
             await api.patch(`/partidos/${id}/formacion`, {
@@ -323,8 +359,10 @@ const SalaPartido = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const salirDeLaSala = async () => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/partidos/${id}/salir`);
 
             if (respuesta.data?.partido_eliminado) {
@@ -337,6 +375,7 @@ const SalaPartido = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const guardarDatosAdmin = async (e) => {
         e.preventDefault();
 
@@ -349,6 +388,7 @@ const SalaPartido = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const enviarMensaje = async (e) => {
         e.preventDefault();
 
@@ -365,6 +405,7 @@ const SalaPartido = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarCandidatosPorPosicion = async (posicion = posicionInvitacion) => {
         if (!id || !partido || esCompetitivo(partido)) {
             return;
@@ -372,6 +413,7 @@ const SalaPartido = () => {
 
         try {
             setCargandoCandidatos(true);
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get(`/partidos/${id}/candidatos-posicion`, {
                 params: { posicion }
             });
@@ -384,9 +426,11 @@ const SalaPartido = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const invitarPorPosicion = async (jugador) => {
         try {
             setInvitandoId(jugador.id_usuario);
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/partidos/${id}/invitar-posicion/${jugador.id_usuario}`, {
                 posicion: posicionInvitacion
             });
@@ -399,33 +443,52 @@ const SalaPartido = () => {
         }
     };
 
+    // Dato usado para pintar esta pantalla.
     const participantes = partido?.usuarios || [];
+    // Dato usado para pintar esta pantalla.
     const miJugador = participantes.find((jugador) => jugador.id_usuario === usuario?.id_usuario);
+    // Dato usado para pintar esta pantalla.
     const miEquipo = miJugador?.pivot?.equipo_asignado;
+    // Dato usado para pintar esta pantalla.
     const plazasOcupadas = participantes.length;
+    // Dato usado para pintar esta pantalla.
     const formaciones = obtenerFormacionesSeguras(partido?.tipo_futbol);
+    // Dato usado para pintar esta pantalla.
     const capacidadTotal = obtenerCapacidad(partido);
+    // Funcion auxiliar usada por este componente.
     const jugadoresPorEquipo = (equipo) => participantes.filter((jugador) => jugador.pivot?.equipo_asignado === equipo);
+    // Dato usado para pintar esta pantalla.
     const capitanLocal = participantes.find((jugador) => (
         jugador.pivot?.equipo_asignado === "Equipo A" && jugador.pivot?.es_capitan
     ));
+    // Dato usado para pintar esta pantalla.
     const capitanVisitante = participantes.find((jugador) => (
         jugador.pivot?.equipo_asignado === "Equipo B" && jugador.pivot?.es_capitan
     ));
+    // Dato usado para pintar esta pantalla.
     const esPartidoCompetitivo = esCompetitivo(partido);
+    // Dato usado para pintar esta pantalla.
     const ventanaPostPartidoActiva = Boolean(partido?.ventana_resultado_abierta) && partido?.estado !== "cancelado";
+    // Dato usado para pintar esta pantalla.
     const alineacionBloqueada = partidoHaEmpezado(partido);
+    // Dato usado para pintar esta pantalla.
     const puedoGestionarResultado = ventanaPostPartidoActiva
         && partido?.resultado?.estado_resultado !== "cerrado"
         && Boolean(miJugador?.pivot?.es_capitan);
+    // Dato usado para pintar esta pantalla.
     const puedoVotarMvp = ventanaPostPartidoActiva && Boolean(miJugador);
+    // Dato usado para pintar esta pantalla.
     const puedoValorarJugadores = ventanaPostPartidoActiva && Boolean(miJugador?.pivot?.es_capitan);
+    // Dato usado para pintar esta pantalla.
     const mostrarPostPartido = puedoGestionarResultado || puedoVotarMvp || puedoValorarJugadores;
+    // Dato usado para pintar esta pantalla.
     const totalTarjetasPostPartido = [puedoGestionarResultado, puedoVotarMvp, puedoValorarJugadores]
         .filter(Boolean)
         .length;
 
+    // Funcion auxiliar usada por este componente.
     const buscarJugadorLibre = (equipo, posicion, usados) => {
+        // Dato usado para pintar esta pantalla.
         const jugador = participantes.find((jugador) => (
             jugador.pivot?.equipo_asignado === equipo &&
             jugador.pivot?.posicion_asignada === posicion &&
@@ -439,21 +502,32 @@ const SalaPartido = () => {
         return jugador;
     };
 
+    // Funcion auxiliar usada por este componente.
     const pintarCampo = (equipo, titulo) => {
+        // Dato usado para pintar esta pantalla.
         const jugadores = jugadoresPorEquipo(equipo);
+        // Dato usado para pintar esta pantalla.
         const jugadoresPintados = [];
+        // Dato usado para pintar esta pantalla.
         const suplentesPintados = [];
+        // Dato usado para pintar esta pantalla.
         const formacionGuardada = equipo === "Equipo A"
             ? partido?.formacion_local || "4-3-3"
             : partido?.formacion_visitante || "4-3-3";
+        // Dato usado para pintar esta pantalla.
         const formacionEquipo = formaciones[formacionGuardada]
             ? formacionGuardada
             : Object.keys(formaciones)[0];
+        // Dato usado para pintar esta pantalla.
         const posicionesFormacion = formaciones[formacionEquipo] || Object.values(formaciones)[0] || [];
+        // Dato usado para pintar esta pantalla.
         const soyCapitanDeEsteEquipo = miEquipo === equipo && miJugador?.pivot?.es_capitan;
+        // Dato usado para pintar esta pantalla.
         const puedeCambiarFormacion = soyCapitanDeEsteEquipo && !alineacionBloqueada;
+        // Dato usado para pintar esta pantalla.
         const suplentes = jugadores.filter((jugador) => jugador.pivot?.posicion_asignada === "SUP");
 
+        // Vista que se muestra al usuario.
         return (
             <article className="equipo-alineacion">
                 <div className="cabecera-alineacion">
@@ -481,9 +555,12 @@ const SalaPartido = () => {
 
                 <div className="campo-alineacion">
                     {posicionesFormacion.map((zona, index) => {
+                        // Dato usado para pintar esta pantalla.
                         const jugador = buscarJugadorLibre(equipo, zona.posicion, jugadoresPintados);
+                        // Dato usado para pintar esta pantalla.
                         const estoyAqui = jugador?.id_usuario === usuario?.id_usuario;
 
+                        // Vista que se muestra al usuario.
                         return (
                             <button
                                 type="button"
@@ -506,12 +583,14 @@ const SalaPartido = () => {
                 <div className="banquillo">
                     <h3>Suplentes</h3>
                     {[0, 1].map((indice) => {
+                        // Dato usado para pintar esta pantalla.
                         const jugador = suplentes.find((jugador) => !suplentesPintados.includes(jugador.id_usuario));
 
                         if (jugador) {
                             suplentesPintados.push(jugador.id_usuario);
                         }
 
+                        // Vista que se muestra al usuario.
                         return (
                             <button
                                 type="button"
@@ -537,6 +616,7 @@ const SalaPartido = () => {
         );
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio">
             <EncabezadoSeccion

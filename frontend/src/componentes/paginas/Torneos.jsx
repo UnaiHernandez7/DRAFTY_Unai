@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Torneos.css";
 
+// Archivo propio del frontend de Drafty.
 const filtros = [
     { clave: "todos", texto: "Todos" },
     { clave: "publico", texto: "Públicos" },
@@ -13,6 +14,7 @@ const filtros = [
     { clave: "finalizado", texto: "Finalizados" }
 ];
 
+// Dato usado para pintar esta pantalla.
 const estadoTexto = {
     inscripcion_abierta: "Inscripción abierta",
     en_curso: "En curso",
@@ -20,20 +22,32 @@ const estadoTexto = {
     cancelado: "Cancelado"
 };
 
+// Funcion auxiliar usada por este componente.
 const Torneos = () => {
+    // Estado que guarda informacion de la pantalla.
     const [torneos, setTorneos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [equipos, setEquipos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [filtro, setFiltro] = useState("todos");
+    // Estado que guarda informacion de la pantalla.
     const [selecciones, setSelecciones] = useState({});
+    // Estado que guarda informacion de la pantalla.
     const [codigos, setCodigos] = useState({});
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [tipoMensaje, setTipoMensaje] = useState("error");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
     const { isAuth } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarTorneos = async () => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get("/torneos");
             setTorneos(Array.isArray(respuesta.data) ? respuesta.data : []);
         } catch {
@@ -44,10 +58,12 @@ const Torneos = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarEquipos = async () => {
         if (!isAuth) return;
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get("/mis-equipos");
             setEquipos(Array.isArray(respuesta.data) ? respuesta.data : []);
         } catch {
@@ -55,16 +71,20 @@ const Torneos = () => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarTorneos();
     }, []);
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarEquipos();
     }, [isAuth]);
 
+    // Dato usado para pintar esta pantalla.
     const torneosFiltrados = useMemo(() => {
         return torneos.filter((torneo) => {
+            // Dato usado para pintar esta pantalla.
             const estado = torneo.estado_torneo || torneo.estado;
 
             if (estado === "finalizado") {
@@ -77,6 +97,7 @@ const Torneos = () => {
         });
     }, [torneos, filtro]);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const unirse = async (torneo) => {
         if (!isAuth) {
             setTipoMensaje("error");
@@ -85,6 +106,7 @@ const Torneos = () => {
             return;
         }
 
+        // Dato usado para pintar esta pantalla.
         const idEquipo = selecciones[torneo.id_torneo] || equipos[0]?.id_equipo;
         if (!idEquipo) {
             setTipoMensaje("error");
@@ -93,6 +115,7 @@ const Torneos = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/torneos/${torneo.id_torneo}/unirse`, {
                 id_equipo: idEquipo,
                 codigo_acceso: codigos[torneo.id_torneo] || ""
@@ -106,6 +129,7 @@ const Torneos = () => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio torneos-page">
             <EncabezadoSeccion
@@ -142,11 +166,16 @@ const Torneos = () => {
                 )}
 
                 {torneosFiltrados.map((torneo) => {
+                    // Dato usado para pintar esta pantalla.
                     const estado = torneo.estado_torneo || torneo.estado || "inscripcion_abierta";
+                    // Dato usado para pintar esta pantalla.
                     const inscritos = torneo.equipos_count ?? 0;
+                    // Dato usado para pintar esta pantalla.
                     const lleno = inscritos >= Number(torneo.max_equipos || 0);
+                    // Dato usado para pintar esta pantalla.
                     const puedeUnirse = estado === "inscripcion_abierta" && !lleno;
 
+                    // Vista que se muestra al usuario.
                     return (
                         <article className="torneo-card" key={torneo.id_torneo}>
                             <div className="torneo-card-main">

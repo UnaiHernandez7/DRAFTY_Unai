@@ -1,19 +1,27 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const UnirseEquipo = () => {
+    // Estado que guarda informacion de la pantalla.
     const [equipos, setEquipos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [misEquipos, setMisEquipos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [busqueda, setBusqueda] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
     const { isAuth } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarDatos = async () => {
         if (!isAuth) {
             setCargando(false);
@@ -21,6 +29,7 @@ const UnirseEquipo = () => {
         }
 
         try {
+            // Solo cargamos listas; no hace falta mostrar la cuenta activa.
             const [respuestaEquipos, respuestaMisEquipos] = await Promise.all([
                 api.get("/equipos"),
                 api.get("/mis-equipos")
@@ -35,10 +44,12 @@ const UnirseEquipo = () => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarDatos();
     }, [isAuth]);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const unirse = async (idEquipo) => {
         if (!isAuth) {
             navigate("/login");
@@ -46,7 +57,9 @@ const UnirseEquipo = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/equipos/${idEquipo}/unirse`);
+            // Mensaje simple sin repetir el usuario activo.
             setMensaje(respuesta.data?.mensaje || "Te has unido al equipo correctamente.");
             cargarDatos();
         } catch (error) {
@@ -54,12 +67,16 @@ const UnirseEquipo = () => {
         }
     };
 
+    // Dato usado para pintar esta pantalla.
     const idsMisEquipos = misEquipos.map((equipo) => Number(equipo.id_equipo));
+    // Dato usado para pintar esta pantalla.
     const texto = busqueda.trim().toLowerCase();
+    // Dato usado para pintar esta pantalla.
     const equiposDisponibles = equipos
         .filter((equipo) => !idsMisEquipos.includes(Number(equipo.id_equipo)))
         .filter((equipo) => !texto || [equipo.nombre_equipo, equipo.descripcion].filter(Boolean).join(" ").toLowerCase().includes(texto));
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio equipos-page">
             <EncabezadoSeccion

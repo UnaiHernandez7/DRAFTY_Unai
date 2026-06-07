@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -8,8 +8,14 @@ use App\Models\VotoMvp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Controlador que agrupa la logica de estadistica en la API.
+ */
 class EstadisticaController extends Controller
 {
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function misEstadisticas(Request $request)
     {
         $estadistica = Estadistica::firstOrCreate(
@@ -32,22 +38,34 @@ class EstadisticaController extends Controller
         return response()->json($estadistica);
     }
 
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function index()
     {
         return response()->json(Estadistica::all());
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request)
     {
         $estadistica = Estadistica::create($request->all());
         return response()->json($estadistica, 201);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function show($id)
     {
         return response()->json(Estadistica::findOrFail($id));
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function update(Request $request, $id)
     {
         $estadistica = Estadistica::findOrFail($id);
@@ -56,12 +74,18 @@ class EstadisticaController extends Controller
         return response()->json($estadistica);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function destroy($id)
     {
         Estadistica::findOrFail($id)->delete();
         return response()->json(['mensaje' => 'Estadistica eliminada']);
     }
 
+    /**
+     * Gestiona votos de MVP.
+     */
     private function contarMvpsUsuario(int $idUsuario): int
     {
         $votosPorPartido = VotoMvp::query()
@@ -88,6 +112,9 @@ class EstadisticaController extends Controller
         })->count();
     }
 
+    /**
+     * Gestiona informacion relacionada con torneos.
+     */
     private function estadisticasTorneosUsuario(int $idUsuario): array
     {
         $idsEquipos = DB::table('equipo_usuarios')

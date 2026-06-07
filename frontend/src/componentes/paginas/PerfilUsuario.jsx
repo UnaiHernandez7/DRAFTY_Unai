@@ -1,18 +1,25 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const nombreJugador = (jugador) => jugador?.nombre_usuario || jugador?.nombre || "Jugador";
 
+// Funcion auxiliar usada por este componente.
 const PerfilUsuario = () => {
     const { id } = useParams();
+    // Estado que guarda informacion de la pantalla.
     const [perfil, setPerfil] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [valoraciones, setValoraciones] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
+        // Funcion que llama al servidor y actualiza la pantalla.
         const cargarPerfil = async () => {
             try {
                 const [respuesta, respuestaValoraciones] = await Promise.all([
@@ -30,6 +37,7 @@ const PerfilUsuario = () => {
     }, [id]);
 
     if (mensaje) {
+        // Vista que se muestra al usuario.
         return (
             <main className="inicio">
                 <p className="mensaje mensaje-error">{mensaje}</p>
@@ -42,9 +50,12 @@ const PerfilUsuario = () => {
         return <main className="inicio"><p className="estado">Cargando perfil...</p></main>;
     }
 
+    // Dato usado para pintar esta pantalla.
     const competitivo = perfil.competitivo;
+    // Dato usado para pintar esta pantalla.
     const estadisticas = perfil.estadisticas;
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio">
             <EncabezadoSeccion

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
@@ -7,6 +7,7 @@ import SelectorMapa from "./SelectorMapa.jsx";
 import "./Inicio.css";
 import "./CrearPartido.css";
 
+// Archivo propio del frontend de Drafty.
 const tiposPartido = {
     "5v5": {
         etiqueta: "Fútbol 5v5",
@@ -28,6 +29,7 @@ const tiposPartido = {
     }
 };
 
+// Dato usado para pintar esta pantalla.
 const estadoInicial = {
     titulo: "",
     descripcion: "",
@@ -47,44 +49,65 @@ const estadoInicial = {
     id_equipo_visitante: ""
 };
 
+// Funcion auxiliar usada por este componente.
 const hoy = () => {
+    // Dato usado para pintar esta pantalla.
     const ahora = new Date();
+    // Dato usado para pintar esta pantalla.
     const year = ahora.getFullYear();
+    // Dato usado para pintar esta pantalla.
     const month = String(ahora.getMonth() + 1).padStart(2, "0");
+    // Dato usado para pintar esta pantalla.
     const day = String(ahora.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
 };
+// Funcion auxiliar usada por este componente.
 const horaActual = () => {
+    // Dato usado para pintar esta pantalla.
     const ahora = new Date();
 
     return `${String(ahora.getHours()).padStart(2, "0")}:${String(ahora.getMinutes()).padStart(2, "0")}`;
 };
 
+// Funcion auxiliar usada por este componente.
 const CrearPartido = () => {
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
     const { token } = useAuth();
+    // Estado que guarda informacion de la pantalla.
     const [formulario, setFormulario] = useState(estadoInicial);
+    // Estado que guarda informacion de la pantalla.
     const [equipos, setEquipos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [exito, setExito] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [errores, setErrores] = useState({});
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [buscandoDireccion, setBuscandoDireccion] = useState(false);
 
+    // Dato usado para pintar esta pantalla.
     const tipoActual = tiposPartido[formulario.tipo_futbol];
+    // Dato usado para pintar esta pantalla.
     const coordenadas = formulario.campo_latitud && formulario.campo_longitud
         ? { latitud: Number(formulario.campo_latitud), longitud: Number(formulario.campo_longitud) }
         : null;
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         if (!token) {
             navigate("/login");
             return;
         }
 
+        // Funcion que llama al servidor y actualiza la pantalla.
         const cargarEquipos = async () => {
             try {
+                // Dato usado para pintar esta pantalla.
                 const respuesta = await api.get("/mis-equipos");
                 setEquipos(Array.isArray(respuesta.data) ? respuesta.data : []);
             } catch {
@@ -95,6 +118,7 @@ const CrearPartido = () => {
         cargarEquipos();
     }, [token, navigate]);
 
+    // Funcion auxiliar usada por este componente.
     const cambiarCampo = (campo, valor) => {
         setErrores((actuales) => ({ ...actuales, [campo]: false }));
         setFormulario((actual) => {
@@ -112,10 +136,12 @@ const CrearPartido = () => {
         });
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const obtenerDireccionDesdeCoordenadas = async (latitud, longitud) => {
         try {
             setBuscandoDireccion(true);
 
+            // Dato usado para pintar esta pantalla.
             const respuesta = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitud}&lon=${longitud}&addressdetails=1`
             );
@@ -124,8 +150,11 @@ const CrearPartido = () => {
                 return null;
             }
 
+            // Dato usado para pintar esta pantalla.
             const datos = await respuesta.json();
+            // Dato usado para pintar esta pantalla.
             const direccion = datos.address || {};
+            // Dato usado para pintar esta pantalla.
             const via = [direccion.road, direccion.house_number].filter(Boolean).join(" ");
 
             return {
@@ -141,6 +170,7 @@ const CrearPartido = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const seleccionarUbicacion = async ({ latitud, longitud }) => {
         setErrores((actuales) => ({ ...actuales, campo_latitud: false, campo_longitud: false }));
         setFormulario((actual) => ({
@@ -149,6 +179,7 @@ const CrearPartido = () => {
             campo_longitud: longitud
         }));
 
+        // Dato usado para pintar esta pantalla.
         const datosUbicacion = await obtenerDireccionDesdeCoordenadas(latitud, longitud);
 
         if (!datosUbicacion) {
@@ -164,6 +195,7 @@ const CrearPartido = () => {
         }));
     };
 
+    // Funcion auxiliar usada por este componente.
     const usarMiUbicacion = () => {
         if (!navigator.geolocation) {
             setMensaje("Tu navegador no permite obtener la ubicación.");
@@ -179,7 +211,9 @@ const CrearPartido = () => {
         );
     };
 
+    // Funcion auxiliar usada por este componente.
     const validar = () => {
+        // Dato usado para pintar esta pantalla.
         const nuevosErrores = {};
 
         ["titulo", "fecha", "hora", "tipo_futbol", "nivel", "campo_nombre_campo", "campo_direccion", "campo_ciudad", "campo_provincia"].forEach((campo) => {
@@ -203,6 +237,7 @@ const CrearPartido = () => {
         return Object.keys(nuevosErrores).length === 0;
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const crearPartido = async (e) => {
         e.preventDefault();
 
@@ -216,6 +251,7 @@ const CrearPartido = () => {
             setMensaje("");
             setExito("");
 
+            // Dato usado para pintar esta pantalla.
             const payload = {
                 titulo: formulario.titulo,
                 descripcion: formulario.descripcion,
@@ -236,11 +272,14 @@ const CrearPartido = () => {
                 id_equipo_visitante: formulario.id_equipo_visitante || null
             };
 
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post("/partidos", payload);
             setExito("Partido creado correctamente. Entrando en la sala...");
             navigate(`/partidos/${respuesta.data.id_partido}/sala`);
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const erroresApi = error.response?.data?.errors || {};
+            // Dato usado para pintar esta pantalla.
             const primerError = Object.values(erroresApi).flat()[0];
 
             setMensaje(primerError || error.response?.data?.mensaje || "No se ha podido crear el partido.");
@@ -249,6 +288,7 @@ const CrearPartido = () => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio crear-partido-page">
             <EncabezadoSeccion

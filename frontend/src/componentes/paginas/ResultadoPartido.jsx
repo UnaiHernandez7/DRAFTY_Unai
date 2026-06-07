@@ -1,12 +1,15 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import api from "../../api/api.js";
 
+// Archivo propio del frontend de Drafty.
 const nombreJugador = (jugador) => jugador?.nombre_usuario || jugador?.nombre || "Jugador";
 
+// Funcion auxiliar usada por este componente.
 const golesPorEquipo = (goles = [], equipo) => (
     goles.filter((gol) => (gol.equipo_sala || gol.usuario?.pivot?.equipo_asignado) === equipo).length
 );
 
+// Funcion auxiliar usada por este componente.
 const formatearFecha = (valor) => {
     if (!valor) {
         return "Sin límite";
@@ -20,33 +23,51 @@ const formatearFecha = (valor) => {
     });
 };
 
+// Funcion auxiliar usada por este componente.
 const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
+    // Estado que guarda informacion de la pantalla.
     const [nuevoGol, setNuevoGol] = useState({ id_usuario: "", minuto: "" });
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [guardando, setGuardando] = useState(false);
+    // Dato usado para pintar esta pantalla.
     const goles = partido?.goles || [];
+    // Dato usado para pintar esta pantalla.
     const resultado = partido?.resultado;
+    // Dato usado para pintar esta pantalla.
     const soyCapitan = Boolean(miJugador?.pivot?.es_capitan);
+    // Dato usado para pintar esta pantalla.
     const puedeGestionar = partido?.estado !== "cancelado" && soyCapitan;
+    // Dato usado para pintar esta pantalla.
     const puedeUsarVentana = Boolean(partido?.ventana_resultado_abierta);
+    // Dato usado para pintar esta pantalla.
     const estadoResultado = resultado?.estado_resultado;
+    // Dato usado para pintar esta pantalla.
     const resultadoCerrado = estadoResultado === "cerrado";
+    // Dato usado para pintar esta pantalla.
     const resultadoSinResultado = estadoResultado === "sin_resultado";
+    // Dato usado para pintar esta pantalla.
     const resultadoEditable = !resultadoCerrado && !resultadoSinResultado;
+    // Dato usado para pintar esta pantalla.
     const miEquipo = miJugador?.pivot?.equipo_asignado;
 
+    // Dato usado para pintar esta pantalla.
     const marcador = useMemo(() => ({
         local: resultadoSinResultado ? "-" : (resultadoCerrado ? resultado?.goles_local : golesPorEquipo(goles, "Equipo A")),
         visitante: resultadoSinResultado ? "-" : (resultadoCerrado ? resultado?.goles_visitante : golesPorEquipo(goles, "Equipo B"))
     }), [goles, resultado, resultadoCerrado, resultadoSinResultado]);
 
+    // Dato usado para pintar esta pantalla.
     const propuestaLocal = resultado?.goles_local_local != null && resultado?.goles_visitante_local != null
         ? `${resultado.goles_local_local} - ${resultado.goles_visitante_local}`
         : "Pendiente";
+    // Dato usado para pintar esta pantalla.
     const propuestaVisitante = resultado?.goles_local_visitante != null && resultado?.goles_visitante_visitante != null
         ? `${resultado.goles_local_visitante} - ${resultado.goles_visitante_visitante}`
         : "Pendiente";
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const agregarGol = async (e) => {
         e.preventDefault();
         setMensaje("");
@@ -76,6 +97,7 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const quitarGol = async (idGol) => {
         try {
             setGuardando(true);
@@ -88,9 +110,11 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const registrarResultado = async () => {
         try {
             setGuardando(true);
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/partidos/${partido.id_partido}/resultado`);
             setMensaje(respuesta.data?.mensaje || "Resultado enviado correctamente.");
             await onCambio();
@@ -105,6 +129,7 @@ const ResultadoPartido = ({ partido, participantes, miJugador, onCambio }) => {
         return null;
     }
 
+    // Vista que se muestra al usuario.
     return (
         <article className="post-card post-card-destacada">
             <div className="post-card-cabecera">

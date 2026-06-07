@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -9,8 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Controlador que agrupa la logica de competitivo en la API.
+ */
 class CompetitivoController extends Controller
 {
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function miPerfil(Request $request)
     {
         $competitivo = $this->asegurarPerfilCompetitivo($request->user()->id_usuario);
@@ -19,16 +25,33 @@ class CompetitivoController extends Controller
         return response()->json($competitivo);
     }
 
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function index()
     {
         return response()->json(Competitivo::all());
     }
 
+    /**
+     * Devuelve los rankings competitivos globales.
+     *
+     * Incluye ranking por rango/puntos, goles, asistencias y porterias a cero.
+     *
+     * @param Request $request Peticion autenticada.
+     * @return \Illuminate\Http\JsonResponse Rankings globales formateados.
+     */
     public function rankings(Request $request)
     {
         return response()->json($this->rankingsPorUsuarios(null, $request->user()->id_usuario));
     }
 
+    /**
+     * Devuelve rankings competitivos limitados al usuario y sus amigos.
+     *
+     * @param Request $request Peticion autenticada.
+     * @return \Illuminate\Http\JsonResponse Rankings filtrados por red de amigos.
+     */
     public function rankingsAmigos(Request $request)
     {
         $usuarioId = $request->user()->id_usuario;
@@ -39,17 +62,26 @@ class CompetitivoController extends Controller
         return response()->json($this->rankingsPorUsuarios($idsUsuarios, $usuarioId));
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request)
     {
         $competitivo = Competitivo::create($request->all());
         return response()->json($competitivo, 201);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function show($id)
     {
         return response()->json(Competitivo::findOrFail($id));
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function update(Request $request, $id)
     {
         $competitivo = Competitivo::findOrFail($id);
@@ -58,12 +90,22 @@ class CompetitivoController extends Controller
         return response()->json($competitivo);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function destroy($id)
     {
         Competitivo::findOrFail($id)->delete();
         return response()->json(['mensaje' => 'Competitivo eliminado']);
     }
 
+    /**
+     * Construye todos los rankings disponibles para un conjunto de usuarios.
+     *
+     * @param array<int>|null $idsUsuarios Usuarios permitidos; null indica ranking global.
+     * @param int|null $usuarioId Usuario actual, incluido aunque no este en el top.
+     * @return array<string, mixed> Rankings agrupados por clave.
+     */
     private function rankingsPorUsuarios(?array $idsUsuarios = null, ?int $usuarioId = null): array
     {
         return [
@@ -74,6 +116,9 @@ class CompetitivoController extends Controller
         ];
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     private function asegurarPerfilCompetitivo(int $usuarioId): Competitivo
     {
         return Competitivo::firstOrCreate(
@@ -89,6 +134,14 @@ class CompetitivoController extends Controller
         );
     }
 
+    /**
+     * Genera un ranking ordenado por un campo competitivo.
+     *
+     * @param string $campo Campo de la tabla competitivo usado como valor principal.
+     * @param array<int>|null $idsUsuarios Usuarios permitidos; null indica todos.
+     * @param int|null $usuarioId Usuario actual para anadir su fila si no esta en el top.
+     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     */
     private function rankingPorCampo(string $campo, ?array $idsUsuarios = null, ?int $usuarioId = null)
     {
         $consulta = Competitivo::with('usuario')
@@ -118,6 +171,14 @@ class CompetitivoController extends Controller
             : $top->values();
     }
 
+    /**
+     * Convierte un perfil competitivo en una fila de ranking.
+     *
+     * @param Competitivo $competitivo Perfil competitivo con usuario cargado.
+     * @param string $campo Campo usado como valor de ranking.
+     * @param int $posicion Posicion calculada dentro del ranking completo.
+     * @return array<string, mixed> Fila lista para la API.
+     */
     private function formatearFilaRanking(Competitivo $competitivo, string $campo, int $posicion): array
     {
         return [
@@ -131,6 +192,9 @@ class CompetitivoController extends Controller
         ];
     }
 
+    /**
+     * Gestiona datos relacionados con amigos y solicitudes.
+     */
     private function idsAmigos(int $usuarioId): array
     {
         if (!Schema::hasTable('amistades')) {
@@ -155,6 +219,9 @@ class CompetitivoController extends Controller
             ->all();
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     private function contarMvpsCompetitivosUsuario(int $idUsuario): int
     {
         $votosPorPartido = VotoMvp::query()

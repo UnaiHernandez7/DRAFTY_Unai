@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
@@ -6,8 +6,10 @@ import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Login.css";
 import "./Registro.css";
 
+// Archivo propio del frontend de Drafty.
 const posiciones = ["Portero", "Defensa", "Mediocentro", "Delantero"];
 
+// Funcion auxiliar usada por este componente.
 const validarContrasenaSegura = (valor) => {
     if (valor.length < 8) return "La contraseña debe tener al menos 8 caracteres.";
     if (!/[a-z]/.test(valor) || !/[A-Z]/.test(valor)) return "La contraseña debe incluir mayúsculas y minúsculas.";
@@ -17,25 +19,39 @@ const validarContrasenaSegura = (valor) => {
     return "";
 };
 
+// Funcion auxiliar usada por este componente.
 const Registro = () => {
+    // Estado que guarda informacion de la pantalla.
     const [nombreUsuario, setNombreUsuario] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [nombre, setNombre] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [apellido, setApellido] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [email, setEmail] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [contrasena, setContrasena] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [ciudad, setCiudad] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [posicionesFavoritas, setPosicionesFavoritas] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [estadoNombreUsuario, setEstadoNombreUsuario] = useState({
         estado: "idle",
         mensaje: ""
     });
 
     const { register } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
+        // Dato usado para pintar esta pantalla.
         const nombre = nombreUsuario.trim();
 
         if (!nombre) {
@@ -49,8 +65,10 @@ const Registro = () => {
         });
 
         let comprobacionActiva = true;
+        // Dato usado para pintar esta pantalla.
         const temporizador = setTimeout(async () => {
             try {
+                // Dato usado para pintar esta pantalla.
                 const respuesta = await api.get("/usuarios/nombre-disponible", {
                     params: { nombre_usuario: nombre }
                 });
@@ -81,6 +99,7 @@ const Registro = () => {
         };
     }, [nombreUsuario]);
 
+    // Funcion auxiliar usada por este componente.
     const cambiarPosicion = (posicion) => {
         if (posicionesFavoritas.includes(posicion)) {
             setPosicionesFavoritas(posicionesFavoritas.filter((item) => item !== posicion));
@@ -89,6 +108,7 @@ const Registro = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const manejarSubmit = async (e) => {
         e.preventDefault();
         setMensaje("");
@@ -98,6 +118,7 @@ const Registro = () => {
             return;
         }
 
+        // Dato usado para pintar esta pantalla.
         const errorContrasena = validarContrasenaSegura(contrasena);
         if (errorContrasena) {
             setMensaje(errorContrasena);
@@ -106,6 +127,7 @@ const Registro = () => {
 
         setCargando(true);
 
+        // Dato usado para pintar esta pantalla.
         const datos = {
             nombre_usuario: nombreUsuario,
             nombre,
@@ -116,6 +138,7 @@ const Registro = () => {
             posiciones_favoritas: posicionesFavoritas.join(", ")
         };
 
+        // Dato usado para pintar esta pantalla.
         const resultado = await register(datos);
 
         if (resultado.ok || resultado.pendiente) {
@@ -133,12 +156,14 @@ const Registro = () => {
         setCargando(false);
     };
 
+    // Dato usado para pintar esta pantalla.
     const claseNombreUsuario = estadoNombreUsuario.estado === "ocupado"
         ? "campo-error"
         : estadoNombreUsuario.estado === "disponible"
             ? "campo-valido"
             : "";
 
+    // Vista que se muestra al usuario.
     return (
         <main className="auth-page auth-page-registro">
             <section className="auth-brand">

@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import api from "../../api/api.js";
 import escudoA from "../../img/A (2).png";
 import escudoB from "../../img/B.png";
 
+// Archivo propio del frontend de Drafty.
 const ordenRondas = ["Octavos", "Cuartos", "Semifinales", "Final"];
 
+// Funcion auxiliar usada por este componente.
 const jugadoresActivos = (equipo) => (
     equipo?.usuarios?.filter((jugador) => (
         jugador.pivot?.rol_en_equipo !== "invitado" &&
@@ -12,28 +14,40 @@ const jugadoresActivos = (equipo) => (
     )) || []
 );
 
+// Funcion auxiliar usada por este componente.
 const BracketPartido = ({ partido, puedeEditar, onActualizado }) => {
+    // Estado que guarda informacion de la pantalla.
     const [gol, setGol] = useState({
         id_equipo: partido.id_equipo_local || "",
         id_usuario: "",
         minuto: ""
     });
+    // Estado que guarda informacion de la pantalla.
     const [guardando, setGuardando] = useState(false);
 
+    // Dato usado para pintar esta pantalla.
     const local = partido.equipo_local;
+    // Dato usado para pintar esta pantalla.
     const visitante = partido.equipo_visitante;
+    // Dato usado para pintar esta pantalla.
     const tieneEquipos = partido.id_equipo_local && partido.id_equipo_visitante;
+    // Dato usado para pintar esta pantalla.
     const tieneResultado = partido.goles_local !== null && partido.goles_visitante !== null && partido.estado === "jugado";
+    // Dato usado para pintar esta pantalla.
     const golesLocal = partido.goles?.filter((item) => Number(item.id_equipo) === Number(partido.id_equipo_local)).length ?? partido.goles_local ?? 0;
+    // Dato usado para pintar esta pantalla.
     const golesVisitante = partido.goles?.filter((item) => Number(item.id_equipo) === Number(partido.id_equipo_visitante)).length ?? partido.goles_visitante ?? 0;
+    // Dato usado para pintar esta pantalla.
     const jugadoresDisponibles = Number(gol.id_equipo) === Number(partido.id_equipo_visitante)
         ? jugadoresActivos(visitante)
         : jugadoresActivos(local);
 
+    // Funcion auxiliar usada por este componente.
     const cambiarEquipo = (idEquipo) => {
         setGol({ id_equipo: idEquipo, id_usuario: "", minuto: "" });
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const agregarGol = async () => {
         if (!gol.id_equipo || !gol.id_usuario) {
             onActualizado("Selecciona equipo y goleador.", "error");
@@ -56,6 +70,7 @@ const BracketPartido = ({ partido, puedeEditar, onActualizado }) => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const eliminarGol = async (idGol) => {
         try {
             await api.delete(`/torneos/goles/${idGol}`);
@@ -65,6 +80,7 @@ const BracketPartido = ({ partido, puedeEditar, onActualizado }) => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const confirmar = async () => {
         try {
             await api.put(`/torneos/partidos/${partido.id_torneo_partido}/resultado`);
@@ -74,6 +90,7 @@ const BracketPartido = ({ partido, puedeEditar, onActualizado }) => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <article className={tieneResultado ? "bracket-match visual finalizado" : "bracket-match visual"}>
             <div className="bracket-match-top">
@@ -143,7 +160,9 @@ const BracketPartido = ({ partido, puedeEditar, onActualizado }) => {
     );
 };
 
+// Funcion auxiliar usada por este componente.
 const BracketTorneo = ({ partidos = [], puedeEditar = false, onActualizado }) => {
+    // Dato usado para pintar esta pantalla.
     const rondas = useMemo(() => (
         ordenRondas
             .map((ronda) => ({
@@ -152,12 +171,17 @@ const BracketTorneo = ({ partidos = [], puedeEditar = false, onActualizado }) =>
             }))
             .filter((grupo) => grupo.partidos.length > 0)
     ), [partidos]);
+    // Dato usado para pintar esta pantalla.
     const semifinales = partidos.filter((partido) => partido.ronda === "Semifinales");
+    // Dato usado para pintar esta pantalla.
     const finales = partidos.filter((partido) => partido.ronda === "Final");
+    // Dato usado para pintar esta pantalla.
     const rondasPrevias = rondas.filter((grupo) => !["Semifinales", "Final"].includes(grupo.ronda));
+    // Dato usado para pintar esta pantalla.
     const tieneBloqueFinal = semifinales.length > 0 && finales.length > 0;
 
     if (rondas.length === 0) {
+        // Vista que se muestra al usuario.
         return (
             <div className="torneo-empty compacto">
                 <h3>Bracket pendiente</h3>
@@ -166,6 +190,7 @@ const BracketTorneo = ({ partidos = [], puedeEditar = false, onActualizado }) =>
         );
     }
 
+    // Vista que se muestra al usuario.
     return (
         <div className="bracket-torneo visual">
             {rondasPrevias.map((grupo) => (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import { useNavigate } from "react-router-dom";
@@ -6,14 +6,18 @@ import PartidoLista from "./PartidoLista.jsx";
 import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const obtenerCapacidad = (partidoOTipo = "") => {
     if (typeof partidoOTipo === "object" && partidoOTipo !== null) {
+        // Dato usado para pintar esta pantalla.
         const capacidadPorTipo = obtenerCapacidad(partidoOTipo.tipo_futbol);
+        // Dato usado para pintar esta pantalla.
         const capacidadGuardada = partidoOTipo.plazas_totales_calculadas || partidoOTipo.plazas_totales || 0;
 
         return Math.max(capacidadGuardada, capacidadPorTipo);
     }
 
+    // Dato usado para pintar esta pantalla.
     const tipo = String(partidoOTipo || "").toLowerCase();
 
     if (tipo.includes("5v5") || tipo.includes("sala")) {
@@ -27,6 +31,7 @@ const obtenerCapacidad = (partidoOTipo = "") => {
     return 26;
 };
 
+// Dato usado para pintar esta pantalla.
 const formacionesPorTipo = {
     futbol11: {
         "4-3-3": ["POR", "LI", "DFC", "DFC", "LD", "MC", "MCD", "MC", "EI", "DC", "ED"],
@@ -42,7 +47,9 @@ const formacionesPorTipo = {
     }
 };
 
+// Funcion auxiliar usada por este componente.
 const obtenerTipoFormacion = (tipoFutbol = "") => {
+    // Dato usado para pintar esta pantalla.
     const tipo = tipoFutbol.toLowerCase();
 
     if (tipo.includes("5v5") || tipo.includes("sala")) return "sala";
@@ -51,7 +58,9 @@ const obtenerTipoFormacion = (tipoFutbol = "") => {
     return "futbol11";
 };
 
+// Funcion auxiliar usada por este componente.
 const convertirPosicion = (texto = "") => {
+    // Dato usado para pintar esta pantalla.
     const posicion = texto.toLowerCase();
 
     if (posicion.includes("port")) return ["POR"];
@@ -63,6 +72,7 @@ const convertirPosicion = (texto = "") => {
     return [texto.toUpperCase()];
 };
 
+// Funcion auxiliar usada por este componente.
 const normalizarTexto = (texto = "") => (
     texto
         .normalize("NFD")
@@ -71,16 +81,20 @@ const normalizarTexto = (texto = "") => (
         .toLowerCase()
 );
 
+// Funcion auxiliar usada por este componente.
 const contarPosiciones = (posiciones, buscadas) => (
     posiciones.filter((posicion) => buscadas.includes(posicion)).length
 );
 
+// Funcion auxiliar usada por este componente.
 const hayHuecoParaPosicion = (partido, filtroPosicion) => {
     if (!filtroPosicion) {
         return true;
     }
 
+    // Dato usado para pintar esta pantalla.
     const posicionesBuscadas = convertirPosicion(filtroPosicion);
+    // Dato usado para pintar esta pantalla.
     const participantesConfirmados = (partido.usuarios || [])
         .filter((jugador) => jugador.pivot?.estado_participacion !== "pendiente");
 
@@ -93,16 +107,22 @@ const hayHuecoParaPosicion = (partido, filtroPosicion) => {
         ));
     }
 
+    // Dato usado para pintar esta pantalla.
     const tipoFormacion = obtenerTipoFormacion(partido.tipo_futbol);
+    // Dato usado para pintar esta pantalla.
     const formaciones = formacionesPorTipo[tipoFormacion];
+    // Dato usado para pintar esta pantalla.
     const formacionLocal = formaciones[partido.formacion_local] ? partido.formacion_local : Object.keys(formaciones)[0];
+    // Dato usado para pintar esta pantalla.
     const formacionVisitante = formaciones[partido.formacion_visitante] ? partido.formacion_visitante : Object.keys(formaciones)[0];
 
     return [
         ["Equipo A", formaciones[formacionLocal]],
         ["Equipo B", formaciones[formacionVisitante]]
     ].some(([equipo, posicionesFormacion]) => {
+        // Dato usado para pintar esta pantalla.
         const huecos = contarPosiciones(posicionesFormacion, posicionesBuscadas);
+        // Dato usado para pintar esta pantalla.
         const ocupadas = participantesConfirmados.filter((jugador) => (
             jugador.pivot?.equipo_asignado === equipo &&
             posicionesBuscadas.includes(jugador.pivot?.posicion_asignada)
@@ -112,31 +132,45 @@ const hayHuecoParaPosicion = (partido, filtroPosicion) => {
     });
 };
 
+// Funcion auxiliar usada por este componente.
 const Inicio = () => {
+    // Estado que guarda informacion de la pantalla.
     const [partidos, setPartidos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
+    // Estado que guarda informacion de la pantalla.
     const [error, setError] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [partidosUnidos, setPartidosUnidos] = useState([]);
+    // Por defecto se muestran todos para no depender de permisos de ubicacion.
     const [filtros, setFiltros] = useState({ tipo: "", nivel: "", posicion: "", codigo: "", proximidad: "todos", radio: "25" });
+    // Estado que guarda informacion de la pantalla.
     const [ubicacionUsuario, setUbicacionUsuario] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [estadoUbicacion, setEstadoUbicacion] = useState("pendiente");
     const { token, usuario } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarPartidos = async () => {
         try {
             setCargando(true);
             setError("");
 
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get("/partidos/cercanos", {
                 params: {
+                    // El backend decide si ordena por cercania, ciudad o todos.
                     modo: filtros.proximidad,
                     radio: ["cerca", "desde-ciudad"].includes(filtros.proximidad) ? filtros.radio : undefined,
                     ...(usuario?.ciudad ? { ciudad: usuario.ciudad } : {}),
                     ...(filtros.proximidad === "cerca" && ubicacionUsuario ? { latitud: ubicacionUsuario.latitud, longitud: ubicacionUsuario.longitud } : {})
                 }
             });
+            // Dato usado para pintar esta pantalla.
             const listaPartidos = (Array.isArray(respuesta.data) ? respuesta.data : [])
                 .filter((partido) => !partido.es_competitivo && normalizarTexto(partido.nivel) !== "competitivo");
 
@@ -144,7 +178,9 @@ const Inicio = () => {
 
             if (token) {
                 try {
+                    // Dato usado para pintar esta pantalla.
                     const respuestaUnidos = await api.get("/mis-partidos");
+                    // Dato usado para pintar esta pantalla.
                     const idsUnidos = Array.isArray(respuestaUnidos.data)
                         ? respuestaUnidos.data.map((item) => Number(item.id_partido ?? item)).filter(Boolean)
                         : [];
@@ -161,11 +197,13 @@ const Inicio = () => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarPartidos();
         // eslint-disable-next-line react-hooks/set-state-in-effect
     }, [token, usuario?.ciudad, ubicacionUsuario?.latitud, ubicacionUsuario?.longitud, filtros.proximidad, filtros.radio]);
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         if (!navigator.geolocation) {
             setEstadoUbicacion("no-disponible");
@@ -185,12 +223,14 @@ const Inicio = () => {
         );
     }, []);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const unirseAPartido = async (idPartido) => {
         if (!token) {
             setMensaje("Debes iniciar sesión para unirte.");
             return;
         }
 
+        // Dato usado para pintar esta pantalla.
         const idNumerico = Number(idPartido);
 
         if (!idNumerico) {
@@ -204,7 +244,9 @@ const Inicio = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/partidos/${idNumerico}/unirse`);
+            // Dato usado para pintar esta pantalla.
             const partidoActualizado = respuesta.data.partido;
 
             setPartidosUnidos((actuales) => (
@@ -217,6 +259,7 @@ const Inicio = () => {
                 )));
             }
 
+            // Dato usado para pintar esta pantalla.
             const idSala = respuesta.data.id_partido || partidoActualizado?.id_partido || idNumerico;
             navigate(`/partidos/${idSala}/sala`);
         } catch (error) {
@@ -224,6 +267,7 @@ const Inicio = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const unirseConCodigo = async (e) => {
         e.preventDefault();
 
@@ -233,7 +277,9 @@ const Inicio = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/partidos/codigo/${filtros.codigo}/unirse`);
+            // Dato usado para pintar esta pantalla.
             const idSala = respuesta.data.id_partido || respuesta.data.partido?.id_partido;
 
             if (!idSala) {
@@ -247,14 +293,19 @@ const Inicio = () => {
         }
     };
 
+    // Dato usado para pintar esta pantalla.
     const partidosFiltrados = partidos.filter((partido) => {
+        // Dato usado para pintar esta pantalla.
         const coincideTipo = !filtros.tipo || normalizarTexto(partido.tipo_futbol) === normalizarTexto(filtros.tipo);
+        // Dato usado para pintar esta pantalla.
         const coincideNivel = !filtros.nivel || normalizarTexto(partido.nivel) === normalizarTexto(filtros.nivel);
+        // Dato usado para pintar esta pantalla.
         const necesitaPosicion = hayHuecoParaPosicion(partido, filtros.posicion);
 
         return coincideTipo && coincideNivel && necesitaPosicion;
     });
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio">
             <section className="portada inicio-hero">
@@ -372,15 +423,22 @@ const Inicio = () => {
             {!cargando && !error && partidosFiltrados.length > 0 && (
                 <section className="lista-partidos lista-partidos-inicio">
                     {partidosFiltrados.map((partido) => {
+                        // Dato usado para pintar esta pantalla.
                         const estaUnido = partidosUnidos.includes(Number(partido.id_partido));
+                        // Dato usado para pintar esta pantalla.
                         const estaCancelado = partido.estado === "cancelado";
+                        // Dato usado para pintar esta pantalla.
                         const capacidad = obtenerCapacidad(partido);
+                        // Dato usado para pintar esta pantalla.
                         const ocupadas = partido.usuarios_count || 0;
+                        // Dato usado para pintar esta pantalla.
                         const plazasLibres = typeof partido.plazas_disponibles === "number"
                             ? partido.plazas_disponibles
                             : Math.max(0, capacidad - ocupadas);
+                        // Dato usado para pintar esta pantalla.
                         const estaCompleto = capacidad > 0 && plazasLibres <= 0;
 
+                        // Vista que se muestra al usuario.
                         return (
                             <PartidoLista
                                 key={partido.id_partido}

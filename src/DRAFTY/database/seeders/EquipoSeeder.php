@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -6,8 +6,16 @@ use App\Models\Equipo;
 use App\Models\Usuario;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeder que carga datos de equipo.
+ */
 class EquipoSeeder extends Seeder
 {
+    /**
+     * Crea o actualiza equipos demo asociados al primer usuario.
+     *
+     * @return void
+     */
     public function run(): void
     {
         $usuario = Usuario::query()->first();

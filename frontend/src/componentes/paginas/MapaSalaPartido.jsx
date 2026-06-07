@@ -1,7 +1,8 @@
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
+﻿import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
+// Archivo propio del frontend de Drafty.
 const marcadorDrafty = L.divIcon({
     className: "marcador-drafty",
     html: "<span></span>",
@@ -9,14 +10,19 @@ const marcadorDrafty = L.divIcon({
     iconAnchor: [14, 14]
 });
 
+// Funcion auxiliar usada por este componente.
 const MapaSalaPartido = ({ campo }) => {
+    // Dato usado para pintar esta pantalla.
     const latitud = campo?.latitud === null || campo?.latitud === "" ? null : Number(campo?.latitud);
+    // Dato usado para pintar esta pantalla.
     const longitud = campo?.longitud === null || campo?.longitud === "" ? null : Number(campo?.longitud);
+    // Dato usado para pintar esta pantalla.
     const tieneCoordenadas = Number.isFinite(latitud)
         && Number.isFinite(longitud)
         && !(latitud === 0 && longitud === 0);
 
     if (!tieneCoordenadas) {
+        // Vista que se muestra al usuario.
         return (
             <div className="mapa-sala-vacio">
                 <p>No hay coordenadas guardadas para este campo.</p>
@@ -24,6 +30,7 @@ const MapaSalaPartido = ({ campo }) => {
         );
     }
 
+    // Vista que se muestra al usuario.
     return (
         <div className="mapa-sala-wrapper">
             <MapContainer

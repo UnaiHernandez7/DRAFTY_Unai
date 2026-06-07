@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Footer.css";
 
+// Archivo propio del frontend de Drafty.
 const enlacesFooter = [
     { texto: "Inicio", ruta: "/" },
     { texto: "Equipos", ruta: "/equipos" },
@@ -9,7 +10,9 @@ const enlacesFooter = [
     { texto: "Competitivo", ruta: "/competitivo" }
 ];
 
+// Funcion auxiliar usada por este componente.
 const Footer = () => {
+    // Vista que se muestra al usuario.
     return (
         <footer className="footer-drafty">
             <div className="footer-drafty__principal">

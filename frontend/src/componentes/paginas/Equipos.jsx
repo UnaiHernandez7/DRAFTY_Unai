@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const formatearRol = (rol) => {
+    // Dato usado para pintar esta pantalla.
     const roles = {
         capitan: "Capitán",
         jugador: "Jugador",
@@ -15,13 +17,19 @@ const formatearRol = (rol) => {
     return roles[rol] || "Jugador";
 };
 
+// Funcion auxiliar usada por este componente.
 const Equipos = () => {
+    // Estado que guarda informacion de la pantalla.
     const [equipos, setEquipos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
     const { isAuth, usuario } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarEquipos = async () => {
         if (!isAuth) {
             setCargando(false);
@@ -29,6 +37,7 @@ const Equipos = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get("/mis-equipos");
             setEquipos(Array.isArray(respuesta.data) ? respuesta.data : []);
         } catch (error) {
@@ -38,17 +47,22 @@ const Equipos = () => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarEquipos();
     }, [isAuth]);
 
+    // Funcion auxiliar usada por este componente.
     const rolUsuario = (equipo) => {
+        // Dato usado para pintar esta pantalla.
         const miembro = equipo.usuarios?.find((item) => Number(item.id_usuario) === Number(usuario?.id_usuario));
         return miembro?.pivot?.rol_en_equipo || equipo.pivot?.rol_en_equipo || "jugador";
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const abandonarEquipo = async (idEquipo) => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/equipos/${idEquipo}/salir`);
             setMensaje(respuesta.data?.mensaje || "Has abandonado el equipo.");
             cargarEquipos();
@@ -58,6 +72,7 @@ const Equipos = () => {
     };
 
     if (!isAuth) {
+        // Vista que se muestra al usuario.
         return (
             <main className="inicio equipos-page">
                 <EncabezadoSeccion
@@ -69,6 +84,7 @@ const Equipos = () => {
         );
     }
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio equipos-page">
             <EncabezadoSeccion

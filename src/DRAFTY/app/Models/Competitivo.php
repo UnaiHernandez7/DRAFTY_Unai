@@ -1,14 +1,29 @@
-<?php
+﻿<?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo que representa competitivo dentro de la base de datos.
+ */
 class Competitivo extends Model
 {
+    /**
+     * Nombre de la tabla asociada al modelo.
+     */
     protected $table = "competitivo";
+    /**
+     * Clave primaria usada por el modelo.
+     */
     protected $primaryKey = "id_competitivo";
 
+    /**
+     * Indica si el modelo usa marcas de tiempo automaticas.
+     */
     public $timestamps = false;
 
+    /**
+     * Campos que se pueden rellenar de forma masiva.
+     */
     protected $fillable = [
         'id_usuario',
         'rango',
@@ -30,7 +45,9 @@ class Competitivo extends Model
         'fecha_actualizacion'
     ];
 
-    // Competitivo pertenece a un usuario
+    /**
+     * Relacion con los usuarios asociados.
+     */
     public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario');

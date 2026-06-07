@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
@@ -8,14 +8,21 @@ import PartidoLista from "./PartidoLista.jsx";
 import "./Inicio.css";
 import "./MisPartidos.css";
 
+// Archivo propio del frontend de Drafty.
 const MisPartidos = () => {
+    // Estado que guarda informacion de la pantalla.
     const [partidos, setPartidos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
     const { token } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
+        // Funcion que llama al servidor y actualiza la pantalla.
         const cargarMisPartidos = async () => {
             if (!token) {
                 navigate("/login");
@@ -26,6 +33,7 @@ const MisPartidos = () => {
                 setMensaje("");
                 setCargando(true);
 
+                // Dato usado para pintar esta pantalla.
                 const respuesta = await api.get("/mis-partidos");
                 setPartidos(Array.isArray(respuesta.data) ? respuesta.data : []);
             } catch {
@@ -38,10 +46,12 @@ const MisPartidos = () => {
         cargarMisPartidos();
     }, [token, navigate]);
 
+    // Funcion auxiliar usada por este componente.
     const verSala = (idPartido) => {
         navigate(`/partidos/${idPartido}/sala`);
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio mis-partidos-page">
             <EncabezadoSeccion

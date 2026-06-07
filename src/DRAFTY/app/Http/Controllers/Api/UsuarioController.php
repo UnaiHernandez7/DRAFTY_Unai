@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -17,13 +17,38 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use App\Mail\CodigoCambioContrasenaMail;
 
+/**
+ * Controlador que agrupa la logica de usuario en la API.
+ */
 class UsuarioController extends Controller
 {
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function index()
     {
         return response()->json(Usuario::all());
     }
 
+    /**
+     * Devuelve todos los usuarios para la vista de administracion.
+     */
+    public function adminIndex(Request $request)
+    {
+        if ($request->user()?->rol !== 'admin') {
+            return response()->json(['mensaje' => 'Solo el admin puede ver todos los usuarios'], 403);
+        }
+
+        return response()->json(
+            Usuario::query()
+                ->orderByDesc('id_usuario')
+                ->get()
+        );
+    }
+
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function buscar(Request $request)
     {
         $datos = $request->validate([
@@ -63,6 +88,9 @@ class UsuarioController extends Controller
         return response()->json($usuarios);
     }
 
+    /**
+     * Gestiona informacion de usuarios.
+     */
     public function comprobarNombreUsuario(Request $request)
     {
         $datos = $request->validate([
@@ -82,11 +110,14 @@ class UsuarioController extends Controller
         return response()->json([
             'disponible' => !$noDisponible,
             'mensaje' => $noDisponible
-                ? 'Ese nombre de usuario ya est? en uso.'
+                ? 'Ese nombre de usuario ya está en uso.'
                 : 'Nombre de usuario disponible.'
         ]);
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request)
     {
         $datos = $request->validate([
@@ -99,8 +130,8 @@ class UsuarioController extends Controller
             'posiciones_favoritas' => 'nullable|string|max:255',
             'rol' => 'required|in:usuario,admin'
         ], [
-            'nombre_usuario.unique' => 'Ese nombre de usuario ya est? en uso.',
-            'email.unique' => 'Ese email ya est? en uso.'
+            'nombre_usuario.unique' => 'Ese nombre de usuario ya está en uso.',
+            'email.unique' => 'Ese email ya está en uso.'
         ]);
 
         $datos['contrasena'] = Hash::make($datos['contrasena']);
@@ -111,6 +142,9 @@ class UsuarioController extends Controller
         return response()->json($usuario, 201);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function show($id)
     {
         $usuario = Usuario::with(['competitivo', 'estadisticas'])->findOrFail($id);
@@ -132,6 +166,9 @@ class UsuarioController extends Controller
         return response()->json($usuario);
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function update(Request $request, $id)
     {
         $usuario = Usuario::findOrFail($id);
@@ -155,8 +192,8 @@ class UsuarioController extends Controller
             'posiciones_favoritas' => 'nullable|string|max:255',
             'rol' => 'required|in:usuario,admin'
         ], [
-            'nombre_usuario.unique' => 'Ese nombre de usuario ya est? en uso.',
-            'email.unique' => 'Ese email ya est? en uso.'
+            'nombre_usuario.unique' => 'Ese nombre de usuario ya está en uso.',
+            'email.unique' => 'Ese email ya está en uso.'
         ]);
 
         if (!empty($datos['contrasena'])) {
@@ -170,6 +207,9 @@ class UsuarioController extends Controller
         return response()->json($usuario);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function actualizarPerfil(Request $request)
     {
         $usuario = $request->user();
@@ -186,7 +226,7 @@ class UsuarioController extends Controller
             'ciudad' => 'nullable|string|max:100',
             'posiciones_favoritas' => 'nullable|string|max:255'
         ], [
-            'nombre_usuario.unique' => 'Ese nombre de usuario ya est? en uso.'
+            'nombre_usuario.unique' => 'Ese nombre de usuario ya está en uso.'
         ]);
 
         $usuario->update($datos);
@@ -194,6 +234,9 @@ class UsuarioController extends Controller
         return response()->json($usuario);
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function actualizarContrasena(Request $request)
     {
         $usuario = $request->user();
@@ -226,6 +269,9 @@ class UsuarioController extends Controller
         ]);
     }
 
+    /**
+     * Solicita una accion pendiente y prepara su codigo o notificacion.
+     */
     public function solicitarCodigoCambioContrasena(Request $request)
     {
         $usuario = $request->user();
@@ -246,6 +292,9 @@ class UsuarioController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function actualizarContrasenaConCodigo(Request $request)
     {
         $usuario = $request->user();
@@ -285,11 +334,17 @@ class UsuarioController extends Controller
         ]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function generarCodigoContrasena(): string
     {
         return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 
+    /**
+     * Gestiona datos relacionados con amigos y solicitudes.
+     */
     public function amigos(Request $request)
     {
         $amigos = $request->user()
@@ -299,6 +354,9 @@ class UsuarioController extends Controller
         return response()->json($amigos);
     }
 
+    /**
+     * Gestiona datos relacionados con amigos y solicitudes.
+     */
     public function agregarAmigo(Request $request)
     {
         $request->validate([
@@ -323,6 +381,9 @@ class UsuarioController extends Controller
         return response()->json(['mensaje' => 'Amigo agregado correctamente']);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function destroy(Request $request, $id)
     {
         if ((int) $request->user()->id_usuario === (int) $id) {
@@ -333,6 +394,9 @@ class UsuarioController extends Controller
         return response()->json(['mensaje' => 'Usuario eliminado']);
     }
 
+    /**
+     * Gestiona votos de MVP.
+     */
     private function contarMvpsUsuario(int $idUsuario): int
     {
         $votosPorPartido = VotoMvp::query()

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -6,8 +6,16 @@ use Illuminate\Database\Seeder;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Seeder que carga datos de usuario.
+ */
 class UsuarioSeeder extends Seeder
 {
+    /**
+     * Crea o actualiza los usuarios base de la aplicacion.
+     *
+     * @return void
+     */
     public function run(): void
     {
         Usuario::updateOrCreate(

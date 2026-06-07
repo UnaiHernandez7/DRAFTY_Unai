@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -8,8 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Controlador que agrupa la logica de amistad en la API.
+ */
 class AmistadController extends Controller
 {
+    /**
+     * Gestiona datos relacionados con amigos y solicitudes.
+     */
     public function amigos(Request $request)
     {
         $usuarioId = $request->user()->id_usuario;
@@ -43,6 +49,9 @@ class AmistadController extends Controller
         return response()->json($amigos);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function recibidas(Request $request)
     {
         [$columnaEmisor, $columnaReceptor] = $this->columnasUsuarios();
@@ -59,6 +68,9 @@ class AmistadController extends Controller
         return response()->json($solicitudes);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function enviadas(Request $request)
     {
         [$columnaEmisor, $columnaReceptor] = $this->columnasUsuarios();
@@ -75,6 +87,14 @@ class AmistadController extends Controller
         return response()->json($solicitudes);
     }
 
+    /**
+     * Cuenta notificaciones pendientes del apartado Amigos.
+     *
+     * Suma solicitudes de amistad, invitaciones a sala e invitaciones a equipo.
+     *
+     * @param Request $request Peticion autenticada.
+     * @return \Illuminate\Http\JsonResponse Totales de notificaciones nuevas.
+     */
     public function notificaciones(Request $request)
     {
         [, $columnaReceptor] = $this->columnasUsuarios();
@@ -105,6 +125,15 @@ class AmistadController extends Controller
         ]);
     }
 
+    /**
+     * Marca como vistas las notificaciones del apartado Amigos.
+     *
+     * Actualiza solicitudes de amistad e invitaciones pendientes cuando
+     * existen las columnas de visto correspondientes.
+     *
+     * @param Request $request Peticion autenticada.
+     * @return \Illuminate\Http\JsonResponse Confirmacion de marcado.
+     */
     public function marcarNotificacionesVistas(Request $request)
     {
         [, $columnaReceptor] = $this->columnasUsuarios();
@@ -135,6 +164,9 @@ class AmistadController extends Controller
         return response()->json(['mensaje' => 'Notificaciones vistas']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function enviar(Request $request, $idUsuario)
     {
         $emisor = $request->user();
@@ -178,6 +210,9 @@ class AmistadController extends Controller
         ], 201);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function aceptar(Request $request, $id)
     {
         $amistad = DB::table('amistades')->where('id_amistad', $id)->first();
@@ -199,6 +234,9 @@ class AmistadController extends Controller
         return response()->json(['mensaje' => 'Solicitud aceptada']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function rechazar(Request $request, $id)
     {
         $amistad = DB::table('amistades')->where('id_amistad', $id)->first();
@@ -220,6 +258,9 @@ class AmistadController extends Controller
         return response()->json(['mensaje' => 'Solicitud rechazada']);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function destroy(Request $request, $id)
     {
         $amistad = DB::table('amistades')->where('id_amistad', $id)->first();
@@ -240,6 +281,9 @@ class AmistadController extends Controller
         return response()->json(['mensaje' => 'Amistad eliminada']);
     }
 
+    /**
+     * Gestiona informacion de usuarios.
+     */
     private function columnasUsuarios(): array
     {
         return Schema::hasColumn('amistades', 'id_usuario_emisor')
@@ -247,6 +291,12 @@ class AmistadController extends Controller
             : ['id_usuario', 'id_amigo'];
     }
 
+    /**
+     * Cuenta invitaciones nuevas a salas para un usuario.
+     *
+     * @param int $usuarioId Identificador del usuario invitado.
+     * @return int Total de invitaciones pendientes no vistas.
+     */
     private function totalInvitacionesSala(int $usuarioId): int
     {
         if (!Schema::hasTable('participantes_partido')) {
@@ -267,6 +317,12 @@ class AmistadController extends Controller
         return $consulta->count();
     }
 
+    /**
+     * Cuenta invitaciones nuevas a equipos para un usuario.
+     *
+     * @param int $usuarioId Identificador del usuario invitado.
+     * @return int Total de invitaciones pendientes no vistas.
+     */
     private function totalInvitacionesEquipo(int $usuarioId): int
     {
         if (!Schema::hasTable('equipo_usuarios')) {
@@ -287,6 +343,9 @@ class AmistadController extends Controller
         return $consulta->count();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function datosSolicitud(int $idEmisor, int $idReceptor, string $estado): array
     {
         [$columnaEmisor, $columnaReceptor] = $this->columnasUsuarios();
@@ -315,6 +374,9 @@ class AmistadController extends Controller
         return $datos;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function datosRespuesta(string $estado): array
     {
         $datos = ['estado' => $estado];

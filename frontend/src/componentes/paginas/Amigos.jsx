@@ -1,28 +1,44 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const Amigos = () => {
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
     const { usuario } = useAuth();
+    // Estado que guarda informacion de la pantalla.
     const [amigos, setAmigos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [recibidas, setRecibidas] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [enviadas, setEnviadas] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [invitacionesSala, setInvitacionesSala] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [invitacionesEquipo, setInvitacionesEquipo] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [partidos, setPartidos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [equipos, setEquipos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [busqueda, setBusqueda] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [sugerencias, setSugerencias] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [buscandoUsuarios, setBuscandoUsuarios] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [selecciones, setSelecciones] = useState({});
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const obtenerLista = async (peticion) => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await peticion();
             return Array.isArray(respuesta.data) ? respuesta.data : [];
         } catch (error) {
@@ -31,6 +47,7 @@ const Amigos = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarDatos = async () => {
         try {
             await api.post("/amistades/notificaciones/vistas");
@@ -65,11 +82,14 @@ const Amigos = () => {
         setEquipos(listaEquipos);
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarDatos();
     }, []);
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
+        // Dato usado para pintar esta pantalla.
         const texto = busqueda.trim();
 
         if (!texto) {
@@ -81,8 +101,10 @@ const Amigos = () => {
         let busquedaActiva = true;
         setBuscandoUsuarios(true);
 
+        // Dato usado para pintar esta pantalla.
         const temporizador = setTimeout(async () => {
             try {
+                // Dato usado para pintar esta pantalla.
                 const respuesta = await api.get("/usuarios/buscar", {
                     params: { query: texto }
                 });
@@ -92,12 +114,19 @@ const Amigos = () => {
                 }
             } catch (error) {
                 try {
+                    // Dato usado para pintar esta pantalla.
                     const respuestaUsuarios = await api.get("/usuarios");
+                    // Dato usado para pintar esta pantalla.
                     const listaUsuarios = Array.isArray(respuestaUsuarios.data) ? respuestaUsuarios.data : [];
+                    // Dato usado para pintar esta pantalla.
                     const idsAmigos = amigos.map((amigo) => Number(amigo.id_usuario));
+                    // Dato usado para pintar esta pantalla.
                     const idsEnviadas = enviadas.map((solicitud) => Number(solicitud.id_usuario_receptor ?? solicitud.id_amigo));
+                    // Dato usado para pintar esta pantalla.
                     const idsRecibidas = recibidas.map((solicitud) => Number(solicitud.id_usuario_emisor ?? solicitud.id_usuario));
+                    // Dato usado para pintar esta pantalla.
                     const textoNormalizado = texto.toLowerCase();
+                    // Dato usado para pintar esta pantalla.
                     const resultados = listaUsuarios
                         .filter((item) => (
                             Number(item.id_usuario) !== Number(usuario?.id_usuario) &&
@@ -131,15 +160,19 @@ const Amigos = () => {
         };
     }, [amigos, busqueda, enviadas, recibidas, usuario]);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const ejecutar = async (accion, textoOk) => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await accion();
             setMensaje(respuesta.data?.mensaje || textoOk);
             setBusqueda("");
             setSugerencias([]);
             cargarDatos();
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const errores = error.response?.data?.errors;
+            // Dato usado para pintar esta pantalla.
             const primerError = errores ? Object.values(errores).flat()[0] : null;
             setMensaje(
                 error.response?.data?.mensaje ||
@@ -150,6 +183,7 @@ const Amigos = () => {
         }
     };
 
+    // Funcion auxiliar usada por este componente.
     const cambiarSeleccion = (idUsuario, campo, valor) => {
         setSelecciones({
             ...selecciones,
@@ -160,7 +194,9 @@ const Amigos = () => {
         });
     };
 
+    // Funcion auxiliar usada por este componente.
     const invitarASala = (amigo) => {
+        // Dato usado para pintar esta pantalla.
         const idPartido = selecciones[amigo.id_usuario]?.partido || partidos[0]?.id_partido;
 
         if (!idPartido) {
@@ -174,7 +210,9 @@ const Amigos = () => {
         );
     };
 
+    // Funcion auxiliar usada por este componente.
     const invitarAEquipo = (amigo) => {
+        // Dato usado para pintar esta pantalla.
         const idEquipo = selecciones[amigo.id_usuario]?.equipo || equipos[0]?.id_equipo;
 
         if (!idEquipo) {
@@ -188,8 +226,10 @@ const Amigos = () => {
         );
     };
 
+    // Dato usado para pintar esta pantalla.
     const mostrarSugerencias = busqueda.trim().length > 0;
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio">
             <EncabezadoSeccion

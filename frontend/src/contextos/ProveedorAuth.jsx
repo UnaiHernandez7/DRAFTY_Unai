@@ -1,18 +1,23 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+﻿import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import api from "../api/api.js";
 
 // Crear contexto
+// Archivo propio del frontend de Drafty.
 const AuthContext = createContext();
 
 // Provider
 export function ProveedorAuth({ children }) {
+  // Estado que guarda informacion de la pantalla.
   const [usuario, setUsuario] = useState(null);
+  // Estado que guarda informacion de la pantalla.
   const [token, setToken] = useState(localStorage.getItem("token"));
+  // Estado que guarda informacion de la pantalla.
   const [cargandoAuth, setCargandoAuth] = useState(Boolean(localStorage.getItem("token")));
 
   // Obtener usuario logueado
   const obtenerPerfil = useCallback(async () => {
     try {
+      // Dato usado para pintar esta pantalla.
       const res = await api.get("/perfil");
       setUsuario(res.data);
     } catch {
@@ -33,9 +38,10 @@ export function ProveedorAuth({ children }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [token]);
 
-  // Login
+  // Login con usuario o email.
   async function login(identificador, contrasena) {
     try {
+      // Dato usado para pintar esta pantalla.
       const res = await api.post("/login", { identificador, contrasena });
 
       setToken(res.data.token);
@@ -52,13 +58,18 @@ export function ProveedorAuth({ children }) {
   // Registro 
   async function register(data) {
     try {
+      // Dato usado para pintar esta pantalla.
       const res = await api.post("/register", data);
 
       return { ok: true, email: res.data.email, mensaje: res.data.mensaje };
     } catch (error) {
+      // Dato usado para pintar esta pantalla.
       const errores = error.response?.data?.errors;
+      // Dato usado para pintar esta pantalla.
       const primerError = errores ? Object.values(errores).flat()[0] : null;
+      // Dato usado para pintar esta pantalla.
       const emailPendiente = error.response?.data?.email;
+      // Dato usado para pintar esta pantalla.
       const mensajeConexion = error.response
         ? null
         : "No se pudo conectar con el servidor. Revisa que Docker/backend este arrancado y que /api responda.";
@@ -72,8 +83,10 @@ export function ProveedorAuth({ children }) {
     }
   }
 
+  // Funcion que llama al servidor y actualiza la pantalla.
   async function verificarCodigo(email, codigo) {
     try {
+      // Dato usado para pintar esta pantalla.
       const res = await api.post("/verificar-codigo", { email, codigo });
 
       setToken(res.data.token);
@@ -84,7 +97,9 @@ export function ProveedorAuth({ children }) {
 
       return { ok: true };
     } catch (error) {
+      // Dato usado para pintar esta pantalla.
       const errores = error.response?.data?.errors;
+      // Dato usado para pintar esta pantalla.
       const primerError = errores ? Object.values(errores).flat()[0] : null;
 
       return {
@@ -94,13 +109,17 @@ export function ProveedorAuth({ children }) {
     }
   }
 
+  // Funcion que llama al servidor y actualiza la pantalla.
   async function reenviarCodigo(email) {
     try {
+      // Dato usado para pintar esta pantalla.
       const res = await api.post("/reenviar-codigo", { email });
 
       return { ok: true, mensaje: res.data.mensaje };
     } catch (error) {
+      // Dato usado para pintar esta pantalla.
       const errores = error.response?.data?.errors;
+      // Dato usado para pintar esta pantalla.
       const primerError = errores ? Object.values(errores).flat()[0] : null;
 
       return {
@@ -118,6 +137,7 @@ export function ProveedorAuth({ children }) {
     localStorage.removeItem("token");
   }
 
+  // Vista que se muestra al usuario.
   return (
     <AuthContext.Provider
       value={{

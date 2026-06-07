@@ -1,12 +1,20 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
 use App\Models\Campo;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeder que carga datos de camposespana.
+ */
 class CamposEspanaSeeder extends Seeder
 {
+    /**
+     * Crea o actualiza campos demo repartidos por Espana.
+     *
+     * @return void
+     */
     public function run(): void
     {
         foreach ($this->campos() as $campo) {
@@ -20,6 +28,11 @@ class CamposEspanaSeeder extends Seeder
         }
     }
 
+    /**
+     * Devuelve el catalogo fijo de campos espanoles.
+     *
+     * @return array<int, array<string, mixed>>
+     */
     private function campos(): array
     {
         return [

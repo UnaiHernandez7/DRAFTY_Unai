@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -8,8 +8,14 @@ use App\Models\VotoMvp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
+/**
+ * Controlador que agrupa la logica de mvp en la API.
+ */
 class MvpController extends Controller
 {
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function index($id)
     {
         Partido::findOrFail($id);
@@ -38,6 +44,9 @@ class MvpController extends Controller
         ]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function votar(Request $request, $id)
     {
         $datos = $request->validate([
@@ -78,12 +87,18 @@ class MvpController extends Controller
         ], 201);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function participante(Partido $partido, int $usuarioId)
     {
         return $partido->usuarios
             ->first(fn ($usuario) => (int) $usuario->id_usuario === (int) $usuarioId && $usuario->pivot?->estado_participacion === 'confirmado');
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function ventanaAbierta(Partido $partido): bool
     {
         if (!$partido->fecha || !$partido->hora || $partido->estado === 'cancelado') {

@@ -1,3 +1,4 @@
+﻿/* Archivo propio de estilos de Drafty. */
 .post-partido-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.8fr);

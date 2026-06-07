@@ -1,14 +1,25 @@
-<?php
+﻿<?php
 
 namespace Database\Factories;
 
 use App\Models\Campo;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * Factory que genera datos de prueba de campo.
+ */
 class CampoFactory extends Factory
 {
+    /**
+     * Modelo asociado a esta factory.
+     */
     protected $model = Campo::class;
 
+    /**
+     * Define campos deportivos de ejemplo en ciudades espanolas.
+     *
+     * @return array<string, mixed> Atributos del campo generado.
+     */
     public function definition(): array
     {
         $campos = [

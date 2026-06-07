@@ -1,11 +1,17 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Peticion que valida los datos de register.
+ */
 class RegisterRequest extends FormRequest
 {
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     protected function prepareForValidation(): void
     {
         if ($this->has('email')) {
@@ -15,11 +21,17 @@ class RegisterRequest extends FormRequest
         }
     }
 
+    /**
+     * Indica si la peticion puede ejecutar esta validacion.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Devuelve las reglas de validacion de la peticion.
+     */
     public function rules(): array
     {
         return [
@@ -50,6 +62,9 @@ class RegisterRequest extends FormRequest
         ];
     }
 
+    /**
+     * Devuelve los mensajes personalizados de validacion.
+     */
     public function messages(): array
     {
         return [

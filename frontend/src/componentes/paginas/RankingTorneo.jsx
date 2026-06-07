@@ -1,3 +1,4 @@
+﻿// Archivo propio del frontend de Drafty.
 const medalla = (indice) => {
     if (indice === 0) return "1";
     if (indice === 1) return "2";
@@ -5,7 +6,9 @@ const medalla = (indice) => {
     return indice + 1;
 };
 
+// Funcion auxiliar usada por este componente.
 const RankingTorneo = ({ titulo, datos = [], campo }) => {
+    // Vista que se muestra al usuario.
     return (
         <section className="torneo-ranking-card">
             <h3>{titulo}</h3>

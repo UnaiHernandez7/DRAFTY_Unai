@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -13,8 +13,14 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Controlador que agrupa la logica de equipo en la API.
+ */
 class EquipoController extends Controller
 {
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function index()
     {
         return response()->json(
@@ -32,6 +38,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request)
     {
         $datos = $request->validate([
@@ -55,6 +64,9 @@ class EquipoController extends Controller
         return response()->json($equipo->loadCount('usuarios'), 201);
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     public function misEquipos(Request $request)
     {
         return response()->json(
@@ -79,6 +91,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function unirse(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -133,6 +148,9 @@ class EquipoController extends Controller
         ]);
     }
 
+    /**
+     * Gestiona datos relacionados con amigos y solicitudes.
+     */
     public function invitarAmigo(Request $request, $id, $idUsuario)
     {
         $equipo = Equipo::findOrFail($id);
@@ -177,6 +195,9 @@ class EquipoController extends Controller
         ], 201);
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     public function invitaciones(Request $request)
     {
         return response()->json(
@@ -188,6 +209,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     public function aceptarInvitacion(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -208,6 +232,9 @@ class EquipoController extends Controller
         return response()->json(['mensaje' => 'Invitación aceptada']);
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     public function rechazarInvitacion(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -227,6 +254,9 @@ class EquipoController extends Controller
         return response()->json(['mensaje' => 'Invitación rechazada']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function salir(Request $request, $id)
     {
         $equipo = Equipo::with('usuarios')->findOrFail($id);
@@ -275,6 +305,9 @@ class EquipoController extends Controller
         ]);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function show($id)
     {
         $equipo = Equipo::with([
@@ -296,6 +329,9 @@ class EquipoController extends Controller
         return response()->json($equipo);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function jugadores(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -312,6 +348,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     public function partidos(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -337,6 +376,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function historial(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -363,6 +405,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Calcula y devuelve datos de ranking.
+     */
     public function ranking(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -381,6 +426,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function cambiarRolMiembro(Request $request, $id, $idUsuario)
     {
         $datos = $request->validate([
@@ -413,6 +461,9 @@ class EquipoController extends Controller
         return response()->json(['mensaje' => 'Rol actualizado correctamente']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function expulsarMiembro(Request $request, $id, $idUsuario)
     {
         $equipo = Equipo::findOrFail($id);
@@ -443,6 +494,9 @@ class EquipoController extends Controller
         return response()->json(['mensaje' => 'Jugador expulsado del equipo']);
     }
 
+    /**
+     * Gestiona informacion relacionada con torneos.
+     */
     public function torneosGanados(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -481,6 +535,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Gestiona mensajes del chat.
+     */
     public function mensajes(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -497,6 +554,9 @@ class EquipoController extends Controller
         );
     }
 
+    /**
+     * Gestiona mensajes del chat.
+     */
     public function enviarMensaje(Request $request, $id)
     {
         $datos = $request->validate([
@@ -518,6 +578,9 @@ class EquipoController extends Controller
         return response()->json($mensaje->load('usuario'), 201);
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     public function unirseAPartido(Request $request, $id, $idPartido)
     {
         $equipo = Equipo::findOrFail($id);
@@ -564,6 +627,9 @@ class EquipoController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function update(Request $request, $id)
     {
         $equipo = Equipo::findOrFail($id);
@@ -572,12 +638,18 @@ class EquipoController extends Controller
         return response()->json($equipo);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function destroy($id)
     {
         Equipo::findOrFail($id)->delete();
         return response()->json(['mensaje' => 'Equipo eliminado']);
     }
 
+    /**
+     * Gestiona datos relacionados con amigos y solicitudes.
+     */
     private function sonAmigos(int $usuarioId, int $amigoId): bool
     {
         $columnaEmisor = Schema::hasColumn('amistades', 'id_usuario_emisor') ? 'id_usuario_emisor' : 'id_usuario';
@@ -596,6 +668,9 @@ class EquipoController extends Controller
             ->exists();
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function perteneceAlEquipo(Request $request, Equipo $equipo): bool
     {
         return $equipo->usuarios()
@@ -604,6 +679,9 @@ class EquipoController extends Controller
             ->exists();
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function puedeGestionarEquipo(Request $request, Equipo $equipo): bool
     {
         if ((int) $equipo->id_creador === (int) $request->user()->id_usuario) {
@@ -617,6 +695,9 @@ class EquipoController extends Controller
             ->exists();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function soloMiembrosActivos($query): void
     {
         $query->where(function ($subquery) {
@@ -632,6 +713,17 @@ class EquipoController extends Controller
         }
     }
 
+    /**
+     * Prepara los datos del pivote equipo_usuarios.
+     *
+     * Incluye el estado de la invitacion y el indicador de visto cuando
+     * la base de datos tiene esas columnas.
+     *
+     * @param string $rol Rol del usuario dentro del equipo.
+     * @param string $estado Estado del miembro o invitacion.
+     * @param bool|null $vistoPorInvitado Valor explicito de visto para invitaciones.
+     * @return array<string, mixed> Datos listos para attach/updateExistingPivot.
+     */
     private function datosMiembro(string $rol, string $estado = 'activo', ?bool $vistoPorInvitado = null): array
     {
         $datos = ['rol_en_equipo' => $rol];
@@ -647,6 +739,9 @@ class EquipoController extends Controller
         return $datos;
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     private function crearEstadisticaMiembro(int $idEquipo, int $idUsuario): void
     {
         if (!Schema::hasTable('estadisticas_equipo_usuario')) {
@@ -659,6 +754,9 @@ class EquipoController extends Controller
         ]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function tieneMiembrosActivos(Equipo $equipo): bool
     {
         return $equipo->usuarios()
@@ -666,6 +764,9 @@ class EquipoController extends Controller
             ->exists();
     }
 
+    /**
+     * Calcula un total usado por la respuesta.
+     */
     private function capacidadTotal(Partido $partido): int
     {
         $tipo = strtolower($partido->tipo_futbol ?? '');
@@ -685,6 +786,9 @@ class EquipoController extends Controller
         return $capacidadPorTipo;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function elegirPosicion(?string $posicionesFavoritas, Partido $partido): string
     {
         $favoritas = array_map('trim', explode(',', $posicionesFavoritas ?? ''));

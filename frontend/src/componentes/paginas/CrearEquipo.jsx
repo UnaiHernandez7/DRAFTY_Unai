@@ -1,19 +1,27 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const CrearEquipo = () => {
+    // Estado que guarda informacion de la pantalla.
     const [nombreEquipo, setNombreEquipo] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [descripcion, setDescripcion] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [privacidad, setPrivacidad] = useState("publico");
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [guardando, setGuardando] = useState(false);
     const { isAuth } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const crearEquipo = async (e) => {
         e.preventDefault();
 
@@ -25,6 +33,7 @@ const CrearEquipo = () => {
         try {
             setGuardando(true);
             setMensaje("");
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post("/equipos", {
                 nombre_equipo: nombreEquipo,
                 descripcion,
@@ -33,7 +42,9 @@ const CrearEquipo = () => {
 
             navigate(`/equipos/${respuesta.data.id_equipo}`);
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const errores = error.response?.data?.errors;
+            // Dato usado para pintar esta pantalla.
             const primerError = errores ? Object.values(errores).flat()[0] : null;
             setMensaje(primerError || error.response?.data?.mensaje || "No se ha podido crear el equipo.");
         } finally {
@@ -41,6 +52,7 @@ const CrearEquipo = () => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio equipos-page">
             <EncabezadoSeccion

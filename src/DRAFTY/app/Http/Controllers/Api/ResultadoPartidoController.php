@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -12,8 +12,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Controlador que agrupa la logica de resultadopartido en la API.
+ */
 class ResultadoPartidoController extends Controller
 {
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function show($id)
     {
         $partido = Partido::with(['resultado.registrador', 'goles.usuario', 'usuarios'])->findOrFail($id);
@@ -27,6 +33,9 @@ class ResultadoPartidoController extends Controller
         ]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function comprobarCancelacion($id)
     {
         $partido = Partido::with('usuarios')->findOrFail($id);
@@ -40,6 +49,9 @@ class ResultadoPartidoController extends Controller
         ]);
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request, $id)
     {
         $partido = Partido::with(['usuarios', 'goles'])->findOrFail($id);
@@ -116,6 +128,9 @@ class ResultadoPartidoController extends Controller
         ], 201);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function confirmar(Request $request, $id)
     {
         $partido = Partido::with(['usuarios', 'resultado'])->findOrFail($id);
@@ -137,6 +152,9 @@ class ResultadoPartidoController extends Controller
         ], 422);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function propuestasCoinciden(ResultadoPartido $resultado): bool
     {
         return $resultado->confirmado_local &&
@@ -149,6 +167,9 @@ class ResultadoPartidoController extends Controller
             (int) $resultado->goles_visitante_local === (int) $resultado->goles_visitante_visitante;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function cerrarSinResultadoSiExpirado(Partido $partido): void
     {
         $fin = $this->fechaLimiteResultado($partido);
@@ -182,6 +203,9 @@ class ResultadoPartidoController extends Controller
         $partido->save();
     }
 
+    /**
+     * Gestiona goles registrados.
+     */
     private function resultadoConGoles(Partido $partido): array
     {
         return [
@@ -192,6 +216,9 @@ class ResultadoPartidoController extends Controller
         ];
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function comprobarCancelacionInterna(Partido $partido): bool
     {
         if ($partido->estado === 'cancelado' || !$partido->fecha || !$partido->hora) {
@@ -212,11 +239,17 @@ class ResultadoPartidoController extends Controller
         return true;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function jugadoresConfirmados(Partido $partido): int
     {
         return $partido->usuarios()->wherePivot('estado_participacion', 'confirmado')->count();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function jugadoresMinimos(Partido $partido): int
     {
         $tipo = strtolower($partido->tipo_futbol ?? '');
@@ -236,6 +269,9 @@ class ResultadoPartidoController extends Controller
         return $jugadoresPorTipo;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function fechaLimiteResultado(Partido $partido): ?Carbon
     {
         if (!$partido->fecha || !$partido->hora) {
@@ -245,6 +281,9 @@ class ResultadoPartidoController extends Controller
         return Carbon::parse($partido->fecha . ' ' . $partido->hora)->addDay();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function ventanaResultadoAbierta(Partido $partido): bool
     {
         if (!$partido->fecha || !$partido->hora || $partido->estado === 'cancelado') {
@@ -257,6 +296,9 @@ class ResultadoPartidoController extends Controller
         return now()->gte($inicio) && now()->lte($fin);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function puedeRegistrarResultado(Request $request, Partido $partido): bool
     {
         $participante = $this->participante($partido, $request->user()->id_usuario);
@@ -264,6 +306,9 @@ class ResultadoPartidoController extends Controller
         return $participante && (bool) $participante->pivot->es_capitan;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function participante(Partido $partido, int $usuarioId)
     {
         return $partido->usuarios()
@@ -272,11 +317,17 @@ class ResultadoPartidoController extends Controller
             ->first();
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     private function esCompetitivo(Partido $partido): bool
     {
         return (bool) $partido->es_competitivo || $partido->nivel === 'Competitivo';
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function cerrarResultado(Partido $partido, ResultadoPartido $resultado): void
     {
         if ($partido->estadisticas_actualizadas) {
@@ -326,6 +377,9 @@ class ResultadoPartidoController extends Controller
         });
     }
 
+    /**
+     * Gestiona informacion de usuarios.
+     */
     private function usuarioGana(?string $equipo, ResultadoPartido $resultado): bool
     {
         if ($resultado->goles_local === $resultado->goles_visitante) {
@@ -337,6 +391,9 @@ class ResultadoPartidoController extends Controller
             : $resultado->goles_visitante > $resultado->goles_local;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function sumaPorteriaCero(?string $equipo, ?string $posicion, ResultadoPartido $resultado): bool
     {
         if (!$this->esPorteroODefensa($posicion)) {
@@ -348,6 +405,9 @@ class ResultadoPartidoController extends Controller
             : (int) $resultado->goles_local === 0;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function esPorteroODefensa(?string $posicion): bool
     {
         return in_array(strtoupper((string) $posicion), ['POR', 'DFC', 'LI', 'LD'], true);

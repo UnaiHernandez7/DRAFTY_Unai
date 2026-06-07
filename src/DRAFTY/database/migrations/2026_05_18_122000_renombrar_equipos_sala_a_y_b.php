@@ -1,9 +1,15 @@
-<?php
+﻿<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Migracion anonima que modifica la estructura de la base de datos.
+ */
 return new class extends Migration {
+    /**
+     * Aplica los cambios de esta migracion en la base de datos.
+     */
     public function up(): void
     {
         DB::table('participantes_partido')
@@ -15,6 +21,9 @@ return new class extends Migration {
             ->update(['equipo_asignado' => 'Equipo B']);
     }
 
+    /**
+     * Revierte los cambios de esta migracion en la base de datos.
+     */
     public function down(): void
     {
         DB::table('participantes_partido')

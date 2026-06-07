@@ -1,38 +1,56 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const posiciones = ["Portero", "Defensa", "Mediocentro", "Delantero"];
+// Funcion auxiliar usada por este componente.
 const nombreJugador = (jugador) => jugador?.nombre_usuario || jugador?.nombre || "Jugador";
 
+// Funcion auxiliar usada por este componente.
 const Perfil = () => {
     const { usuario } = useAuth();
+    // Estado que guarda informacion de la pantalla.
     const [formulario, setFormulario] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [estadisticas, setEstadisticas] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [competitivo, setCompetitivo] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [valoraciones, setValoraciones] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [tipoMensaje, setTipoMensaje] = useState("info");
+    // Estado que guarda informacion de la pantalla.
     const [formularioContrasena, setFormularioContrasena] = useState({
         contrasena_actual: "",
         codigo: "",
         contrasena: "",
         contrasena_confirmation: ""
     });
+    // Estado que guarda informacion de la pantalla.
     const [mensajeContrasena, setMensajeContrasena] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [tipoMensajeContrasena, setTipoMensajeContrasena] = useState("info");
+    // Estado que guarda informacion de la pantalla.
     const [guardandoContrasena, setGuardandoContrasena] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [usandoCodigoContrasena, setUsandoCodigoContrasena] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [enviandoCodigoContrasena, setEnviandoCodigoContrasena] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [estadoNombreUsuario, setEstadoNombreUsuario] = useState({
         estado: "idle",
         mensaje: ""
     });
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
+        // Funcion que llama al servidor y actualiza la pantalla.
         const cargarDatosPerfil = async () => {
             try {
                 const [respuestaEstadisticas, respuestaCompetitivo, respuestaValoraciones] = await Promise.all([
@@ -64,11 +82,13 @@ const Perfil = () => {
         }
     }, [usuario]);
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         if (!formulario || !usuario) {
             return;
         }
 
+        // Dato usado para pintar esta pantalla.
         const nombreUsuario = formulario.nombre_usuario.trim();
 
         if (!nombreUsuario || nombreUsuario === (usuario.nombre_usuario || "")) {
@@ -82,8 +102,10 @@ const Perfil = () => {
         });
 
         let comprobacionActiva = true;
+        // Dato usado para pintar esta pantalla.
         const temporizador = setTimeout(async () => {
             try {
+                // Dato usado para pintar esta pantalla.
                 const respuesta = await api.get("/usuarios/nombre-disponible", {
                     params: { nombre_usuario: nombreUsuario }
                 });
@@ -114,6 +136,7 @@ const Perfil = () => {
         };
     }, [formulario?.nombre_usuario, usuario]);
 
+    // Funcion auxiliar usada por este componente.
     const cambiarCampo = (campo, valor) => {
         setFormulario({ ...formulario, [campo]: valor });
         if (campo === "nombre_usuario") {
@@ -121,11 +144,13 @@ const Perfil = () => {
         }
     };
 
+    // Funcion auxiliar usada por este componente.
     const cambiarCampoContrasena = (campo, valor) => {
         setFormularioContrasena({ ...formularioContrasena, [campo]: valor });
         setMensajeContrasena("");
     };
 
+    // Funcion auxiliar usada por este componente.
     const alternarModoCodigoContrasena = () => {
         setUsandoCodigoContrasena((modoActual) => !modoActual);
         setMensajeContrasena("");
@@ -137,10 +162,13 @@ const Perfil = () => {
         });
     };
 
+    // Funcion auxiliar usada por este componente.
     const cambiarPosicion = (posicion) => {
+        // Dato usado para pintar esta pantalla.
         const actuales = formulario.posiciones_favoritas
             ? formulario.posiciones_favoritas.split(", ").filter(Boolean)
             : [];
+        // Dato usado para pintar esta pantalla.
         const nuevas = actuales.includes(posicion)
             ? actuales.filter((item) => item !== posicion)
             : [...actuales, posicion];
@@ -148,6 +176,7 @@ const Perfil = () => {
         setFormulario({ ...formulario, posiciones_favoritas: nuevas.join(", ") });
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const guardarPerfil = async (e) => {
         e.preventDefault();
         setMensaje("");
@@ -159,10 +188,15 @@ const Perfil = () => {
             setEstadoNombreUsuario({ estado: "idle", mensaje: "" });
             setMensaje("Perfil actualizado correctamente. Vuelve a iniciar sesión si no ves el cambio en la cabecera.");
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const errores = error.response?.data?.errors;
+            // Dato usado para pintar esta pantalla.
             const primerError = errores ? Object.values(errores).flat()[0] : null;
+            // Dato usado para pintar esta pantalla.
             const mensajeError = primerError || error.response?.data?.mensaje || "No se ha podido actualizar el perfil.";
+            // Dato usado para pintar esta pantalla.
             const erroresNombreUsuario = errores?.nombre_usuario;
+            // Dato usado para pintar esta pantalla.
             const nombreUsuarioEnUso = Boolean(erroresNombreUsuario) || /nombre.*usuario|usuario|uso|existe|unique/i.test(mensajeError);
 
             if (nombreUsuarioEnUso) {
@@ -176,6 +210,7 @@ const Perfil = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const guardarContrasena = async (e) => {
         e.preventDefault();
         setMensajeContrasena("");
@@ -190,7 +225,9 @@ const Perfil = () => {
         setGuardandoContrasena(true);
 
         try {
+            // Dato usado para pintar esta pantalla.
             const endpoint = usandoCodigoContrasena ? "/perfil/contrasena/codigo" : "/perfil/contrasena";
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.patch(endpoint, formularioContrasena);
             setFormularioContrasena({
                 contrasena_actual: "",
@@ -201,7 +238,9 @@ const Perfil = () => {
             setTipoMensajeContrasena("info");
             setMensajeContrasena(respuesta.data?.mensaje || "Contraseña actualizada correctamente.");
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const errores = error.response?.data?.errors;
+            // Dato usado para pintar esta pantalla.
             const primerError = errores ? Object.values(errores).flat()[0] : null;
             setTipoMensajeContrasena("error");
             setMensajeContrasena(primerError || error.response?.data?.mensaje || "No se ha podido cambiar la contraseña.");
@@ -210,12 +249,14 @@ const Perfil = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const solicitarCodigoContrasena = async () => {
         setMensajeContrasena("");
         setTipoMensajeContrasena("info");
         setEnviandoCodigoContrasena(true);
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post("/perfil/contrasena/codigo");
             setUsandoCodigoContrasena(true);
             setTipoMensajeContrasena("info");
@@ -228,6 +269,7 @@ const Perfil = () => {
         }
     };
 
+    // Dato usado para pintar esta pantalla.
     const claseNombreUsuario = estadoNombreUsuario.estado === "ocupado"
         ? "campo-error"
         : estadoNombreUsuario.estado === "disponible"
@@ -238,6 +280,7 @@ const Perfil = () => {
         return <main className="inicio"><p className="estado">Cargando perfil...</p></main>;
     }
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio">
             <EncabezadoSeccion

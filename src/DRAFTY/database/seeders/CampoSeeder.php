@@ -1,12 +1,20 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
 use App\Models\Campo;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeder que carga datos de campo.
+ */
 class CampoSeeder extends Seeder
 {
+    /**
+     * Crea o actualiza campos base de Alicante y Elche.
+     *
+     * @return void
+     */
     public function run(): void
     {
         Campo::updateOrCreate(

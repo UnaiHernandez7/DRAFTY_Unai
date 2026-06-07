@@ -1,21 +1,30 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import api from "../../api/api.js";
 
+// Archivo propio del frontend de Drafty.
 const nombreJugador = (jugador) => jugador?.nombre_usuario || jugador?.nombre || "Jugador";
 
+// Funcion auxiliar usada por este componente.
 const balones = (cantidad) => "⚽".repeat(Number(cantidad || 0));
 
+// Funcion auxiliar usada por este componente.
 const ValoracionesPartido = ({ partido, participantes, miJugador }) => {
+    // Estado que guarda informacion de la pantalla.
     const [formulario, setFormulario] = useState({
         id_usuario_valorado: "",
         puntuacion: 5,
         comentario: ""
     });
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [guardando, setGuardando] = useState(false);
+    // Dato usado para pintar esta pantalla.
     const soyCapitan = Boolean(miJugador?.pivot?.es_capitan);
+    // Dato usado para pintar esta pantalla.
     const puedeValorar = soyCapitan && partido?.estado !== "cancelado" && Boolean(partido?.ventana_resultado_abierta);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const enviarValoracion = async (e) => {
         e.preventDefault();
         setMensaje("");
@@ -37,6 +46,7 @@ const ValoracionesPartido = ({ partido, participantes, miJugador }) => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <article className="post-card">
             <div className="post-card-cabecera">

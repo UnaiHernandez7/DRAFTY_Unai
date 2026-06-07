@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -7,8 +7,14 @@ use App\Models\Competitivo;
 use App\Models\Pago;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador que agrupa la logica de pago en la API.
+ */
 class PagoController extends Controller
 {
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function index(Request $request)
     {
         if ($request->user()->rol !== 'admin') {
@@ -18,6 +24,9 @@ class PagoController extends Controller
         return response()->json(Pago::with('usuario')->latest()->get());
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     public function activarCompetitivo(Request $request)
     {
         $competitivo = Competitivo::firstOrCreate(
@@ -50,7 +59,9 @@ class PagoController extends Controller
             ]);
         }
 
-        // Pago simulado para proyecto educativo: queda pendiente hasta confirmarlo.
+        /**
+         * Pago simulado para proyecto educativo: queda pendiente hasta confirmarlo.
+         */
         $pago = Pago::create([
             'id_usuario' => $request->user()->id_usuario,
             'tipo_pago' => 'competitivo',
@@ -72,6 +83,9 @@ class PagoController extends Controller
         ], 201);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function confirmar(Request $request, $id)
     {
         if ($request->user()->rol !== 'admin') {
@@ -94,6 +108,9 @@ class PagoController extends Controller
         return response()->json(['mensaje' => 'Pago confirmado', 'pago' => $pago]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function cancelar(Request $request, $id)
     {
         if ($request->user()->rol !== 'admin') {
@@ -121,6 +138,9 @@ class PagoController extends Controller
         return response()->json(['mensaje' => 'Pago cancelado', 'pago' => $pago]);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     private function activarPerfilCompetitivo(Competitivo $competitivo): void
     {
         $competitivo->update([

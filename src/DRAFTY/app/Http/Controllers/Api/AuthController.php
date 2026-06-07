@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -17,8 +17,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
+/**
+ * Controlador que agrupa la logica de auth en la API.
+ */
 class AuthController extends Controller
 {
+    /**
+     * Registra un nuevo usuario en la aplicacion.
+     */
     public function register(RegisterRequest $request)
     {
         $datos = $request->validated();
@@ -38,7 +44,7 @@ class AuthController extends Controller
                     $campoPendiente => [
                         $campoPendiente === 'email'
                             ? 'Ese email ya tiene una verificacion pendiente.'
-                            : 'Ese nombre de usuario ya est? en uso.'
+                            : 'Ese nombre de usuario ya está en uso.'
                     ]
                 ]
             ], 422);
@@ -76,6 +82,9 @@ class AuthController extends Controller
         ], 202);
     }
 
+    /**
+     * Comprueba el codigo de verificacion enviado al usuario.
+     */
     public function verificarCodigo(Request $request)
     {
         $datos = $request->validate([
@@ -150,6 +159,9 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * Reenvia el codigo necesario al usuario.
+     */
     public function reenviarCodigo(Request $request)
     {
         $datos = $request->validate([
@@ -184,6 +196,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Solicita una accion pendiente y prepara su codigo o notificacion.
+     */
     public function solicitarCodigoRecuperacion(Request $request)
     {
         $datos = $request->validate([
@@ -203,7 +218,15 @@ class AuthController extends Controller
                 ]
             );
 
-            Mail::to($email)->send(new CodigoCambioContrasenaMail($codigo));
+            try {
+                Mail::to($email)->send(new CodigoCambioContrasenaMail($codigo));
+            } catch (Throwable $error) {
+                report($error);
+
+                return response()->json([
+                    'mensaje' => 'No se ha podido enviar el código. Revisa la configuracion del correo.'
+                ], 503);
+            }
         }
 
         return response()->json([
@@ -211,6 +234,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Permite recuperar la cuenta despues de validar el codigo.
+     */
     public function recuperarContrasena(Request $request)
     {
         $datos = $request->validate([
@@ -248,6 +274,15 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Inicia sesion con email o nombre de usuario.
+     *
+     * Si el identificador contiene "@", se busca por email.
+     * En caso contrario, se busca por nombre_usuario.
+     *
+     * @param LoginRequest $request Peticion validada con identificador y contrasena.
+     * @return \Illuminate\Http\JsonResponse Respuesta con usuario y token de Sanctum.
+     */
     public function login(LoginRequest $request)
     {
         $identificador = trim((string) ($request->input('identificador') ?? $request->input('email')));
@@ -271,11 +306,17 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function perfil(Request $request)
     {
         return response()->json($request->user());
     }
 
+    /**
+     * Cierra la sesion activa del usuario.
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -285,11 +326,17 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function generarCodigoVerificacion(): string
     {
         return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function enviarCodigo(string $email, string $codigo): void
     {
         Mail::to($email)->send(new CodigoVerificacionMail($codigo));

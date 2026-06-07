@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -10,8 +10,16 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * Seeder que carga datos de partidosespana.
+ */
 class PartidosEspanaSeeder extends Seeder
 {
+    /**
+     * Crea o actualiza partidos demo futuros en campos espanoles.
+     *
+     * @return void
+     */
     public function run(): void
     {
         $creador = Usuario::query()->orderBy('id_usuario')->first()
@@ -65,6 +73,11 @@ class PartidosEspanaSeeder extends Seeder
         }
     }
 
+    /**
+     * Devuelve la lista de partidos demo que se generan con fechas relativas.
+     *
+     * @return array<int, array<string, mixed>>
+     */
     private function partidos(): array
     {
         return [
@@ -83,6 +96,17 @@ class PartidosEspanaSeeder extends Seeder
         ];
     }
 
+    /**
+     * Construye los datos de un partido demo.
+     *
+     * @param string $tipoFutbol Modalidad del partido: 5v5, 7v7 o 11v11.
+     * @param string $titulo Titulo visible del partido.
+     * @param string $campo Nombre del campo asociado.
+     * @param int $dias Dias a sumar desde hoy.
+     * @param string $hora Hora del partido.
+     * @param string $nivel Nivel mostrado en filtros.
+     * @return array<string, mixed> Datos normalizados del partido.
+     */
     private function partido(string $tipoFutbol, string $titulo, string $campo, int $dias, string $hora, string $nivel): array
     {
         $configuracion = match ($tipoFutbol) {

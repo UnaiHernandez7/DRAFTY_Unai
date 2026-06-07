@@ -1,3 +1,4 @@
+﻿/* Archivo propio de estilos de Drafty. */
 .auth-page-registro {
   grid-template-columns: minmax(0, 0.9fr) minmax(520px, 680px);
 }

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const usuarioVacio = {
     nombre_usuario: "",
     nombre: "",
@@ -16,32 +17,59 @@ const usuarioVacio = {
     rol: "usuario"
 };
 
+// Funcion auxiliar usada por este componente.
 const obtenerCapacidad = (partido) => (
     partido.plazas_totales_calculadas || partido.plazas_totales || 0
 );
 
+// Ordena los partidos para ver primero los mas nuevos.
+const ordenarPartidosRecientes = (lista) => (
+    [...lista].sort((a, b) => {
+        const fechaA = `${a.fecha || ""} ${a.hora || "00:00"}`;
+        const fechaB = `${b.fecha || ""} ${b.hora || "00:00"}`;
+        const comparacionFecha = fechaB.localeCompare(fechaA);
+
+        if (comparacionFecha !== 0) {
+            return comparacionFecha;
+        }
+
+        return Number(b.id_partido || 0) - Number(a.id_partido || 0);
+    })
+);
+
+// Funcion auxiliar usada por este componente.
 const Admin = () => {
     const { isAdmin, token, usuario } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
+    // Estado que guarda informacion de la pantalla.
     const [vista, setVista] = useState("partidos");
+    // Estado que guarda informacion de la pantalla.
     const [partidos, setPartidos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [usuarios, setUsuarios] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [pagos, setPagos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [usuarioForm, setUsuarioForm] = useState(usuarioVacio);
+    // Estado que guarda informacion de la pantalla.
     const [usuarioEditando, setUsuarioEditando] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarDatos = async () => {
         try {
             setCargando(true);
             const [respuestaPartidos, respuestaPagos, respuestaUsuarios] = await Promise.all([
                 api.get("/admin/partidos"),
                 api.get("/pagos"),
-                api.get("/usuarios")
+                api.get("/admin/usuarios")
             ]);
 
-            setPartidos(Array.isArray(respuestaPartidos.data) ? respuestaPartidos.data : []);
+            setPartidos(Array.isArray(respuestaPartidos.data) ? ordenarPartidosRecientes(respuestaPartidos.data) : []);
             setPagos(Array.isArray(respuestaPagos.data) ? respuestaPagos.data : []);
             setUsuarios(Array.isArray(respuestaUsuarios.data) ? respuestaUsuarios.data : []);
         } catch {
@@ -51,6 +79,7 @@ const Admin = () => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         if (!token) {
             navigate("/login");
@@ -70,15 +99,18 @@ const Admin = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token, usuario, isAdmin]);
 
+    // Funcion auxiliar usada por este componente.
     const cambiarUsuarioForm = (campo, valor) => {
         setUsuarioForm((actual) => ({ ...actual, [campo]: valor }));
     };
 
+    // Funcion auxiliar usada por este componente.
     const limpiarUsuarioForm = () => {
         setUsuarioEditando(null);
         setUsuarioForm(usuarioVacio);
     };
 
+    // Funcion auxiliar usada por este componente.
     const empezarEdicionUsuario = (item) => {
         setVista("usuarios");
         setUsuarioEditando(item);
@@ -94,11 +126,13 @@ const Admin = () => {
         });
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const guardarUsuario = async (e) => {
         e.preventDefault();
         setMensaje("");
 
         try {
+            // Dato usado para pintar esta pantalla.
             const payload = { ...usuarioForm };
 
             if (usuarioEditando && !payload.contrasena) {
@@ -116,12 +150,15 @@ const Admin = () => {
             limpiarUsuarioForm();
             cargarDatos();
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const errores = error.response?.data?.errors;
+            // Dato usado para pintar esta pantalla.
             const primerError = errores ? Object.values(errores).flat()[0] : null;
             setMensaje(primerError || error.response?.data?.mensaje || "No se ha podido guardar el usuario.");
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const eliminarUsuario = async (idUsuario) => {
         try {
             await api.delete(`/usuarios/${idUsuario}`);
@@ -132,6 +169,7 @@ const Admin = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cancelarPartido = async (idPartido) => {
         try {
             await api.patch(`/partidos/${idPartido}/cancelar`);
@@ -142,6 +180,7 @@ const Admin = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const eliminarPartido = async (idPartido) => {
         try {
             await api.delete(`/partidos/${idPartido}`);
@@ -152,8 +191,10 @@ const Admin = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const gestionarPago = async (idPago, accion) => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.put(`/pagos/${idPago}/${accion}`);
             setMensaje(respuesta.data?.mensaje || "Pago actualizado correctamente.");
             cargarDatos();
@@ -162,6 +203,7 @@ const Admin = () => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio admin-page">
             <EncabezadoSeccion
@@ -187,9 +229,12 @@ const Admin = () => {
             {!cargando && vista === "partidos" && (
                 <section className="lista-partidos">
                     {partidos.map((partido) => {
+                        // Dato usado para pintar esta pantalla.
                         const capacidad = obtenerCapacidad(partido);
+                        // Dato usado para pintar esta pantalla.
                         const ocupadas = partido.usuarios_count || 0;
 
+                        // Vista que se muestra al usuario.
                         return (
                             <article className="tarjeta-partido" key={partido.id_partido}>
                                 <h2>{partido.titulo}</h2>

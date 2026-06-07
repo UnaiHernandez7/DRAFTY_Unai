@@ -1,25 +1,36 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Login.css";
 
+// Archivo propio del frontend de Drafty.
 const VerificarCodigo = () => {
+    // Dato usado para pintar esta pantalla.
     const location = useLocation();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
     const { verificarCodigo, reenviarCodigo } = useAuth();
+    // Estado que guarda informacion de la pantalla.
     const [email, setEmail] = useState(location.state?.email || sessionStorage.getItem("email_verificacion") || "");
+    // Estado que guarda informacion de la pantalla.
     const [codigo, setCodigo] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState(location.state?.mensaje || "");
+    // Estado que guarda informacion de la pantalla.
     const [error, setError] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [reenviando, setReenviando] = useState(false);
 
+    // Funcion auxiliar usada por este componente.
     const cambiarCodigo = (valor) => {
         setCodigo(valor.replace(/\D/g, "").slice(0, 6));
         setError("");
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const manejarSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -31,6 +42,7 @@ const VerificarCodigo = () => {
         }
 
         setCargando(true);
+        // Dato usado para pintar esta pantalla.
         const resultado = await verificarCodigo(email, codigo);
 
         if (resultado.ok) {
@@ -43,6 +55,7 @@ const VerificarCodigo = () => {
         setCargando(false);
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const manejarReenvio = async () => {
         setError("");
         setMensaje("");
@@ -53,6 +66,7 @@ const VerificarCodigo = () => {
         }
 
         setReenviando(true);
+        // Dato usado para pintar esta pantalla.
         const resultado = await reenviarCodigo(email);
 
         if (resultado.ok) {
@@ -65,6 +79,7 @@ const VerificarCodigo = () => {
         setReenviando(false);
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="auth-page">
             <section className="auth-brand">

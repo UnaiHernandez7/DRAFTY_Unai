@@ -1,18 +1,28 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import api from "../../api/api.js";
 
+// Archivo propio del frontend de Drafty.
 const nombreJugador = (jugador) => jugador?.nombre_usuario || jugador?.nombre || "Jugador";
 
+// Funcion auxiliar usada por este componente.
 const VotacionMVP = ({ partido, participantes, usuario }) => {
+    // Estado que guarda informacion de la pantalla.
     const [votos, setVotos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [seleccionado, setSeleccionado] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [guardando, setGuardando] = useState(false);
+    // Dato usado para pintar esta pantalla.
     const soyParticipante = participantes.some((jugador) => Number(jugador.id_usuario) === Number(usuario?.id_usuario));
+    // Dato usado para pintar esta pantalla.
     const puedeVotar = soyParticipante && partido?.estado !== "cancelado" && Boolean(partido?.ventana_resultado_abierta);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarVotos = async () => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get(`/partidos/${partido.id_partido}/mvp`);
             setVotos(respuesta.data?.ranking || []);
         } catch {
@@ -20,6 +30,7 @@ const VotacionMVP = ({ partido, participantes, usuario }) => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         if (partido?.id_partido) {
             cargarVotos();
@@ -27,6 +38,7 @@ const VotacionMVP = ({ partido, participantes, usuario }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [partido?.id_partido]);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const votar = async (e) => {
         e.preventDefault();
         setMensaje("");
@@ -51,6 +63,7 @@ const VotacionMVP = ({ partido, participantes, usuario }) => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <article className="post-card">
             <div className="post-card-cabecera">

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -10,8 +10,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
+/**
+ * Seeder que carga datos de partidosdemojunio.
+ */
 class PartidosDemoJunioSeeder extends Seeder
 {
+    /**
+     * Carga datos iniciales del proyecto en la base de datos.
+     */
     public function run(): void
     {
         $creador = Usuario::query()->orderBy('id_usuario')->first()
@@ -62,6 +68,9 @@ class PartidosDemoJunioSeeder extends Seeder
         }
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function soloColumnasExistentes(string $tabla, array $datos): array
     {
         return collect($datos)
@@ -69,6 +78,9 @@ class PartidosDemoJunioSeeder extends Seeder
             ->all();
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function partidos(): array
     {
         return [

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -9,8 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Controlador que agrupa la logica de valoracionjugador en la API.
+ */
 class ValoracionJugadorController extends Controller
 {
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request, $id)
     {
         $datos = $request->validate([
@@ -54,6 +60,9 @@ class ValoracionJugadorController extends Controller
         ], 201);
     }
 
+    /**
+     * Gestiona informacion de usuarios.
+     */
     public function usuario($id)
     {
         $resumen = ValoracionJugador::where('id_usuario_valorado', $id)
@@ -71,12 +80,18 @@ class ValoracionJugadorController extends Controller
         ]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function participante(Partido $partido, int $usuarioId)
     {
         return $partido->usuarios
             ->first(fn ($usuario) => (int) $usuario->id_usuario === (int) $usuarioId && $usuario->pivot?->estado_participacion === 'confirmado');
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function ventanaAbierta(Partido $partido): bool
     {
         if (!$partido->fecha || !$partido->hora || $partido->estado === 'cancelado') {

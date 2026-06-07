@@ -1,19 +1,24 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Cabecera.css";
 
+// Archivo propio del frontend de Drafty.
 const Cabecera = () => {
     const { usuario, logout, isAuth, isAdmin } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const location = useLocation();
+    // Estado que guarda informacion de la pantalla.
     const [menuAbierto, setMenuAbierto] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [notificacionesAmigos, setNotificacionesAmigos] = useState({
         hay_nuevas: false,
         total: 0
     });
 
+    // El punto de Amigos cuenta solicitudes e invitaciones.
     const cargarNotificacionesAmigos = async () => {
         if (!isAuth) {
             setNotificacionesAmigos({ hay_nuevas: false, total: 0 });
@@ -21,6 +26,7 @@ const Cabecera = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get("/amistades/notificaciones");
             setNotificacionesAmigos({
                 hay_nuevas: Boolean(respuesta.data?.hay_nuevas),
@@ -31,16 +37,19 @@ const Cabecera = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const marcarAmigosVistos = async () => {
         setNotificacionesAmigos({ hay_nuevas: false, total: 0 });
 
         try {
+            // Al entrar en Amigos se limpian las notificaciones nuevas.
             await api.post("/amistades/notificaciones/vistas");
         } catch {
             // Si falla, se volvera a comprobar en la siguiente carga.
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarNotificacionesAmigos();
 
@@ -48,12 +57,14 @@ const Cabecera = () => {
             return undefined;
         }
 
+        // Dato usado para pintar esta pantalla.
         const intervalo = setInterval(cargarNotificacionesAmigos, 30000);
 
         return () => clearInterval(intervalo);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuth, usuario?.id_usuario]);
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         if (isAuth && location.pathname === "/amigos") {
             marcarAmigosVistos();
@@ -63,6 +74,7 @@ const Cabecera = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuth, location.pathname]);
 
+    // Funcion auxiliar usada por este componente.
     const irAlInicio = () => {
         setMenuAbierto(false);
         window.setTimeout(() => {
@@ -70,6 +82,7 @@ const Cabecera = () => {
         }, 0);
     };
 
+    // Vista que se muestra al usuario.
     return (
         <header className="cabecera">
             <Link to="/" className="logo" aria-label="DRAFTY" onClick={irAlInicio}>

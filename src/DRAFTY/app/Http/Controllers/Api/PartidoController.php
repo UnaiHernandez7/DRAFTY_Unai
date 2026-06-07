@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -15,12 +15,18 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
+/**
+ * Controlador que agrupa la logica de partido en la API.
+ */
 class PartidoController extends Controller
 {
     private array $posiciones = ['POR', 'LI', 'DFC', 'LD', 'MC', 'MCD', 'MCO', 'EI', 'DC', 'ED', 'ALA', 'PIV', 'SUP'];
     private array $formaciones = ['4-3-3', '4-3-1-2', '4-4-2', '3-5-2', '4-2-3-1', '3-3-1', '2-3-2', '3-2-2', '2-4-1', '2-1-3-1', '1-2-1', '2-1-1', '2-2', '1-1-2'];
     private array $equiposSala = ['Equipo A', 'Equipo B'];
 
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function index()
     {
         return response()->json(
@@ -50,6 +56,15 @@ class PartidoController extends Controller
         );
     }
 
+    /**
+     * Lista partidos publicos aplicando filtros de proximidad o ciudad.
+     *
+     * Si no hay coordenadas disponibles, devuelve partidos igualmente para
+     * evitar una portada vacia por permisos de ubicacion.
+     *
+     * @param Request $request Peticion con modo, radio, ciudad y coordenadas opcionales.
+     * @return \Illuminate\Http\JsonResponse Partidos ordenados por distancia, ciudad y fecha.
+     */
     public function cercanos(Request $request)
     {
         $usuario = $request->user('sanctum') ?? $request->user();
@@ -125,6 +140,9 @@ class PartidoController extends Controller
         return response()->json($ordenados);
     }
 
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function adminIndex(Request $request)
     {
         if (!$this->esAdmin($request)) {
@@ -133,9 +151,19 @@ class PartidoController extends Controller
 
         Partido::with('usuarios')->get()->each(fn ($partido) => $this->cancelarSiAlineacionesIncompletas($partido));
 
-        return response()->json(Partido::withCount(['usuariosConfirmados as usuarios_count'])->get());
+        return response()->json(
+            Partido::query()
+                ->withCount(['usuariosConfirmados as usuarios_count'])
+                ->orderByDesc('fecha')
+                ->orderByDesc('hora')
+                ->orderByDesc('id_partido')
+                ->get()
+        );
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request)
     {
         $datos = $request->validate([
@@ -202,6 +230,9 @@ class PartidoController extends Controller
         ], 201);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function show($id)
     {
         $partido = Partido::query()
@@ -211,6 +242,9 @@ class PartidoController extends Controller
         return response()->json($partido);
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     public function misPartidos(Request $request)
     {
         return response()->json(
@@ -224,11 +258,17 @@ class PartidoController extends Controller
         );
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     public function misPartidosDetalle(Request $request)
     {
         return $this->misPartidos($request);
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     public function historialPartidos(Request $request)
     {
         return response()->json(
@@ -239,6 +279,9 @@ class PartidoController extends Controller
         );
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function unirsePorCodigo(Request $request, $codigo)
     {
         $partido = Partido::where('codigo_acceso', strtoupper($codigo))->firstOrFail();
@@ -246,6 +289,9 @@ class PartidoController extends Controller
         return $this->unirse($request, $partido->id_partido);
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function update(Request $request, $id)
     {
         if (!$this->esAdmin($request)) {
@@ -275,12 +321,18 @@ class PartidoController extends Controller
         return response()->json($partido);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function destroy($id)
     {
         Partido::findOrFail($id)->delete();
         return response()->json(['mensaje' => 'Partido eliminado']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function unirse(Request $request, $id)
     {
         $partido = Partido::findOrFail($id);
@@ -319,7 +371,7 @@ class PartidoController extends Controller
 
         if ($partido->usuarios()->wherePivot('estado_participacion', 'confirmado')->count() >= $this->capacidadTotal($partido)) {
             return response()->json([
-                'mensaje' => 'El partido ya est? completo'
+                'mensaje' => 'El partido ya está completo'
             ], 400);
         }
 
@@ -333,6 +385,9 @@ class PartidoController extends Controller
         ]);
     }
 
+    /**
+     * Gestiona datos relacionados con amigos y solicitudes.
+     */
     public function invitarAmigo(Request $request, $id, $idUsuario)
     {
         $partido = Partido::findOrFail($id);
@@ -370,14 +425,14 @@ class PartidoController extends Controller
             return response()->json([
                 'mensaje' => $amigoYaEsta->pivot->estado_participacion === 'pendiente'
                     ? 'Tu amigo ya tiene una invitacion pendiente para esta sala'
-                    : 'Tu amigo ya est? en esta sala',
+                    : 'Tu amigo ya está en esta sala',
                 'id_partido' => $partido->id_partido
             ]);
         }
 
         if ($partido->usuarios()->wherePivot('estado_participacion', 'confirmado')->count() >= $this->capacidadTotal($partido)) {
             return response()->json([
-                'mensaje' => 'La sala ya est? completa'
+                'mensaje' => 'La sala ya está completa'
             ], 400);
         }
 
@@ -389,6 +444,9 @@ class PartidoController extends Controller
         ], 201);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function candidatosPorPosicion(Request $request, $id)
     {
         $datos = $request->validate([
@@ -432,6 +490,9 @@ class PartidoController extends Controller
         return response()->json($usuarios);
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     public function invitarPorPosicion(Request $request, $id, $idUsuario)
     {
         $datos = $request->validate([
@@ -499,6 +560,9 @@ class PartidoController extends Controller
         ], 201);
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     public function invitaciones(Request $request)
     {
         return response()->json(
@@ -512,6 +576,9 @@ class PartidoController extends Controller
         );
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     public function aceptarInvitacion(Request $request, $id)
     {
         $partido = Partido::findOrFail($id);
@@ -527,7 +594,7 @@ class PartidoController extends Controller
         }
 
         if ($partido->usuarios()->wherePivot('estado_participacion', 'confirmado')->count() >= $this->capacidadTotal($partido)) {
-            return response()->json(['mensaje' => 'La sala ya est? completa'], 400);
+            return response()->json(['mensaje' => 'La sala ya está completa'], 400);
         }
 
         $datosInvitacion = ['estado_participacion' => 'confirmado'];
@@ -546,6 +613,9 @@ class PartidoController extends Controller
         ]);
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     public function rechazarInvitacion(Request $request, $id)
     {
         $partido = Partido::findOrFail($id);
@@ -565,6 +635,9 @@ class PartidoController extends Controller
         return response()->json(['mensaje' => 'Invitacion rechazada']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function buscarPartidaCompetitiva(Request $request)
     {
         $datos = $request->validate([
@@ -643,6 +716,9 @@ class PartidoController extends Controller
         return $this->unirse($request, $partido->id_partido);
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     public function buscarCompetitivo(Request $request)
     {
         $datos = $request->validate([
@@ -728,6 +804,9 @@ class PartidoController extends Controller
         return response()->json($partidos);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function sala($id)
     {
         $partido = Partido::with([
@@ -763,6 +842,9 @@ class PartidoController extends Controller
         return response()->json($partido);
     }
 
+    /**
+     * Gestiona mensajes del chat.
+     */
     public function mensajes($id)
     {
         Partido::findOrFail($id);
@@ -775,6 +857,9 @@ class PartidoController extends Controller
         );
     }
 
+    /**
+     * Gestiona mensajes del chat.
+     */
     public function enviarMensaje(Request $request, $id)
     {
         $request->validate([
@@ -801,6 +886,9 @@ class PartidoController extends Controller
         return response()->json($mensaje->load('usuario'), 201);
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function cambiarPosicion(Request $request, $id)
     {
         $request->validate([
@@ -841,7 +929,7 @@ class PartidoController extends Controller
 
         if ($cambiaDeEquipo && $partido->usuarios()->wherePivot('equipo_asignado', $request->equipo_asignado)->count() >= $this->capacidadPorEquipo($partido)) {
             return response()->json([
-                'mensaje' => 'Ese equipo ya est? completo'
+                'mensaje' => 'Ese equipo ya está completo'
             ], 400);
         }
 
@@ -870,6 +958,9 @@ class PartidoController extends Controller
         ]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function salir(Request $request, $id)
     {
         $partido = Partido::findOrFail($id);
@@ -910,6 +1001,9 @@ class PartidoController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function cambiarFormacion(Request $request, $id)
     {
         $request->validate([
@@ -974,6 +1068,9 @@ class PartidoController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function cambiarResultado(Request $request, $id)
     {
         $request->validate([
@@ -1002,6 +1099,9 @@ class PartidoController extends Controller
         ]);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function cancelar(Request $request, $id)
     {
         if (!$this->esAdmin($request)) {
@@ -1018,6 +1118,9 @@ class PartidoController extends Controller
         ]);
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function elegirEquipo(Partido $partido): string
     {
         $equipoA = $partido->usuarios()->wherePivot('equipo_asignado', 'Equipo A')->wherePivot('estado_participacion', 'confirmado')->count();
@@ -1026,6 +1129,9 @@ class PartidoController extends Controller
         return $equipoA <= $equipoB ? 'Equipo A' : 'Equipo B';
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function unirUsuarioAlPartido(Partido $partido, Usuario $usuario): void
     {
         $equipoAsignado = $this->elegirEquipo($partido);
@@ -1039,6 +1145,9 @@ class PartidoController extends Controller
         ]);
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function partidoConPlazas(Partido $partido): Partido
     {
         return $this->decorarPartidoConPlazas(
@@ -1046,6 +1155,9 @@ class PartidoController extends Controller
         );
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function partidosDelUsuario(Request $request, bool $conHistorial = false)
     {
         $ids = DB::table('participantes_partido')
@@ -1074,6 +1186,9 @@ class PartidoController extends Controller
             ->map(fn ($partido) => $this->decorarPartidoConPlazas($partido));
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function resolverCampoParaPartido(array $datos): int
     {
         $modo = $datos['ubicacion_modo'] ?? (!empty($datos['id_campo']) ? 'existente' : 'manual');
@@ -1113,6 +1228,9 @@ class PartidoController extends Controller
         return $campo->id_campo;
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function decorarPartidoConPlazas(Partido $partido): Partido
     {
         $capacidad = $this->capacidadTotal($partido);
@@ -1129,6 +1247,9 @@ class PartidoController extends Controller
         return $partido;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function coincideCiudad(Partido $partido, ?string $ciudad): bool
     {
         if (!$ciudad || !$partido->campo?->ciudad) {
@@ -1138,6 +1259,9 @@ class PartidoController extends Controller
         return $this->normalizarUbicacion($partido->campo->ciudad) === $this->normalizarUbicacion($ciudad);
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function distanciaPartido(Partido $partido, $latitud, $longitud): float
     {
         $coordenadasPartido = $this->resolverCoordenadasCampo($partido);
@@ -1158,6 +1282,9 @@ class PartidoController extends Controller
         return 6371 * (2 * atan2(sqrt($a), sqrt(1 - $a)));
     }
 
+    /**
+     * Gestiona informacion de campos de futbol.
+     */
     private function distanciaCampo(Campo $campo, $latitud, $longitud): float
     {
         $coordenadasCampo = $this->resolverCoordenadasCampoDirecto($campo);
@@ -1178,6 +1305,15 @@ class PartidoController extends Controller
         return 6371 * (2 * atan2(sqrt($a), sqrt(1 - $a)));
     }
 
+    /**
+     * Resuelve las coordenadas usadas para ordenar partidos por cercania.
+     *
+     * @param mixed $latitud Latitud enviada por navegador o null.
+     * @param mixed $longitud Longitud enviada por navegador o null.
+     * @param string|null $ciudad Ciudad del usuario o del filtro.
+     * @param string $modo Modo de busqueda: cerca, desde-ciudad o todos.
+     * @return array{latitud: float, longitud: float}|null Coordenadas resueltas.
+     */
     private function resolverCoordenadasUsuario($latitud, $longitud, ?string $ciudad, string $modo): ?array
     {
         if ($modo === 'desde-ciudad') {
@@ -1194,11 +1330,17 @@ class PartidoController extends Controller
         return $this->coordenadasPorCiudad($ciudad);
     }
 
+    /**
+     * Gestiona informacion de campos de futbol.
+     */
     private function resolverCoordenadasCampo(Partido $partido): ?array
     {
         return $partido->campo ? $this->resolverCoordenadasCampoDirecto($partido->campo) : null;
     }
 
+    /**
+     * Gestiona informacion de campos de futbol.
+     */
     private function resolverCoordenadasCampoDirecto(Campo $campo): ?array
     {
         if ($campo->latitud && $campo->longitud) {
@@ -1211,6 +1353,12 @@ class PartidoController extends Controller
         return $this->coordenadasPorCiudad($campo->ciudad);
     }
 
+    /**
+     * Devuelve coordenadas aproximadas de ciudades soportadas por la busqueda.
+     *
+     * @param string|null $ciudad Nombre de ciudad recibido.
+     * @return array{latitud: float, longitud: float}|null Coordenadas conocidas.
+     */
     private function coordenadasPorCiudad(?string $ciudad): ?array
     {
         $ciudades = [
@@ -1245,6 +1393,9 @@ class PartidoController extends Controller
         return $ciudades[$this->normalizarUbicacion($ciudad)] ?? null;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function normalizarUbicacion(?string $texto): string
     {
         return Str::of($texto ?? '')
@@ -1255,6 +1406,9 @@ class PartidoController extends Controller
             ->toString();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function estaDentroDeVentanaActiva(Partido $partido): bool
     {
         $limite = $this->limiteActivoPartido($partido);
@@ -1262,6 +1416,9 @@ class PartidoController extends Controller
         return !$limite || now()->lte($limite);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function coincideFiltroFecha(Partido $partido, string $modoFecha, ?string $fecha): bool
     {
         if ($modoFecha === 'aleatorio') {
@@ -1284,6 +1441,9 @@ class PartidoController extends Controller
         };
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function estaEnHistorial(Partido $partido): bool
     {
         $limite = $this->limiteActivoPartido($partido);
@@ -1291,6 +1451,9 @@ class PartidoController extends Controller
         return $limite && now()->gt($limite);
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function limiteActivoPartido(Partido $partido): ?Carbon
     {
         if (!$partido->fecha || !$partido->hora) {
@@ -1300,6 +1463,9 @@ class PartidoController extends Controller
         return Carbon::parse($partido->fecha . ' ' . $partido->hora)->addHours(24);
     }
 
+    /**
+     * Recalcula datos derivados para mantenerlos actualizados.
+     */
     private function sincronizarEstadoPorPlazas(Partido $partido): void
     {
         if (in_array($partido->estado, ['cancelado', 'finalizado'], true)) {
@@ -1314,6 +1480,9 @@ class PartidoController extends Controller
         $partido->save();
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     private function invitarUsuarioAlPartido(Partido $partido, Usuario $usuario): void
     {
         $equipoAsignado = $this->elegirEquipo($partido);
@@ -1332,6 +1501,9 @@ class PartidoController extends Controller
         $partido->usuarios()->attach($usuario->id_usuario, $datos);
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     private function encontrarPartidoCompetitivo(Request $request, string $tipoFutbol, string $fecha, ?int $idEquipo, string $hora, bool $usarProximidad = false, ?float $radio = null): ?Partido
     {
         $coordenadasUsuario = $usarProximidad
@@ -1380,6 +1552,9 @@ class PartidoController extends Controller
             });
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     private function crearPartidoCompetitivo(Request $request, string $tipoFutbol, string $fecha, ?int $idEquipo, string $hora, bool $usarProximidad = false, ?float $radio = null): ?Partido
     {
         $campo = $this->campoCompetitivoMasCercano($request, $usarProximidad, $radio);
@@ -1409,6 +1584,9 @@ class PartidoController extends Controller
         return Partido::create($datos);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function horaCompetitivaCoherente(string $fecha): string
     {
         if (Carbon::parse($fecha)->isToday()) {
@@ -1418,6 +1596,9 @@ class PartidoController extends Controller
         return '20:00';
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     private function campoCompetitivoMasCercano(Request $request, bool $usarProximidad, ?float $radio): ?Campo
     {
         if (!$usarProximidad) {
@@ -1451,6 +1632,9 @@ class PartidoController extends Controller
             ->first();
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     private function puedeAsignarEquipoCompetitivo(Partido $partido, ?int $idEquipo): bool
     {
         if (!$idEquipo) {
@@ -1463,6 +1647,9 @@ class PartidoController extends Controller
             || !$partido->id_equipo_visitante;
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     private function asignarEquipoCompetitivo(Partido $partido, int $idEquipo): void
     {
         if ($partido->id_equipo_local === $idEquipo || $partido->id_equipo_visitante === $idEquipo) {
@@ -1478,6 +1665,9 @@ class PartidoController extends Controller
         $partido->save();
     }
 
+    /**
+     * Calcula un total usado por la respuesta.
+     */
     private function capacidadTotal(object $partido): int
     {
         $capacidadPorTipo = $this->jugadoresMinimos($partido) + 4;
@@ -1489,16 +1679,25 @@ class PartidoController extends Controller
         return $capacidadPorTipo;
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function capacidadPorEquipo(object $partido): int
     {
         return (int) ceil($this->capacidadTotal($partido) / 2);
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function titularesPorEquipo(object $partido): int
     {
         return $this->capacidadPorEquipo($partido);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function jugadoresPorTipo(object $partido): int
     {
         $tipo = strtolower($partido->tipo_futbol ?? '');
@@ -1514,6 +1713,9 @@ class PartidoController extends Controller
         return 22;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function cancelarSiAlineacionesIncompletas(Partido $partido): void
     {
         if ($partido->estado === 'cancelado' || !$partido->fecha || !$partido->hora) {
@@ -1532,11 +1734,17 @@ class PartidoController extends Controller
         }
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function jugadoresConfirmados(Partido $partido): int
     {
         return $partido->usuarios()->wherePivot('estado_participacion', 'confirmado')->count();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function jugadoresMinimos(object $partido): int
     {
         $jugadoresPorTipo = $this->jugadoresPorTipo($partido);
@@ -1548,6 +1756,9 @@ class PartidoController extends Controller
         return $jugadoresPorTipo;
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function fechaLimiteResultado(Partido $partido): ?string
     {
         if (!$partido->fecha || !$partido->hora) {
@@ -1557,6 +1768,9 @@ class PartidoController extends Controller
         return Carbon::parse($partido->fecha . ' ' . $partido->hora)->addDay()->toDateTimeString();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function ventanaResultadoAbierta(Partido $partido): bool
     {
         if (!$partido->fecha || !$partido->hora || $partido->estado === 'cancelado') {
@@ -1568,6 +1782,9 @@ class PartidoController extends Controller
         return now()->betweenIncluded($inicio, $inicio->copy()->addDay());
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function cerrarResultadoSinAcuerdoSiExpirado(Partido $partido): void
     {
         if (!$partido->fecha || !$partido->hora) {
@@ -1610,6 +1827,9 @@ class PartidoController extends Controller
         $partido->save();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function formacionesPorTipo(object $partido): array
     {
         $tipo = strtolower($partido->tipo_futbol ?? '');
@@ -1625,6 +1845,9 @@ class PartidoController extends Controller
         return ['4-3-3', '4-3-1-2', '4-4-2', '3-5-2', '4-2-3-1'];
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function partidoHaEmpezado(Partido $partido): bool
     {
         if (!$partido->fecha || !$partido->hora) {
@@ -1634,6 +1857,9 @@ class PartidoController extends Controller
         return now()->gte(Carbon::parse($partido->fecha . ' ' . $partido->hora));
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function pasarCapitan(Partido $partido, string $equipo): void
     {
         $nuevoCapitan = $partido->usuarios()
@@ -1647,6 +1873,9 @@ class PartidoController extends Controller
         }
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function elegirPosicion(?string $posicionesFavoritas, Partido $partido, string $equipo): string
     {
         $posicionesFormacion = $this->posicionesDeFormacion($this->formacionDelEquipo($partido, $equipo));
@@ -1667,6 +1896,9 @@ class PartidoController extends Controller
         return $posicionesFormacion[0] ?? 'MC';
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function posicionesPreferidas(?string $posicionesFavoritas, Partido $partido): array
     {
         $favoritas = array_map('trim', explode(',', $posicionesFavoritas ?? ''));
@@ -1687,6 +1919,9 @@ class PartidoController extends Controller
         return array_values(array_unique($posiciones));
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function posicionDisponible(Partido $partido, string $equipo, string $posicion, array $posicionesFormacion): bool
     {
         $maximo = array_count_values($posicionesFormacion)[$posicion] ?? 0;
@@ -1704,6 +1939,9 @@ class PartidoController extends Controller
         return $ocupadas < $maximo;
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function formacionDelEquipo(Partido $partido, string $equipo): string
     {
         $formacionesValidas = $this->formacionesPorTipo($partido);
@@ -1716,6 +1954,9 @@ class PartidoController extends Controller
             : $formacionesValidas[0];
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function posicionesDeFormacion(string $formacion): array
     {
         return match ($formacion) {
@@ -1737,16 +1978,25 @@ class PartidoController extends Controller
         };
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function esAdmin(Request $request): bool
     {
         return $request->user()?->rol === 'admin';
     }
 
+    /**
+     * Gestiona informacion del modo competitivo.
+     */
     private function esPartidoCompetitivo(Partido $partido): bool
     {
         return (bool) $partido->es_competitivo || strtolower(trim($partido->nivel ?? '')) === 'competitivo';
     }
 
+    /**
+     * Gestiona una invitacion enviada o recibida por el usuario.
+     */
     private function usuarioPuedeInvitarASala(Request $request, Partido $partido): bool
     {
         if ($this->esAdmin($request)) {
@@ -1759,6 +2009,9 @@ class PartidoController extends Controller
             ->exists();
     }
 
+    /**
+     * Gestiona informacion de usuarios.
+     */
     private function usuarioTienePosicionFavorita(Usuario $usuario, string $posicion): bool
     {
         $favoritas = collect(explode(',', $usuario->posiciones_favoritas ?? ''))
@@ -1769,6 +2022,9 @@ class PartidoController extends Controller
         return $favoritas->contains(Str::of($posicion)->ascii()->lower()->trim()->toString());
     }
 
+    /**
+     * Gestiona datos relacionados con amigos y solicitudes.
+     */
     private function sonAmigos(int $usuarioId, int $amigoId): bool
     {
         $columnaEmisor = Schema::hasColumn('amistades', 'id_usuario_emisor') ? 'id_usuario_emisor' : 'id_usuario';
@@ -1787,6 +2043,9 @@ class PartidoController extends Controller
             ->exists();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function puedeEditarResultado(Request $request, Partido $partido): bool
     {
         if ($partido->estado === 'cancelado') {

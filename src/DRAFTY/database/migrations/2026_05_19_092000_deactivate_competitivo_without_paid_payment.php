@@ -1,10 +1,16 @@
-<?php
+﻿<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Migracion anonima que modifica la estructura de la base de datos.
+ */
 return new class extends Migration {
+    /**
+     * Aplica los cambios de esta migracion en la base de datos.
+     */
     public function up(): void
     {
         if (!Schema::hasTable('competitivo') || !Schema::hasTable('pagos')) {
@@ -38,8 +44,13 @@ return new class extends Migration {
             ]);
     }
 
+    /**
+     * Revierte los cambios de esta migracion en la base de datos.
+     */
     public function down(): void
     {
-        //
+        /**
+         * Sin operaciones adicionales.
+         */
     }
 };

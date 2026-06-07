@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -14,8 +14,14 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Controlador que agrupa la logica de torneo en la API.
+ */
 class TorneoController extends Controller
 {
+    /**
+     * Devuelve el listado principal de recursos.
+     */
     public function index()
     {
         return response()->json(
@@ -27,6 +33,9 @@ class TorneoController extends Controller
         );
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request)
     {
         $datos = $request->validate([
@@ -62,6 +71,9 @@ class TorneoController extends Controller
         return response()->json(Torneo::create($datos)->load('organizador'), 201);
     }
 
+    /**
+     * Devuelve el detalle del recurso solicitado.
+     */
     public function show($id)
     {
         return response()->json(
@@ -79,6 +91,9 @@ class TorneoController extends Controller
         );
     }
 
+    /**
+     * Actualiza los datos del recurso indicado.
+     */
     public function update(Request $request, $id)
     {
         $torneo = Torneo::findOrFail($id);
@@ -88,6 +103,9 @@ class TorneoController extends Controller
         return response()->json($torneo);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function destroy(Request $request, $id)
     {
         $torneo = Torneo::findOrFail($id);
@@ -97,6 +115,9 @@ class TorneoController extends Controller
         return response()->json(['mensaje' => 'Torneo eliminado']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function unirse(Request $request, $id)
     {
         $datos = $request->validate([
@@ -147,11 +168,17 @@ class TorneoController extends Controller
         return response()->json(['mensaje' => 'Equipo inscrito correctamente']);
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     public function inscribirEquipo(Request $request, $id)
     {
         return $this->unirse($request, $id);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function iniciar(Request $request, $id)
     {
         $torneo = Torneo::with(['equipos' => fn ($q) => $q->where('torneo_equipos.estado_inscripcion', 'aceptada')])->findOrFail($id);
@@ -202,6 +229,9 @@ class TorneoController extends Controller
         return response()->json(['mensaje' => 'Torneo iniciado correctamente']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     public function brackets($id)
     {
         return response()->json(
@@ -213,16 +243,25 @@ class TorneoController extends Controller
         );
     }
 
+    /**
+     * Calcula y devuelve datos de ranking.
+     */
     public function rankingGoles($id)
     {
         return response()->json($this->ranking($id, 'goles'));
     }
 
+    /**
+     * Calcula y devuelve datos de ranking.
+     */
     public function rankingPorterias($id)
     {
         return response()->json($this->ranking($id, 'porterias_cero'));
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     public function resultadoPartido(Request $request, $id)
     {
         $datos = $request->validate([
@@ -274,6 +313,9 @@ class TorneoController extends Controller
         return response()->json(['mensaje' => 'Resultado guardado', 'partido' => $partido->fresh(['equipoLocal', 'equipoVisitante', 'ganador'])]);
     }
 
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function guardarGol(Request $request, $id)
     {
         $datos = $request->validate([
@@ -318,6 +360,9 @@ class TorneoController extends Controller
         return response()->json($gol->load(['usuario', 'equipo']), 201);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function eliminarGol(Request $request, $id)
     {
         $gol = GolTorneoPartido::with('partido.torneo')->findOrFail($id);
@@ -334,6 +379,9 @@ class TorneoController extends Controller
         return response()->json(['mensaje' => 'Gol eliminado']);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function autorizarOrganizador(Request $request, Torneo $torneo): void
     {
         if ($request->user()->rol !== 'admin' && (int) $torneo->id_organizador !== (int) $request->user()->id_usuario) {
@@ -341,6 +389,9 @@ class TorneoController extends Controller
         }
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function jugadoresActivosEquipo(Equipo $equipo): int
     {
         $consulta = $equipo->usuarios();
@@ -354,11 +405,17 @@ class TorneoController extends Controller
         return $consulta->count();
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function jugadoresMinimosEquipo(string $tipo): int
     {
         return str_contains($tipo, '5') ? 5 : (str_contains($tipo, '7') ? 7 : 11);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function avanzarGanador(TorneoPartido $partido, int $ganador): void
     {
         $siguiente = match ($partido->ronda) {
@@ -394,6 +451,9 @@ class TorneoController extends Controller
         $slot->update($indiceActual % 2 === 0 ? ['id_equipo_local' => $ganador] : ['id_equipo_visitante' => $ganador]);
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function rondasPorEquipos(int $equipos): array
     {
         return match ($equipos) {
@@ -403,6 +463,9 @@ class TorneoController extends Controller
         };
     }
 
+    /**
+     * Calcula y devuelve datos de ranking.
+     */
     private function ranking(int $idTorneo, string $campo)
     {
         return EstadisticaTorneoUsuario::with(['usuario', 'equipo'])
@@ -412,6 +475,9 @@ class TorneoController extends Controller
             ->get();
     }
 
+    /**
+     * Gestiona goles registrados.
+     */
     private function sincronizarMarcadorDesdeGoles(TorneoPartido $partido): void
     {
         $partido->load('goles');
@@ -421,6 +487,9 @@ class TorneoController extends Controller
         ]);
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function recalcularEstadisticasPartido(TorneoPartido $partido): void
     {
         $this->sumarPartidoJugadoEquipo($partido->id_equipo_local);
@@ -468,6 +537,9 @@ class TorneoController extends Controller
         }
     }
 
+    /**
+     * Gestiona informacion relacionada con partidos.
+     */
     private function sumarPartidoJugadoEquipo(?int $idEquipo): void
     {
         if (!$idEquipo) {
@@ -500,6 +572,9 @@ class TorneoController extends Controller
         }
     }
 
+    /**
+     * Gestiona informacion relacionada con equipos.
+     */
     private function sumarPorteriasEquipo(int $idTorneo, ?int $idEquipo): void
     {
         if (!$idEquipo) {
@@ -530,6 +605,9 @@ class TorneoController extends Controller
         }
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function puedeSumarPorteriaCero(string $posiciones): bool
     {
         $posiciones = mb_strtolower($posiciones);

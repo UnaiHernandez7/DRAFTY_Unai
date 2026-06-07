@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Factories;
 
@@ -8,10 +8,21 @@ use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+/**
+ * Factory que genera datos de prueba de partido.
+ */
 class PartidoFactory extends Factory
 {
+    /**
+     * Modelo asociado a esta factory.
+     */
     protected $model = Partido::class;
 
+    /**
+     * Define partidos publicos futuros con datos coherentes para DRAFTY.
+     *
+     * @return array<string, mixed> Atributos del partido generado.
+     */
     public function definition(): array
     {
         $tipoFutbol = fake()->randomElement(['5v5', '7v7', '11v11']);
@@ -50,21 +61,42 @@ class PartidoFactory extends Factory
         ];
     }
 
+    /**
+     * Fuerza un partido de futbol sala.
+     *
+     * @return static Factory configurada para 5v5.
+     */
     public function futbolSala(): static
     {
         return $this->state(fn () => $this->datosPorTipo('5v5'));
     }
 
+    /**
+     * Fuerza un partido de futbol 7.
+     *
+     * @return static Factory configurada para 7v7.
+     */
     public function futbol7(): static
     {
         return $this->state(fn () => $this->datosPorTipo('7v7'));
     }
 
+    /**
+     * Fuerza un partido de futbol 11.
+     *
+     * @return static Factory configurada para 11v11.
+     */
     public function futbol11(): static
     {
         return $this->state(fn () => $this->datosPorTipo('11v11'));
     }
 
+    /**
+     * Asocia el partido generado a un campo concreto.
+     *
+     * @param Campo $campo Campo donde se jugara el partido.
+     * @return static Factory con campo fijado.
+     */
     public function enCampo(Campo $campo): static
     {
         return $this->state(fn () => [
@@ -73,6 +105,12 @@ class PartidoFactory extends Factory
         ]);
     }
 
+    /**
+     * Devuelve plazas y minimo de jugadores segun el tipo de futbol.
+     *
+     * @param string $tipoFutbol Tipo de partido: 5v5, 7v7 o 11v11.
+     * @return array<string, int|string> Datos derivados del tipo.
+     */
     private function datosPorTipo(string $tipoFutbol): array
     {
         $configuracion = $this->configuracionPorTipo($tipoFutbol);
@@ -84,6 +122,12 @@ class PartidoFactory extends Factory
         ];
     }
 
+    /**
+     * Calcula la configuracion de capacidad por modalidad.
+     *
+     * @param string $tipoFutbol Tipo de partido.
+     * @return array{jugadores_minimos: int, plazas_totales: int}
+     */
     private function configuracionPorTipo(string $tipoFutbol): array
     {
         return match ($tipoFutbol) {
@@ -93,6 +137,12 @@ class PartidoFactory extends Factory
         };
     }
 
+    /**
+     * Genera un titulo legible usando la ciudad o nombre del campo.
+     *
+     * @param Campo $campo Campo asociado.
+     * @return string Titulo del partido.
+     */
     private function tituloParaCampo(Campo $campo): string
     {
         return fake()->randomElement([

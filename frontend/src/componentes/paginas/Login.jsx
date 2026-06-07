@@ -1,30 +1,45 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 import logotipoDrafty from "../../img/logotipo_drafty.svg";
 import "./Login.css";
 
+// Archivo propio del frontend de Drafty.
 const Login = () => {
+    // Permite iniciar sesion con usuario o email.
     const [identificador, setIdentificador] = useState("");
+    // Se separa del login porque recuperar contrasena siempre usa email.
     const [emailRecuperacion, setEmailRecuperacion] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [contrasena, setContrasena] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [codigoRecuperacion, setCodigoRecuperacion] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [nuevaContrasena, setNuevaContrasena] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [confirmarContrasena, setConfirmarContrasena] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [modoRecuperacion, setModoRecuperacion] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [codigoEnviado, setCodigoEnviado] = useState(false);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [tipoMensaje, setTipoMensaje] = useState("error");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(false);
     const { login } = useAuth();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const manejarSubmit = async (e) => {
         e.preventDefault();
         setCargando(true);
         setMensaje("");
 
+        // Dato usado para pintar esta pantalla.
         const exito = await login(identificador, contrasena);
 
         if (exito) {
@@ -37,9 +52,11 @@ const Login = () => {
         setCargando(false);
     };
 
+    // Funcion auxiliar usada por este componente.
     const activarRecuperacion = () => {
         setModoRecuperacion(true);
         setCodigoEnviado(false);
+        // Si ya escribio un email, lo aprovechamos para recuperar.
         setEmailRecuperacion(identificador.includes("@") ? identificador : "");
         setContrasena("");
         setCodigoRecuperacion("");
@@ -48,6 +65,7 @@ const Login = () => {
         setMensaje("");
     };
 
+    // Funcion auxiliar usada por este componente.
     const volverALogin = () => {
         setModoRecuperacion(false);
         setCodigoEnviado(false);
@@ -57,18 +75,21 @@ const Login = () => {
         setMensaje("");
     };
 
-    const solicitarCodigoRecuperacion = async (e) => {
-        e.preventDefault();
+    // Funcion que llama al servidor y actualiza la pantalla.
+    const enviarCodigoRecuperacion = async () => {
         setCargando(true);
         setMensaje("");
         setTipoMensaje("info");
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post("/recuperar-contrasena/codigo", { email: emailRecuperacion });
             setCodigoEnviado(true);
             setMensaje(respuesta.data?.mensaje || "Te hemos enviado un código para cambiar la contraseña.");
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const errores = error.response?.data?.errors;
+            // Dato usado para pintar esta pantalla.
             const primerError = errores ? Object.values(errores).flat()[0] : null;
             setTipoMensaje("error");
             setMensaje(primerError || error.response?.data?.mensaje || "No se ha podido enviar el código.");
@@ -77,6 +98,18 @@ const Login = () => {
         }
     };
 
+    // Funcion que pide el codigo desde el formulario.
+    const solicitarCodigoRecuperacion = async (e) => {
+        e.preventDefault();
+        await enviarCodigoRecuperacion();
+    };
+
+    // Funcion que vuelve a pedir el codigo desde el boton secundario.
+    const reenviarCodigoRecuperacion = async () => {
+        await enviarCodigoRecuperacion();
+    };
+
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cambiarContrasenaConCodigo = async (e) => {
         e.preventDefault();
         setMensaje("");
@@ -91,6 +124,7 @@ const Login = () => {
         setCargando(true);
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.patch("/recuperar-contrasena", {
                 email: emailRecuperacion,
                 codigo: codigoRecuperacion,
@@ -106,7 +140,9 @@ const Login = () => {
             setTipoMensaje("info");
             setMensaje(respuesta.data?.mensaje || "Contraseña actualizada correctamente. Ya puedes iniciar sesión.");
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const errores = error.response?.data?.errors;
+            // Dato usado para pintar esta pantalla.
             const primerError = errores ? Object.values(errores).flat()[0] : null;
             setTipoMensaje("error");
             setMensaje(primerError || error.response?.data?.mensaje || "No se ha podido cambiar la contraseña.");
@@ -115,6 +151,7 @@ const Login = () => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="auth-page">
             <section className="auth-brand">
@@ -139,6 +176,7 @@ const Login = () => {
                 <form onSubmit={modoRecuperacion ? (codigoEnviado ? cambiarContrasenaConCodigo : solicitarCodigoRecuperacion) : manejarSubmit} className="auth-form">
                     <label>
                         {modoRecuperacion ? "Email" : "Usuario o email"}
+                        {/* El mismo campo cambia segun el modo del formulario. */}
                         <input
                             type={modoRecuperacion ? "email" : "text"}
                             value={modoRecuperacion ? emailRecuperacion : identificador}
@@ -190,7 +228,7 @@ const Login = () => {
                     {modoRecuperacion ? (
                         <>
                             {codigoEnviado && (
-                                <button type="button" onClick={solicitarCodigoRecuperacion} disabled={cargando}>
+                                <button type="button" onClick={reenviarCodigoRecuperacion} disabled={cargando}>
                                     Reenviar código
                                 </button>
                             )}

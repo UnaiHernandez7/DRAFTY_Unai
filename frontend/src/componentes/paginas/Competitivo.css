@@ -1,3 +1,4 @@
+﻿/* Archivo propio de estilos de Drafty. */
 .estado-competitivo-card,
 .tabla-rangos-card,
 .rankings-competitivos-card {
@@ -24,6 +25,7 @@
 
 .grid-rankings-competitivos {
     display: grid;
+    /* En escritorio se ven los 3 rankings en la misma fila. */
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
 }

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +17,9 @@ use App\Http\Controllers\Api\GolPartidoController;
 use App\Http\Controllers\Api\MvpController;
 use App\Http\Controllers\Api\ValoracionJugadorController;
 
-// Rutas públicas (no requieren login)
+/**
+ * Rutas públicas (no requieren login)
+ */
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/verificar-codigo', [AuthController::class, 'verificarCodigo']);
@@ -37,15 +39,22 @@ Route::get('/campos/{id}', [CampoController::class, 'show']);
 Route::get('/torneos', [TorneoController::class, 'index']);
 Route::get('/torneos/{id}', [TorneoController::class, 'show']);
 
-// Rutas protegidas (requieren token)
+/**
+ * Rutas protegidas (requieren token)
+ */
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Auth
+    /**
+     * Auth
+     */
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/perfil', [AuthController::class, 'perfil']);
 
-    // Usuarios
+    /**
+     * Usuarios
+     */
+    Route::get('/admin/usuarios', [UsuarioController::class, 'adminIndex']);
     Route::get('/usuarios/buscar', [UsuarioController::class, 'buscar']);
     Route::get('/usuarios/{id}/valoraciones', [ValoracionJugadorController::class, 'usuario']);
     Route::apiResource('usuarios', UsuarioController::class);
@@ -63,7 +72,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/amistades/{id}/rechazar', [AmistadController::class, 'rechazar']);
     Route::delete('/amistades/{id}', [AmistadController::class, 'destroy']);
 
-    // Partidos
+    /**
+     * Partidos
+     */
     Route::apiResource('partidos', PartidoController::class)->except(['index', 'show']);
     Route::get('/mis-partidos', [PartidoController::class, 'misPartidos']);
     Route::get('/mis-partidos-detalle', [PartidoController::class, 'misPartidosDetalle']);
@@ -71,7 +82,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/partidos-invitaciones', [PartidoController::class, 'invitaciones']);
     Route::get('/admin/partidos', [PartidoController::class, 'adminIndex']);
     
-    // Unirse a partido
+    /**
+     * Unirse a partido
+     */
     Route::post('/partidos/{id}/unirse', [PartidoController::class, 'unirse']);
     Route::post('/partidos/{id}/invitar-amigo/{id_usuario}', [PartidoController::class, 'invitarAmigo']);
     Route::get('/partidos/{id}/candidatos-posicion', [PartidoController::class, 'candidatosPorPosicion']);
@@ -97,10 +110,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/partidos/{id}/mvp/votar', [MvpController::class, 'votar']);
     Route::post('/partidos/{id}/valoraciones', [ValoracionJugadorController::class, 'store']);
 
-    // Campos
+    /**
+     * Campos
+     */
     Route::apiResource('campos', CampoController::class)->except(['index', 'show']);
 
-    // Equipos
+    /**
+     * Equipos
+     */
     Route::apiResource('equipos', EquipoController::class);
     Route::get('/mis-equipos', [EquipoController::class, 'misEquipos']);
     Route::get('/equipos-invitaciones', [EquipoController::class, 'invitaciones']);
@@ -120,7 +137,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/equipos/{id}/unirse', [EquipoController::class, 'unirse']);
     Route::post('/equipos/{id}/salir', [EquipoController::class, 'salir']);
 
-    // Torneos
+    /**
+     * Torneos
+     */
     Route::apiResource('torneos', TorneoController::class)->except(['index', 'show']);
     Route::post('/torneos/{id}/unirse', [TorneoController::class, 'unirse']);
     Route::post('/torneos/{id}/inscribir', [TorneoController::class, 'inscribirEquipo']);
@@ -132,11 +151,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/torneos/goles/{id}', [TorneoController::class, 'eliminarGol']);
     Route::put('/torneos/partidos/{id}/resultado', [TorneoController::class, 'resultadoPartido']);
 
-    // Estadísticas
+    /**
+     * Estadísticas
+     */
     Route::get('/mis-estadisticas', [EstadisticaController::class, 'misEstadisticas']);
     Route::apiResource('estadisticas', EstadisticaController::class);
 
-    // Competitivo
+    /**
+     * Competitivo
+     */
     Route::get('/pagos', [PagoController::class, 'index']);
     Route::post('/competitivo/activar', [PagoController::class, 'activarCompetitivo']);
     Route::put('/pagos/{id}/confirmar', [PagoController::class, 'confirmar']);

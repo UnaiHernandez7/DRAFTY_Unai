@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -8,8 +8,14 @@ use App\Models\Partido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
+/**
+ * Controlador que agrupa la logica de golpartido en la API.
+ */
 class GolPartidoController extends Controller
 {
+    /**
+     * Guarda un nuevo recurso con los datos recibidos.
+     */
     public function store(Request $request, $id)
     {
         $datos = $request->validate([
@@ -57,6 +63,9 @@ class GolPartidoController extends Controller
         ], 201);
     }
 
+    /**
+     * Elimina el recurso indicado cuando el usuario tiene permiso.
+     */
     public function destroy(Request $request, $id)
     {
         $gol = GolPartido::with(['partido.usuarios', 'partido.resultado'])->findOrFail($id);
@@ -78,6 +87,9 @@ class GolPartidoController extends Controller
         return response()->json(['mensaje' => 'Gol eliminado correctamente']);
     }
 
+    /**
+     * Gestiona goles registrados.
+     */
     private function puedeGestionarGoles(Request $request, Partido $partido): bool
     {
         return $partido->usuarios()
@@ -87,11 +99,17 @@ class GolPartidoController extends Controller
             ->exists();
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function resultadoBloqueado(Partido $partido): bool
     {
         return in_array($partido->resultado?->estado_resultado, ['cerrado', 'sin_resultado'], true);
     }
 
+    /**
+     * Ejecuta la logica principal de esta parte del proyecto.
+     */
     private function ventanaResultadoAbierta(Partido $partido): bool
     {
         if (!$partido->fecha || !$partido->hora || $partido->estado === 'cancelado') {

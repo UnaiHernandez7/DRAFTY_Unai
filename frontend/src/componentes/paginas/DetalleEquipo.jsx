@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../../api/api.js";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
@@ -6,13 +6,16 @@ import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import ChatEquipo from "./ChatEquipo.jsx";
 import "./Inicio.css";
 
+// Archivo propio del frontend de Drafty.
 const finalizado = (partido) => (
     ["finalizado", "cancelado"].includes(partido.estado) ||
     partido.goles_equipo_a != null ||
     partido.goles_equipo_b != null
 );
 
+// Funcion auxiliar usada por este componente.
 const formatearRol = (rol) => {
+    // Dato usado para pintar esta pantalla.
     const roles = {
         capitan: "Capitán",
         jugador: "Jugador",
@@ -22,18 +25,28 @@ const formatearRol = (rol) => {
     return roles[rol] || "Jugador";
 };
 
+// Funcion auxiliar usada por este componente.
 const DetalleEquipo = () => {
     const { id } = useParams();
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
     const { isAuth, usuario } = useAuth();
+    // Estado que guarda informacion de la pantalla.
     const [equipo, setEquipo] = useState(null);
+    // Estado que guarda informacion de la pantalla.
     const [partidos, setPartidos] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [historial, setHistorial] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [torneosGanados, setTorneosGanados] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [ranking, setRanking] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [cargando, setCargando] = useState(true);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarDetalle = async () => {
         if (!isAuth) {
             setCargando(false);
@@ -61,16 +74,19 @@ const DetalleEquipo = () => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarDetalle();
     }, [id, isAuth]);
 
+    // Dato usado para pintar esta pantalla.
     const jugadores = useMemo(() => (
         equipo?.usuarios?.filter((jugador) => (
             jugador.pivot?.rol_en_equipo !== "invitado" &&
             (!jugador.pivot?.estado || jugador.pivot.estado === "activo")
         )) || []
     ), [equipo]);
+    // Dato usado para pintar esta pantalla.
     const partidosTorneoHistorial = useMemo(() => (
         torneosGanados.flatMap((torneo) => (
             (torneo.partidos_bracket || []).map((partido) => ({
@@ -82,11 +98,15 @@ const DetalleEquipo = () => {
         ))
     ), [torneosGanados]);
 
+    // Dato usado para pintar esta pantalla.
     const miRol = jugadores.find((jugador) => Number(jugador.id_usuario) === Number(usuario?.id_usuario))?.pivot?.rol_en_equipo || "jugador";
+    // Dato usado para pintar esta pantalla.
     const puedoGestionarMiembros = miRol === "capitan" || Number(equipo?.id_creador) === Number(usuario?.id_usuario);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cambiarRolMiembro = async (idUsuario, rol) => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.patch(`/equipos/${id}/jugadores/${idUsuario}/rol`, {
                 rol_en_equipo: rol
             });
@@ -97,8 +117,10 @@ const DetalleEquipo = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const expulsarMiembro = async (idUsuario) => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.delete(`/equipos/${id}/jugadores/${idUsuario}`);
             setMensaje(respuesta.data?.mensaje || "Jugador expulsado.");
             cargarDetalle();
@@ -107,6 +129,7 @@ const DetalleEquipo = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const unirseAPartido = async (idPartido) => {
         if (!isAuth) {
             navigate("/login");
@@ -114,6 +137,7 @@ const DetalleEquipo = () => {
         }
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/equipos/${id}/partidos/${idPartido}/unirse`);
             setMensaje(respuesta.data?.mensaje || "Te has unido al partido.");
             cargarDetalle();
@@ -122,8 +146,10 @@ const DetalleEquipo = () => {
         }
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const abandonarEquipo = async () => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post(`/equipos/${id}/salir`);
             setMensaje(respuesta.data?.mensaje || "Has abandonado el equipo.");
             navigate("/equipos");
@@ -133,6 +159,7 @@ const DetalleEquipo = () => {
     };
 
     if (!isAuth) {
+        // Vista que se muestra al usuario.
         return (
             <main className="inicio equipos-page">
                 <EncabezadoSeccion
@@ -149,6 +176,7 @@ const DetalleEquipo = () => {
     }
 
     if (!equipo) {
+        // Vista que se muestra al usuario.
         return (
             <main className="inicio equipos-page">
                 {mensaje && <p className="mensaje mensaje-error">{mensaje}</p>}
@@ -157,6 +185,7 @@ const DetalleEquipo = () => {
         );
     }
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio equipos-page">
             <EncabezadoSeccion
@@ -184,7 +213,6 @@ const DetalleEquipo = () => {
             <section className="bloque-detalle-equipo">
                 <div className="cabecera-bloque-equipo">
                     <h2>Información general</h2>
-                    <span>{equipo.creador?.nombre_usuario || "Sin creador"}</span>
                 </div>
                 <div className="info-grid-equipo">
                     <div><span>Nombre</span><strong>{equipo.nombre_equipo}</strong></div>
@@ -202,9 +230,13 @@ const DetalleEquipo = () => {
                 </div>
                 <div className="grid-jugadores-equipo">
                     {jugadores.map((jugador) => {
+                        // Dato usado para pintar esta pantalla.
                         const esCapitan = jugador.pivot?.rol_en_equipo === "capitan";
+                        // Dato usado para pintar esta pantalla.
                         const esCreador = Number(jugador.id_usuario) === Number(equipo.id_creador);
+                        // Dato usado para pintar esta pantalla.
                         const puedoEditarJugador = puedoGestionarMiembros && !esCreador && Number(jugador.id_usuario) !== Number(usuario?.id_usuario);
+                        // Vista que se muestra al usuario.
                         return (
                             <article className="jugador-equipo-card" key={jugador.id_usuario}>
                                 <div className="avatar-amigo">

@@ -1,15 +1,20 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api.js";
 import EncabezadoSeccion from "../comunes/EncabezadoSeccion.jsx";
 import SelectorMapa from "./SelectorMapa.jsx";
 import "./Torneos.css";
 
+// Archivo propio del frontend de Drafty.
 const hoy = new Date().toISOString().slice(0, 10);
 
+// Funcion auxiliar usada por este componente.
 const CrearTorneo = () => {
+    // Dato usado para pintar esta pantalla.
     const navigate = useNavigate();
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [formulario, setFormulario] = useState({
         nombre_torneo: "",
         descripcion: "",
@@ -26,8 +31,10 @@ const CrearTorneo = () => {
         ciudad: "",
         provincia: ""
     });
+    // Estado que guarda informacion de la pantalla.
     const [coordenadas, setCoordenadas] = useState(null);
 
+    // Funcion auxiliar usada por este componente.
     const cambiar = (campo, valor) => {
         setFormulario((actual) => ({
             ...actual,
@@ -36,10 +43,12 @@ const CrearTorneo = () => {
         }));
     };
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const crear = async (e) => {
         e.preventDefault();
 
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.post("/torneos", {
                 ...formulario,
                 tipo_torneo: "eliminatoria",
@@ -50,12 +59,15 @@ const CrearTorneo = () => {
             });
             navigate(`/torneos/${respuesta.data.id_torneo}`);
         } catch (error) {
+            // Dato usado para pintar esta pantalla.
             const errores = error.response?.data?.errors;
+            // Dato usado para pintar esta pantalla.
             const primerError = errores ? Object.values(errores).flat()[0] : null;
             setMensaje(primerError || error.response?.data?.mensaje || "No se ha podido crear el torneo.");
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <main className="inicio torneos-page">
             <EncabezadoSeccion

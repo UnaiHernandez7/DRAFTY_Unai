@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+﻿import { Fragment } from "react";
 import { Navigate, Routes, Route } from "react-router-dom";
 import { useAuth } from "../../contextos/ProveedorAuth.jsx";
 
@@ -24,6 +24,7 @@ import DetalleTorneo from "../paginas/DetalleTorneo.jsx";
 import Admin from "../paginas/Admin.jsx";
 import Error from "../paginas/Error.jsx";
 
+// Archivo propio del frontend de Drafty.
 const RutaProtegida = ({ children }) => {
     const { isAuth, cargandoAuth } = useAuth();
 
@@ -34,6 +35,7 @@ const RutaProtegida = ({ children }) => {
     return isAuth ? children : <Navigate to="/login" replace />;
 };
 
+// Funcion auxiliar usada por este componente.
 const RutaPublica = ({ children }) => {
     const { isAuth, cargandoAuth } = useAuth();
 
@@ -44,7 +46,9 @@ const RutaPublica = ({ children }) => {
     return isAuth ? <Navigate to="/" replace /> : children;
 };
 
+// Funcion auxiliar usada por este componente.
 const Rutas = () => {
+    // Vista que se muestra al usuario.
     return (
         <Fragment>
             <Routes>

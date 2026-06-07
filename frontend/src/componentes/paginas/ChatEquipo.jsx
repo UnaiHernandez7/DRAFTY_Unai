@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import api from "../../api/api.js";
 
+// Archivo propio del frontend de Drafty.
 const formatearFecha = (fecha) => {
     if (!fecha) return "";
     return new Date(fecha).toLocaleString("es-ES", {
@@ -11,14 +12,21 @@ const formatearFecha = (fecha) => {
     });
 };
 
+// Funcion auxiliar usada por este componente.
 const ChatEquipo = ({ idEquipo }) => {
+    // Estado que guarda informacion de la pantalla.
     const [mensajes, setMensajes] = useState([]);
+    // Estado que guarda informacion de la pantalla.
     const [mensaje, setMensaje] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [error, setError] = useState("");
+    // Estado que guarda informacion de la pantalla.
     const [enviando, setEnviando] = useState(false);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const cargarMensajes = async () => {
         try {
+            // Dato usado para pintar esta pantalla.
             const respuesta = await api.get(`/equipos/${idEquipo}/mensajes`);
             setMensajes(Array.isArray(respuesta.data) ? respuesta.data : []);
         } catch (err) {
@@ -26,10 +34,12 @@ const ChatEquipo = ({ idEquipo }) => {
         }
     };
 
+    // Efecto que se ejecuta cuando cambian los datos indicados.
     useEffect(() => {
         cargarMensajes();
     }, [idEquipo]);
 
+    // Funcion que llama al servidor y actualiza la pantalla.
     const enviarMensaje = async (e) => {
         e.preventDefault();
 
@@ -50,6 +60,7 @@ const ChatEquipo = ({ idEquipo }) => {
         }
     };
 
+    // Vista que se muestra al usuario.
     return (
         <section className="bloque-detalle-equipo chat-equipo">
             <div className="cabecera-bloque-equipo">
