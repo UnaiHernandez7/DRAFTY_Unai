@@ -5,6 +5,33 @@ import api from "../api/api.js";
 // Archivo propio del frontend de Drafty.
 const AuthContext = createContext();
 
+// Busca un token aunque el backend lo devuelva con otro nombre o anidado.
+const extraerToken = (datos) => {
+  if (!datos || typeof datos !== "object") {
+    return null;
+  }
+
+  const clavesToken = ["token", "access_token", "auth_token", "plainTextToken", "bearer_token", "api_token"];
+
+  for (const clave of clavesToken) {
+    if (typeof datos[clave] === "string" && datos[clave].length > 10) {
+      return datos[clave];
+    }
+  }
+
+  for (const valor of Object.values(datos)) {
+    if (valor && typeof valor === "object") {
+      const token = extraerToken(valor);
+
+      if (token) {
+        return token;
+      }
+    }
+  }
+
+  return null;
+};
+
 // Provider
 export function ProveedorAuth({ children }) {
   // Estado que guarda informacion de la pantalla.
@@ -63,16 +90,15 @@ export function ProveedorAuth({ children }) {
       const res = await api.post("/login", datosLogin);
       // Acepta varias formas de respuesta por si el backend desplegado cambia el nombre del token.
       const datosRespuesta = res.data?.data || res.data || {};
-      const tokenRespuesta = datosRespuesta.token
-        || datosRespuesta.access_token
-        || datosRespuesta.auth_token
-        || datosRespuesta.plainTextToken;
+      const tokenRespuesta = extraerToken(datosRespuesta);
       const usuarioRespuesta = datosRespuesta.usuario || datosRespuesta.user || null;
 
       if (!tokenRespuesta) {
+        const campos = Object.keys(datosRespuesta).join(", ") || "sin campos";
+
         return {
           ok: false,
-          mensaje: "El servidor no ha devuelto el token de sesión."
+          mensaje: `El servidor ha respondido sin token. Campos recibidos: ${campos}.`
         };
       }
 
