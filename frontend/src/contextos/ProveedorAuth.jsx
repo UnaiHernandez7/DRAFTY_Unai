@@ -40,18 +40,55 @@ export function ProveedorAuth({ children }) {
 
   // Login con usuario o email.
   async function login(identificador, contrasena) {
+    const identificadorLimpio = identificador.trim();
+
+    if (!identificadorLimpio || !contrasena) {
+      return {
+        ok: false,
+        mensaje: "Introduce tu usuario o email y tu contraseña."
+      };
+    }
+
     try {
       // Dato usado para pintar esta pantalla.
-      const res = await api.post("/login", { identificador, contrasena });
+      const datosLogin = {
+        identificador: identificadorLimpio,
+        contrasena
+      };
+
+      if (identificadorLimpio.includes("@")) {
+        datosLogin.email = identificadorLimpio;
+      }
+
+      const res = await api.post("/login", datosLogin);
+
+      if (!res.data?.token || !res.data?.usuario) {
+        return {
+          ok: false,
+          mensaje: "El servidor no ha devuelto una sesión válida."
+        };
+      }
 
       setToken(res.data.token);
       localStorage.setItem("token", res.data.token);
       setUsuario(res.data.usuario);
       setCargandoAuth(false);
 
-      return true;
-    } catch {
-      return false;
+      return { ok: true };
+    } catch (error) {
+      // Dato usado para pintar esta pantalla.
+      const errores = error.response?.data?.errors;
+      // Dato usado para pintar esta pantalla.
+      const primerError = errores ? Object.values(errores).flat()[0] : null;
+      // Dato usado para pintar esta pantalla.
+      const mensajeConexion = error.response
+        ? null
+        : "No se puede conectar con el servidor.";
+
+      return {
+        ok: false,
+        mensaje: primerError || error.response?.data?.mensaje || mensajeConexion || "No se ha podido iniciar sesión."
+      };
     }
   }
 

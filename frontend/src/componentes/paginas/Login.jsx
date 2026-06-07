@@ -40,13 +40,13 @@ const Login = () => {
         setMensaje("");
 
         // Dato usado para pintar esta pantalla.
-        const exito = await login(identificador, contrasena);
+        const resultado = await login(identificador, contrasena);
 
-        if (exito) {
+        if (resultado.ok) {
             navigate("/");
         } else {
             setTipoMensaje("error");
-            setMensaje("Credenciales incorrectas. Inténtalo de nuevo.");
+            setMensaje(resultado.mensaje || "Credenciales incorrectas. Inténtalo de nuevo.");
         }
 
         setCargando(false);
