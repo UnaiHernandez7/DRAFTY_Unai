@@ -61,17 +61,27 @@ export function ProveedorAuth({ children }) {
       }
 
       const res = await api.post("/login", datosLogin);
+      // Acepta varias formas de respuesta por si el backend desplegado cambia el nombre del token.
+      const tokenRespuesta = res.data?.token || res.data?.access_token || res.data?.plainTextToken;
+      const usuarioRespuesta = res.data?.usuario || res.data?.user || null;
 
-      if (!res.data?.token || !res.data?.usuario) {
+      if (!tokenRespuesta) {
         return {
           ok: false,
-          mensaje: "El servidor no ha devuelto una sesión válida."
+          mensaje: "El servidor no ha devuelto el token de sesión."
         };
       }
 
-      setToken(res.data.token);
-      localStorage.setItem("token", res.data.token);
-      setUsuario(res.data.usuario);
+      localStorage.setItem("token", tokenRespuesta);
+      setToken(tokenRespuesta);
+
+      if (usuarioRespuesta) {
+        setUsuario(usuarioRespuesta);
+      } else {
+        const perfil = await api.get("/perfil");
+        setUsuario(perfil.data);
+      }
+
       setCargandoAuth(false);
 
       return { ok: true };
