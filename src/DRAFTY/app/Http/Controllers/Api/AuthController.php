@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -15,7 +15,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -151,7 +150,7 @@ class AuthController extends Controller
 
         $registro->delete();
 
-        $token = $this->crearTokenSesion($usuario);
+        $token = $usuario->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'mensaje' => 'Correo verificado correctamente',
@@ -304,26 +303,12 @@ class AuthController extends Controller
             ], 401);
         }
 
-        try {
-            $token = $this->crearTokenSesion($usuario);
-        } catch (Throwable $error) {
-            report($error);
-
-            return response()->json([
-                'message' => 'No se ha podido crear el token de sesión.',
-                'mensaje' => 'No se ha podido crear el token de sesión. Ejecuta las migraciones y limpia la caché del backend.'
-            ], 500);
-        }
+        $token = $usuario->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login correcto',
             'mensaje' => 'Login correcto',
             'usuario' => $usuario,
-            'user' => $usuario,
-            'token' => $token,
-            'access_token' => $token,
-            'auth_token' => $token,
-            'token_type' => 'Bearer'
+            'token' => $token
         ]);
     }
 
@@ -353,28 +338,6 @@ class AuthController extends Controller
     private function generarCodigoVerificacion(): string
     {
         return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-    }
-
-    /**
-     * Crea un token de sesion compatible con Laravel Sanctum.
-     *
-     * @param Usuario $usuario Usuario que va a iniciar sesion.
-     * @return string Token en formato publico para usarlo como Bearer token.
-     */
-    private function crearTokenSesion(Usuario $usuario): string
-    {
-        $tokenPlano = Str::random(40);
-        $idToken = DB::table('personal_access_tokens')->insertGetId([
-            'tokenable_type' => Usuario::class,
-            'tokenable_id' => $usuario->getKey(),
-            'name' => 'auth_token',
-            'token' => hash('sha256', $tokenPlano),
-            'abilities' => json_encode(['*']),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return $idToken . '|' . $tokenPlano;
     }
 
     /**

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests;
 
@@ -28,8 +28,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'identificador' => 'nullable|string|max:255',
-            'email' => 'nullable|string|max:255',
+            'identificador' => 'required_without:email|string|max:255',
+            'email' => 'required_without:identificador|string|max:255',
             'contrasena' => 'required'
         ];
     }
