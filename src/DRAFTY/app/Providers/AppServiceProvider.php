@@ -1,31 +1,24 @@
-﻿<?php
-
+<?php
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Proveedor de servicios principal de la aplicacion.
+ * Proveedor principal de servicios de la aplicacion.
  */
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Registra servicios de la aplicacion.
      */
     public function register(): void
     {
-        /**
-         * Sin operaciones adicionales.
-         */
     }
 
     /**
-     * Bootstrap any application services.
+     * Arranca servicios de la aplicacion.
      */
     public function boot(): void
     {
-        /**
-         * Sin operaciones adicionales.
-         */
     }
 }
