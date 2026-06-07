@@ -287,6 +287,12 @@ class AuthController extends Controller
     {
         $identificador = trim((string) ($request->input('identificador') ?? $request->input('email')));
 
+        if ($identificador === '') {
+            return response()->json([
+                'mensaje' => 'Introduce tu usuario o email'
+            ], 422);
+        }
+
         $usuario = str_contains($identificador, '@')
             ? Usuario::where('email', strtolower($identificador))->first()
             : Usuario::where('nombre_usuario', $identificador)->first();

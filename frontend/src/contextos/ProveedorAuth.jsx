@@ -14,31 +14,18 @@ export function ProveedorAuth({ children }) {
   // Estado que guarda informacion de la pantalla.
   const [cargandoAuth, setCargandoAuth] = useState(Boolean(localStorage.getItem("token")));
 
-  // Limpia cualquier sesion guardada en el navegador.
-  const limpiarSesion = useCallback(() => {
-    setUsuario(null);
-    setToken(null);
-    setCargandoAuth(false);
-    localStorage.removeItem("token");
-  }, []);
-
   // Obtener usuario logueado
   const obtenerPerfil = useCallback(async () => {
     try {
       // Dato usado para pintar esta pantalla.
       const res = await api.get("/perfil");
-      if (!res.data?.id_usuario) {
-        limpiarSesion();
-        return;
-      }
-
       setUsuario(res.data);
     } catch {
-      limpiarSesion();
+      logout();
     } finally {
       setCargandoAuth(false);
     }
-  }, [limpiarSesion]);
+  }, []);
 
   // Cuando hay token, cargar usuario
   useEffect(() => {
@@ -53,27 +40,9 @@ export function ProveedorAuth({ children }) {
 
   // Login con usuario o email.
   async function login(identificador, contrasena) {
-    const identificadorLimpio = identificador.trim();
-
-    if (!identificadorLimpio || !contrasena) {
-      limpiarSesion();
-      return false;
-    }
-
-    limpiarSesion();
-    setCargandoAuth(true);
-
     try {
       // Dato usado para pintar esta pantalla.
-      const res = await api.post("/login", {
-        identificador: identificadorLimpio,
-        contrasena
-      });
-
-      if (!res.data?.token || !res.data?.usuario?.id_usuario) {
-        limpiarSesion();
-        return false;
-      }
+      const res = await api.post("/login", { identificador, contrasena });
 
       setToken(res.data.token);
       localStorage.setItem("token", res.data.token);
@@ -82,7 +51,6 @@ export function ProveedorAuth({ children }) {
 
       return true;
     } catch {
-      limpiarSesion();
       return false;
     }
   }
@@ -163,7 +131,10 @@ export function ProveedorAuth({ children }) {
 
   // Logout
   function logout() {
-    limpiarSesion();
+    setUsuario(null);
+    setToken(null);
+    setCargandoAuth(false);
+    localStorage.removeItem("token");
   }
 
   // Vista que se muestra al usuario.
