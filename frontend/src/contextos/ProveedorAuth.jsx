@@ -42,7 +42,11 @@ export function ProveedorAuth({ children }) {
   async function login(identificador, contrasena) {
     try {
       // Dato usado para pintar esta pantalla.
-      const res = await api.post("/login", { identificador, contrasena });
+      const res = await api.post("/login", {
+        identificador,
+        email: identificador,
+        contrasena
+      });
 
       setToken(res.data.token);
       localStorage.setItem("token", res.data.token);
