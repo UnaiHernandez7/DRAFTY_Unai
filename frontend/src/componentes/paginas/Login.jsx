@@ -40,7 +40,7 @@ const Login = () => {
         setMensaje("");
 
         // Dato usado para pintar esta pantalla.
-        const exito = await login(identificador, contrasena);
+        const exito = await login(identificador.trim(), contrasena);
 
         if (exito) {
             navigate("/");

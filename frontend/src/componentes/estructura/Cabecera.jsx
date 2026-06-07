@@ -144,7 +144,7 @@ const Cabecera = () => {
                 {isAuth ? (
                     <>
                         <Link to="/perfil" className="link-perfil">
-                            {usuario?.nombre_usuario || usuario?.nombre}
+                            {usuario?.nombre_usuario || usuario?.nombre || usuario?.email || "Perfil"}
                         </Link>
                         <button className="boton-logout" onClick={logout}>Cerrar sesión</button>
                     </>
