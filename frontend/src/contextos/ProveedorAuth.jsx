@@ -95,10 +95,26 @@ export function ProveedorAuth({ children }) {
 
       if (!tokenRespuesta) {
         const campos = Object.keys(datosRespuesta).join(", ") || "sin campos";
+        const mensajeServidor = datosRespuesta.message || datosRespuesta.mensaje;
+
+        try {
+          const perfil = await api.get("/perfil");
+
+          if (perfil.data?.id_usuario) {
+            setUsuario(perfil.data);
+            setCargandoAuth(false);
+
+            return { ok: true };
+          }
+        } catch {
+          // Si tampoco hay perfil, se muestra el mensaje real del servidor.
+        }
 
         return {
           ok: false,
-          mensaje: `El servidor ha respondido sin token. Campos recibidos: ${campos}.`
+          mensaje: mensajeServidor
+            ? `${mensajeServidor}. El servidor ha respondido sin token. Campos recibidos: ${campos}.`
+            : `El servidor ha respondido sin token. Campos recibidos: ${campos}.`
         };
       }
 
